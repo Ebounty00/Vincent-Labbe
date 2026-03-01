@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Et pour quelques tirages de plus...</title>
+    <style>
+        body { 
+            font-family: 'Georgia', serif; 
+            background-color: #001F3F; /* Bleu Nuit */
+            text-align: center; 
+            padding: 40px 20px; 
+            margin: 0;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+
+        h1 { 
+            color: #FFFFF0; /* Ivoire */
+            text-shadow: 3px 3px 5px rgba(0,0,0,0.8); 
+            font-size: 2.8em; 
+            margin-bottom: 5px; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sous-titre {
+            color: #FFFFF0; 
+            font-size: 1.3em; 
+            font-style: italic;
+            margin-bottom: 50px; 
+            opacity: 0.9;
+        }
+
+        .menu { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 30px; 
+            max-width: 1000px; 
+        }
+
+        .bouton {
+            background: #FFD700; 
+            color: black; 
+            border: 4px solid black;
+            padding: 20px 10px; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            font-size: 1.2em;
+            text-decoration: none; 
+            min-width: 280px; 
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
+
+        .bouton:hover { 
+            background: #FFFFF0; 
+            transform: translateY(-5px);
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.6);
+        }
+
+        .picto-container {
+            width: 100px; 
+            height: 90px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            margin-bottom: 10px; 
+            position: relative;
+        }
+
+        .incrustation {
+            position: absolute;
+            font-family: 'Arial Black', sans-serif;
+            font-weight: 900;
+            color: #FFD700; 
+            pointer-events: none;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        
+        .bouton:hover .incrustation { 
+            color: #FFFFF0; 
+        }
+
+        /* Tailles des symboles de cartes */
+        .as-pique { font-size: 4em; line-height: 1; }
+        .trio-cartes { font-size: 2.6em; line-height: 1; letter-spacing: -2px; }
+
+        .large { 
+            min-width: 620px; 
+            margin-top: 15px; 
+            padding: 35px 20px; 
+        }
+        
+        svg { width: 100%; height: 100%; fill: black; }
+
+        footer { 
+            margin-top: auto; 
+            padding: 40px; 
+            color: #FFFFF0; 
+            letter-spacing: 3px; 
+            font-size: 1em; 
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ET POUR QUELQUES TIRAGES DE PLUS...</h1>
+    <div class="sous-titre">Entraînement gratuit... mais sévère !</div>
+
+    <div class="menu">
+        <a href="Jeu1.html.html" class="bouton">
+            <div class="picto-container">
+                <svg viewBox="0 0 24 24"><path d="M12,1L9,9L1,9L7,14L5,22L12,17L19,22L17,14L23,9L15,9L12,1Z"/></svg>
+                <span class="incrustation" style="top:42%; font-size: 0.7em;">SHE</span>
+            </div>
+            Rallonges Western
+        </a>
+
+        <a href="Jeu2.html.html" class="bouton">
+            <div class="picto-container">
+                <svg viewBox="0 0 24 24"><path d="M12,1L9,9L1,9L7,14L5,22L12,17L19,22L17,14L23,9L15,9L12,1Z"/></svg>
+                <span class="incrustation" style="top:42%; font-size: 0.7em;">RIF</span>
+            </div>
+            Rallonges Eastern
+        </a>
+
+        <a href="Jeu3.html.html" class="bouton">
+            <div class="picto-container">
+                <span class="as-pique">♠</span>
+            </div>
+            Tirages joker uniques
+        </a>
+
+        <a href="Jeu4.html.html" class="bouton">
+            <div class="picto-container">
+                <span class="trio-cartes">♥♦♣</span>
+            </div>
+            Tirages joker multiples
+        </a>
+
+        <a href="Jeu5.html.html" class="bouton large">
+            <div class="picto-container" style="width:180px; height:100px;">
+                <svg viewBox="0 0 24 24"><path d="M12,2C10,2 6,3 4,5C2,7 2,10 2,12C2,14 4,15 6,15C7,15 8,14 9,13V15C9,18 11,21 12,22C13,21 15,18 15,15V13C16,14 17,15 18,15C20,15 22,14 22,12C22,10 22,7 20,5C18,3 14,2 12,2Z"/></svg>
+                <span class="incrustation" style="top:32%; font-size:0.55em; width: 75px; line-height: 1;">BUFFALO GRIL</span>
+            </div>
+            Plus de 50 000 tirages !
+        </a>
+    </div>
+
+    <footer>
+        — LE BON, LA BRUTE ET LE SCRABBLEUR —<br>
+        Une réalisation de <strong>Vincent LABBÉ</strong>
+    </footer>
+
+</body>
+</html>

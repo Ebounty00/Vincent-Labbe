@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rallonges Gauche Uniques</title>
+    <style>
+        /* Fond Bleu Ciel de Marseille (lumineux et doux) */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: flex-start; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background-color: #7ECFF4; 
+            padding-top: 30px; /* Remonté pour être plus haut dans la page */
+        }
+
+        /* Titre Noir, positionné en haut */
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 1.75em;
+            color: #000000;
+            margin-bottom: 60px; /* Espace réduit pour remonter l'ensemble */
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* Cadre central : Bleu Ciel, liseré noir fin, symétrie parfaite */
+        #jeu-container { 
+            text-align: center; 
+            background: #7ECFF4; 
+            /* Padding ajusté pour la symétrie haut/bas (60px partout) */
+            padding: 60px 100px; 
+            border-radius: 4px; 
+            max-width: 90%;
+            border: 1.5px solid #000000; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Mot de base en Noir pur */
+        #mot-de-base { 
+            font-size: 3.5em; 
+            font-weight: bold; 
+            margin-bottom: 40px; /* Espace entre mot et rectangle de saisie */
+            letter-spacing: 10px;
+            color: #000000;
+        }
+
+        /* Petit rectangle Vert Pistache (basé sur votre image) */
+        .cadre-saisie { 
+            border: 2px solid #000000; 
+            padding: 15px; 
+            font-size: 2.5em; 
+            width: 80px; 
+            text-align: center; 
+            text-transform: uppercase; 
+            outline: none; 
+            border-radius: 4px;
+            background-color: #98D4B1; /* Vert Pistache clair et frais */
+            color: #000000; 
+        }
+
+        #solution-container { 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            margin-top: 30px; 
+            display: none; 
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 4px;
+            color: #000000;
+            border: 1px solid #000;
+        }
+
+        #message { font-size: 1.8em; font-weight: bold; margin: 20px 0; height: 1.5em; color: #000000; }
+        .bravo { color: #2E7D32 !important; } 
+        .erreur { color: #C62828 !important; }
+
+        .btn-suivant { 
+            padding: 12px 35px; 
+            font-size: 1.1em; 
+            background-color: #000000; 
+            color: #FFFFFF;
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            display: none; 
+            margin: 20px auto 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Couleurs de la solution */
+        .rouge { color: red; } 
+        .bleu { color: blue; } 
+        .vert { color: green; } 
+        .noir { color: black; }
+    </style>
+</head>
+<body>
+
+<h1>RALLONGES GAUCHE UNIQUES</h1>
+
+<div id="jeu-container">
+    <div id="mot-de-base"></div>
+    <input type="text" id="entree-lettre" class="cadre-saisie" maxlength="1" autofocus>
+    <div id="message"></div>
+    <div id="solution-container"></div>
+    <button class="btn-suivant" id="btn-suivant" onclick="chargerNouveauMot()">MOT SUIVANT</button>
+</div>
+
+<script>
+// ================================================================
+// ZONE DE COLLAGE : COLLEZ TOUT VOTRE TEXTE WORD CI-DESSOUS 
+// ================================================================
+const donneesBrutes = `
+
+   ===> 
+
+{B}C {B}F{R}ABALE {B}R{R}ABATTOIR {R}ABATTURE	{R}ABAYA	
+{R}ABIOTIQUE	{R}ABLATERA	{R}ABLOCAGE 	{R}ABLUTIONS
+{R}ABOUT(IS)	{R}ABRIE(E) 	{R}ACARPE		{R}ACATALEPSIE
+{R}ACETONEMIE	{R}ACHAINE		{R}ACHALE		{R}ACHAR	
+{R}ACHARISME	{R}ACHEB		{R}ACHENE		{R}ACHEVAGE 
+{R}ACHIRAL		{R}ACHROMAT 	{R}ACHOURA		{R}ACLINIQUE
+{R}ACOREEN 	{R}ACOUCHIS	{B}S{R}ACREMENT 	
+{R}ADIRE		{R}ADONC		{R}ADRESSAGE	{R}AEGOSOME
+{R}AEPYORNIS	{R}AETHUSE		{R}AFAR(E)
+{R}AFOCAL		{R}AGALAXIE	{R}AGAMETE		{R}AGAVE
+{R}AGENAIS		{R}AGENESIQUE	{R}AGENOIS(E)	{R}AGENOUILLE
+{R}AGERATES	{R}AGLYPHE		{R}AGNOSIE 	{R}AGNOS(T)IQUE
+{R}AGRAPHIE	{B}R{R}AGREAGE	{R}AGREEUR 	{R}AGRES	
+{R}AGRIOTE		{R}AGRUME		{R}AGUI		{R}AGUILLONS
+{R}AHEURTER	{R}ALEXI(QU)E	{R}ALOCO		{R}ALOUCHE
+{R}ALUMINEUX	{R}ALUMINIFERE	{R}AMANCHONS	{R}AMARANT(ACE)E
+{R}AMAREYEUR	{R}AMARINAGE	{R}AMASSETTE	{R}AMASSEUR
+{R}AMATRICE	{R}AMENTALE	{R}AMENUISER	{R}AMERLOT
+{R}AMETABOLE	{R}AMETALLIQUE	{R}AMIMIQUE	{R}AMITEUX
+{R}AMITOSE		{R}AMODAL		{R}AMOME		{R}AMORALITE
+{R}AMORDANCER	{R}AMOUILLER	{R}AMU(L,S)ETTE	{R}ANIER	
+{R}ANILLE		{R}ANOLIS		{R}ANON(N)E	{R}APATHIE
+{R}APATITES	{R}APERCU		{R}APETALE		{R}APHASIQUE
+{R}APHON(I)E	{B}R{R}APICOLE	{R}APIGEONNER	{R}APIQUAGE
+{R}APLANAT		{B}R{R}APLOMBER	{R}APOSTER		{R}APRAXI(QU)E	
+{R}APRETES		{R}APRIORI(TE)	{R}APTERYGOTE	{R}APYRENE
+{R}APYREXIE	{R}APYROGENE	{R}ARASEMENT	{R}AREG	
+{R}AREQUIERS	{R}ARETINS		{R}AROUMAIN	{R}ASADO	
+{R}ASANA		{B}B{R}ASELLE	{R}ASEPTIQUE	{R}ASEXUE(L)
+{R}ASIC		{R}ASISMIQUE	{R}ASPERME		{R}ASPI(C)
+{R}ASPIRANT(E)	{R}ASPIRAUX	{R}ASPIRE(E)	{R}ASTABLE {R}ASTATIQUE	{R}ASTER(O)IDE	{R}ASYMETRIE	{R}ASYNERGIE
+{R}ASYSTOLE	{R}ATHEISME	{R}ATHYMIE		{R}ATIPA	
+{R}ATROPHIQUE	{R}AVALABLE	{R}AVERBAL		{R}AVIENNE	
+{R}AVINAGE		{R}AVIRULENT	{R}AVISEUR		{R}AVIVEMENT
+{R}AVOIE		{R}AVOISINA
+
+{V}R{B}A{R}BATTABLE 			{R}BABELIEN	{R}BABOUCHE
+{R}BACHATS		{R}BACUL 		{R}BAILE		{R}BAISEMENT
+{R}BALLUCHON	{R}BANANERAIE	{R}BATAVIQUE	{R}BEAGLE	
+{R}BECOSSE		{R}BEGAYANTE	{R}BENJOINS	{R}BIGUANIDE
+{R}BLACK		{R}BLAMAGE		{R}BLAPS 		{R}BLASER(S)
+{R}BLATERE		{R}BLAUDES		{R}BLISTER		{R}BLOB	
+{R}BLOCAUX		{R}BLOCUS		{R}BLOGUER		{R}BLUES	
+{R}BLUFFA		{R}BLUTAGE		{R}BOISEUSE	{R}BOLAS	
+{R}BOUTILLER	{R}BRACHIALGIE	{R}BRAILLEUR
+{V}D {V}R{B}E{R}BRANCHER		{R}BRETAILLA	{R}BRIDAGE	
+{R}BRISQUE		{R}BROCHAGE	{R}BRODEUR		{R}BROQUILLE
+{R}BROUETTE	{R}BROUSSIN	{R}BROUTEUR	{R}BURINEUSE
+
+{R}CACTUS		{R}CADONNER	{R}CAIDAT		{R}CAISSETTE
+{R}CALEPIN		{R}CALLEUX		{R}CAMARINE	{R}CANNABIS
+{R}CANNELURE	{R}CANTRE		{R}CANUS		{R}CAPSIDE 
+{R}CARABIQUE	{R}CARMELINE	{R}CARPETTE	{R}CARTESIEN
+{R}CARTISANE	{R}CASSONE		{R}CASTRAL 	{R}CAVICOLE
+{R}CECIDIE		{R}CENTRIS(M,T)E				{R}CHAINEUSE
+{R}CHALOIR		{R}CHAMEAU		{R}CHARPIE		{R}CHARRIER
+{R}CHARTS		{R}CHATELET	{R}CHATIER		{R}CHAUT	
+{R}CHEMINE(E)	{R}CHERCHE(U)R	{R}CHERMES		{R}CHERONS
+{R}CHILE		{R}CHORDE		{R}CHORION		{R}CHOTTE
+{R}CHOUILLE	{R}CHOUQUE		{R}CINTRANT	{R}CLAPPING
+{R}CLAUSE		{R}CLAVAGE		{R}CLAVETTE
+{R}CLAYETTE	{R}CLICHE(U)R	{R}CLOUEUR		{R}COBIER
+{R}COCREE		{R}COFFREUR	{R}COMBRIERE	{R}CORDONNER
+{R}CORNEMENT	{R}CORNIERE	{R}COSMIQUE	{R}COURSON,NE
+{R}COUTIL	 	{R}COVIDE		{R}CRABOTAGE	{R}CRAMPER
+{R}CRAMPON		{R}CRASHES		{R}CRAYONN(AGE,EUR)	
+{R}CRENOM		{R}CREPONS		{R}CRETIQUE	{R}CREVASSER
+{R}CREVOTER	{R}CRIB		{R}CRIBLAGE	{B}E{R}CROUTAGE
+{B}E{R}CROUTEUSE	{R}CRURAL	
+
+{R}DAGUETS		{R}DECHET		{R}DECROUTER	{R}DECURIE
+{R}DELEGANT	{B}D{R}EMOULEUR	{R}DENTELLE	{R}DEPURATIF
+{R}DETELLE		{R}DETROIT 	{R}DEVOLUTIF	{R}DEXTRORSE
+{R}DISRAELIEN	{R}DJAIN(A,E,ISME)			{R}DJEUN
+{R}DJIHAD		{R}DOUBLIER	{R}DRAGAGE		{R}DRAISINE
+{R}DRAPERIE	{R}DRAPIERE	{R}DRIFT		{R}DRING	
+{R}DRIVEUR		{R}DZETA	
+
+{R}EBOULEUX	{R}EBOURROIR 	{R}EBURON		{R}ECHANSON
+{R}ECHANT		{R}ECHANTIGNO(L)LE			{R}ECHARDONNER	
+{R}ECHARNURE	{B}D{R}ECHAUMER	{R}ECHENILLE	{R}ECHIEZ
+{R}ECHIFFE		{R}ECHIFFONS	{B}D{R}ECHIFFRE	{B}D{R}ECHIQUETE
+{R}ECLADE		{B}D{R}ECLIPSER	{B}D{R}ECLORE	{R}ECOGESTION
+{R}ECOHABITAT	{R}ECOINCONS	{R}ECOPIEZ		{R}ECOPRODUIT
+{R}ECORESPONSABLE			{R}ECOTEUR		{R}ECOUFLE
+{R}ECRANTAGE	{R}ECRANTER	{R}ECUSSONNE(E)	{B}B{R}EGAIEMENT
+{R}EGOTIQUE	{R}EGOURMANDER	{R}EGRAVILLONNER	
+{R}EGRENEUSE	{R}EGRUGEOIR	{R}EJOINTAGE	{R}ELANCEMENT
+{B}R{R}ELATIF	{B}D {B}R{R}EMAILLAGE			{B}R{R}EMAILLEUR
+{R}EMAILLURE	{B}D{R}EMANCHE	{B}D{R}EMERITE	{R}EMINCEUR
+{R}EMONDEUSE	{R}EMOUCHET	{B}D{R}EMOUCHETER	{R}EMOUCHOIR
+{B}D {B}R{R}EMOUL(AGE,EUR)		{B}D{R}EMOUSSAGE	{B}D{R}EMOUSSER
+{R}EMULSION	{B}D{R}ENERVATION			{R}EPACTE
+{B}D{R}EPAILL(AGE,ER)			{R}EPAIR		{R}EPAMPRE
+{R}EPANDIT		{B}D{R}EPANNE	{R}EPARSE		{R}EPARVINS
+{R}EPATEUSE	{R}EPAULETTE	{R}EPECTASE	{R}EPEPINE
+{R}EPERLAN		{R}EPICARDE	{R}EPIERRAGE	{R}EPIERREE
+{R}EPIGE		{B}D{R}EPILAGE	{R}EPILEUR		{R}EPINARD
+{R}EPINC(AGE,EUR)			{R}EPINIERE	{R}EPISSER
+{R}EPISSOIR	{R}EPLUCHER	{B}D{R}EPOINTAGE	{R}EPOINTEMENT	
+{R}EPONGE		{B}D{R}EPOUILLE	{R}EPOULARDE	{R}EPRENDRE
+{R}EPUCAGE		{R}EPUISETTE	{R}EPURGE		{R}EQUEUTAGE
+{R}ERAFLER		{R}EROSIONS	{R}ESCIENT		{R}ESPACE
+{R}ESPARGOUTE	{B}R{R}ESQUILLE	{R}ETAS		{B}D{R}ETELLE
+{B}D{R}ETIREUSE	{B}P{R}ETOLE	{R}ETOUFFEUR	{R}ETOUPILLER
+{R}ETRONCONNER	{R}EVACHER		{B}R{R}EVEILLEUR	{R}EVEINAGE
+{R}EVENTAIL	{R}EVERGETE	{B}R{R}EVERSION	{B}D{R}EVIDAGE
+{B}D{R}EVIDOIR	{R}EVIDURE		{R}EVISCERE
+{B}R{R}EVOCA(BLE,TION)
+
+{R}FAGACEE		{R}FALCIFORME	{R}FALUNAGE	{R}FAUTRICE
+{R}FELIDE		{R}FESTIVAL(IER){R}FESTIVE		{R}FEUDISTE
+{R}FINITIONS	{R}FLACHEUSE	{R}FLAMBA		{R}FLAMBEAU 
+{R}FLAMINAT	{R}FLAMINE		{R}FLAVEUR		{R}FLECHAGE
+{R}FLEMME		{R}FLINGOT		{R}FLOCULE		{R}FLOUVE
+{R}FLUO		{R}FLUSTRE		{R}FLUTEAUX	{R}FLUTTER
+{R}FLUXMETRE	{R}FRANCITES	{R}FRATER		{R}FRAYEMENT 
+{R}FRAYURE		{R}FREDONNE	{R}FREGATER	{R}FREMI(M,T)ES	
+{R}FRENETTE	{R}FRIGORISTE	{R}FROIDEUR	{R}FULIGINEUX
+{R}FURANE		{R}FUSANTE		{R}FUTILITE		
+
+{R}GALIBI 		{R}GARDOISE	{R}GARGOTIER 	{R}GARROCHE 
+{R}GASPI		{R}GENRAIENT	{R}GLABELLE	{R}GLABRE
+{R}GLACERIE	{R}GLACIS		{R}GLANDAIS	{R}GLANDER
+{R}GLISSIERE	{R}GLISSOIR	{R}GLOBULE(UX) 	{R}GNARD	
+{R}GNIOLE		{R}GNOME		{R}GNOUS		{R}GRAMEN
+{R}GRAPHE		{B}E{R}GRAPPA	{R}GRASSEYANT	{R}GRATELLE
+{R}GRATIFIER	{R}GRAVELIN	{R}GRAVIERE	{R}GRAVOIR
+{R}GRIVET		{R}GROGNEUR	{R}GUNITE
+
+{R}HARUSPICE	{R}HEBERGEMENT	{R}HELLEBORE	{R}HELODEE
+{R}HENDECAGONE	{R}HENNUYER	{R}HERMITAGE	{R}HESBIGNONS
+{R}HEXOGENE	{R}HILOTISME	{R}HOLORIME	{R}HOURDIS
+{R}HUBRIS		{R}HYPONOMEUTE
+
+{R}ICAQUE		{R}ICONICITE	{B}B{R}ICONIQUE	{R}IDEAL	
+{R}IDEM		{R}IDIOT		{R}IGUE 		{R}ILOTE	
+{R}ILOTIER		{R}IMAME		{R}IMANAT		{R}INDOLE
+{B}M{R}INUIT	{R}ISABELLE	{R}ISATIS		{R}ISERAN
+{R}ISLAM		{R}ISOLENT		{R}IVOIRE		{R}IVRAIE
+{B}D {B}S{R}IXIEME
+
+{R}JACQUET		{R}JACQUIERS	{R}JAMBAGES	{R}JAMBON
+{R}JARGON		{R}JARGONNAIS	{R}JARRETONS	{R}JAVELINE
+{R}JOBERA		{R}JONGLONS	{R}JUMBO
+
+{R}KABOULIE	{R}KADJAR(E)	{R}KANTIENNE	{R}KAPPAS
+{R}KENDOS		{R}KEROGENE	{R}KETAMINE	{R}KSIS	
+{R}KVAS
+
+{R}LAGUIS		{R}PLAIDEUR	{R}LAQUEUX		{R}LARAIRE
+{R}LARVICOLE 	{R}LAUREOLE	{R}LAZURITE	{R}LEGALISER
+{R}LEMPIRA		{R}LIGNICOLE	{R}LIGNIVORE	{R}LINGERE
+{B}G{R}LISSANTE	{R}LORIENTAIS	
+
+{R}MAFFLUE		{R}MAGNAT(E)	{R}MAIGRELET	{R}MAIGREMENT
+{R}MAIGREUR	{R}MALAWITE 	{R}MAMOUR		{R}MANCHOIS
+{R}MARBRIER	{R}MARGOUSIER	{R}MAURISTE 	{R}MEGARONS
+{R}METAYAGE 	{R}METHAN(A,O)L	{R}METHYLAMINE	{R}METHYLENE
+{R}MIMINE		{R}MISOGAMIE	{R}MNEMES		{R}MORATOIRE
+{R}MORGANITE	{R}MORILLON	{R}MORPHISME	
+
+{R}NADA		{R}NAMIBIEN	{R}NAPHTE		{R}NATRIUM
+{R}NAUTISME	{R}NAVICUL(AIR)E				{R}NDAMA	
+{R}NEOGENE 	{R}NETIQUETTE	{R}NIMBUS		{R}NIPPON
+{R}NOBEL		{R}NOMBREUX	{R}NOOSPHERE	{R}NOTARIE
+{R}NOVATION
+
+{B}B{R}OBECHE	{R}OBEL(E) 	{R}OBLAST		{R}OCEANS
+{R}OCRAMES		{R}OCRASSE 	{R}OCREUSE		{R}OCULE(E)
+{R}OECOUMENE	{R}OESTRADIOL	{R}OESTRIOL	{R}OESTROGENE
+{R}OESTRONE	{R}OFLAG		{R}OGNON		{R}OGRE	
+{R}OLIVET		{R}OMEGA		{R}OMICRON		{R}ONANISME
+{R}ONIGIRI		{R}OPACIFIANTE	{R}OPALE		{R}OPAQUE
+{R}OPERE		{R}OPINASSE	{R}OPONCE		{R}OPUS	
+{R}ORACLE		{R}ORAGE(UX)	{R}ORAGEUSEMENT
+{R}ORAISON		{R}ORALEMENT	{R}ORANGERS	{R}ORIEL	
+{B}M{R}ORILLONS	{R}ORONGE		{R}OSCILLE		{R}OSEILLE
+{R}OTARIE		{R}OTOLITE		{R}OUKASE		{R}OULEMA
+{R}OUMMA		{R}OURSIN		{R}OUZBEK		{R}OVAIRE
+{B}B{R}OVIN	{R}OZONATION
+
+{R}PAGRES		{R}PANTENNE	{R}PANTHERE	{R}PAPION 
+{R}PAPIVORE 	{R}PARCHET		{R}PAREAGE		{R}PAROLE
+{R}PARTISAN	{R}PARTY		{R}PATACA 		{B}E{R}PECTASE
+{R}PENSABLE	{R}PERIGEE		{R}PETIOLE(E)	{R}PFUT	
+{R}PHALENE		{R}PLACEMENT	{R}PLANCON		{R}PLATINA
+{R}PLATINITE	{R}PLEXIS		{R}PLIEMENT	{R}PLUMBAGO 
+{R}PRECOMPTE 	{R}PREDEFINI	{R}PREFORMATA	{R}PREMIX
+{R}PRENOTER 	{R}PREPUBLIER	{R}PRESTO		{R}PRETABLE
+{R}PRETIRER	{R}PRETRAITE	{R}PREVALOIR	{R}PREVENDRE
+{R}PREVENTE	{R}PROSTRE		{R}PROTO		{R}PSAUTIER
+
+{R}QADJAR(E)
+
+{R}RABOUTAGE	{R}RACCUSER	{R}RAGREMENT	{R}RAGUILLER 	
+{R}RAIDER		{R}RALLUMAGE	{R}RAMANCHER	{R}RAMEN	
+{R}RAPETISSER	{R}RAPPRETER	{R}RECRITURE 	{R}RELATIF
+{R}RELEVAGE	{R}RELEVEUR	{R}RELUTION	{R}REMPRUNTER	
+{R}RENCHAUSSER	{R}RENFLAMMER	{R}RENGRENER	{R}RESS(A,U)YAGE	
+{R}RETIRABLE	{R}RETIRAGE	{R}RONDELETTE	{R}ROTOSCOP(I)E
+
+{R}SACCULE		{R}SAGACE		{R}SALESIEN	{R}SALIFERE
+{R}SALIGNONS 	{R}SAMPLEUR 	{R}SAMURAI		{R}SANISETTE
+{R}SANTONIEN	{R}SAUMONIER(E)	{R}SAUNEE		{R}SCARIEUX
+{R}SCELLA		{R}SCHLASS(E)	{R}SCILLE 
+{R}SCOPIE 		{R}SCORIACE 	{R}SCOTIE		{R}SCROLLER
+{R}SCROTALE	{R}SEDITION	{R}SGRAFFITE	{R}SHARKA
+{R}SHUNTER		{R}SIGNARE		{R}SIMPLEXE	{R}SINGERA
+{R}SINUSITE	{R}SIONISME	{R}SKETCH		{R}SKIFF	
+{R}SKIPPA		{R}SKIPPER		{R}SLICE		{R}SMALT	
+{R}SMILLAGE	{R}SMILLER		{R}SNIFE		{R}SOLIVE
+{R}SOPALIN		{R}SORBE		{R}SORTIE		{R}SPARAGE
+{R}SPOILER		{R}SPRINT		{R}STAFFER		{R}STANNATES
+{R}STANNEUSE	{R}STANNIQUE	{R}STERNITES	{R}STILTONS
+{R}STIPE		{R}STORY		{R}STRIP	
+
+{R}TAILLADE	{R}TCHATTE 	{R}TERBINE		{R}TERBIUM
+{R}THAIE		{R}THALER	 	{R}THALLE		{R}THORA	
+{R}THUNE		{R}THYADES		{R}TJALE		{R}TOMBELLE
+{R}TORCHIS		{R}TOSQUE		{R}TRABOULER	{R}TRACAGE
+{R}TRAVIOLE 	{R}TREFONDS	{R}TREPOINTE	{R}TRIPOU(S,X)	
+{B}D{B}E{R}TROUSSEUR			{R}TUBERISE	
+
+{R}UBAC		{R}UCHRONIQUE	{R}UNIATES		{R}URANIDE
+{B}S{R}URATE	{R}USABLE		{R}USAGE		{R}USANTE
+{R}USITE		{R}USURE		{R}USURPAIENT	{R}USURPASSE
+{R}USUS		{R}UVAUX
+
+{R}VACHARD		{R}VACUITE		{R}VAIREE		{R}VAISSELIER
+{R}VANESSE 	{R}VATOUT		{R}VAUDOIS		{R}VAUTOUR
+{R}VENDETTA	{R}VENGEANCE	{R}VENTAILLE	{R}VIGNOBLE
+{R}VINDICATIF	{R}VINIQUE		{R}VLIMEUSE	{R}VOMISSIONS
+{R}VRILLETTES	{R}VULVE
+
+{R}WINCH(E)S	{R}WOH	
+
+{R}YPERITES	{R}YPREAU
+
+{R}ZEOLITHE	{R}ZGUEGUE		{R}ZOOLIT(H)E
+
+
+ <===
+
+`;
+// ================================================================
+
+const mots = donneesBrutes.trim().split(/\s+/).filter(m => m.includes('{R}'));
+let motActuelObj = {};
+
+function parserMot(motBrut) {
+    let motDeBase = ""; let solutionHTML = ""; let lettreRouge = "";
+    const regex = /({[RVB]})?([^{}\s\t]+)/g;
+    let match;
+    while ((match = regex.exec(motBrut)) !== null) {
+        let tag = match[1]; let texte = match[2];
+        let premiereLettre = texte[0]; let reste = texte.substring(1);
+        if (tag === "{R}") {
+            lettreRouge = premiereLettre; motDeBase += "?" + reste;
+            solutionHTML += `<span class="rouge">${premiereLettre}</span><span class="noir">${reste}</span>`;
+        } else if (tag === "{B}" || tag === "{V}") {
+            let colorClass = tag === "{B}" ? "bleu" : "vert";
+            solutionHTML += `<span class="${colorClass}">${premiereLettre}</span><span class="noir">${reste}</span>`;
+        } else {
+            motDeBase += texte; solutionHTML += `<span class="noir">${texte}</span>`;
+        }
+    }
+    return { base: motDeBase, solution: solutionHTML, bonneLettre: lettreRouge };
+}
+
+function chargerNouveauMot() {
+    const motDeBaseEl = document.getElementById('mot-de-base');
+    const solutionEl = document.getElementById('solution-container');
+    const messageEl = document.getElementById('message');
+    const entreeEl = document.getElementById('entree-lettre');
+    const btnSuivant = document.getElementById('btn-suivant');
+
+    if (mots.length === 0) { motDeBaseEl.innerText = "Aucun mot trouvé"; return; }
+    const index = Math.floor(Math.random() * mots.length);
+    motActuelObj = parserMot(mots[index]);
+    motDeBaseEl.innerText = motActuelObj.base;
+    solutionEl.innerHTML = motActuelObj.solution;
+    solutionEl.style.display = "none";
+    messageEl.innerText = "";
+    entreeEl.value = "";
+    entreeEl.style.display = "inline-block";
+    btnSuivant.style.display = "none";
+    entreeEl.focus();
+}
+
+document.getElementById('entree-lettre').addEventListener('input', function() {
+    if (this.value.length === 1) {
+        const saisie = this.value.toUpperCase();
+        const messageEl = document.getElementById('message');
+        const solutionEl = document.getElementById('solution-container');
+        const btnSuivant = document.getElementById('btn-suivant');
+
+        if (saisie === motActuelObj.bonneLettre) {
+            messageEl.innerText = "BRAVO !"; messageEl.className = "bravo";
+        } else {
+            messageEl.innerText = "ERREUR ! (C'était " + motActuelObj.bonneLettre + ")"; messageEl.className = "erreur";
+        }
+        solutionEl.style.display = "block";
+        this.style.display = "none";
+        btnSuivant.style.display = "block";
+    }
+});
+
+chargerNouveauMot();
+</script>
+</body>
+</html>

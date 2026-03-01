@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rallonges "Uniques" à Droite</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: flex-start; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background-color: #7ECFF4; 
+            padding-top: 20px; 
+        }
+
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 1.6em;
+            color: #000000;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .consignes {
+            font-size: 0.85em;
+            color: #000000;
+            margin: 5px 0 40px 0;
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        #jeu-container { 
+            text-align: center; 
+            background: #7ECFF4; 
+            padding: 60px 100px; 
+            border-radius: 4px; 
+            max-width: 90%;
+            border: 1.5px solid #000000; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        #mot-de-base { 
+            font-size: 3.5em; 
+            font-weight: bold; 
+            margin-bottom: 40px; 
+            letter-spacing: 10px;
+            color: #000000;
+        }
+
+        .cadre-saisie { 
+            border: 2px solid #000000; 
+            padding: 15px; 
+            font-size: 2.5em; 
+            width: 80px; 
+            text-align: center; 
+            text-transform: uppercase; 
+            outline: none; 
+            border-radius: 4px;
+            background-color: #98D4B1; 
+            color: #000000; 
+        }
+
+        #solution-container { 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            margin-top: 25px; 
+            display: none; 
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 4px;
+            color: #000000;
+            border: 1px solid #000;
+        }
+
+        #message { font-size: 1.6em; font-weight: bold; margin: 15px 0; height: 1.2em; color: #000000; }
+        .bravo { color: #2E7D32 !important; } 
+        .erreur { color: #C62828 !important; }
+
+        .btn-suivant { 
+            padding: 10px 30px; 
+            font-size: 1em; 
+            background-color: #000000; 
+            color: #FFFFFF;
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            display: none; 
+            margin: 15px auto 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .rouge { color: red; } 
+        .noir { color: black; }
+    </style>
+</head>
+<body>
+
+<h1>RALLONGES "UNIQUES" À DROITE</h1>
+<div class="consignes">
+    ‒ Rallonges pas forcément uniques mais il faut trouver le mot le plus difficile.<br>
+    ‒ Pluriels, féminins et conjugaisons (passé simple –A) si pas évidents.
+</div>
+
+<div id="jeu-container">
+    <div id="mot-de-base"></div>
+    <input type="text" id="entree-lettre" class="cadre-saisie" maxlength="1" autofocus>
+    <div id="message"></div>
+    <div id="solution-container"></div>
+    <button class="btn-suivant" id="btn-suivant" onclick="chargerNouveauMot()">MOT SUIVANT</button>
+</div>
+
+<script>
+// ================================================================
+// ZONE DE COLLAGE : COLLEZ TOUT VOTRE TEXTE WORD CI-DESSOUS 
+// ================================================================
+const donneesBrutes = `
+
+   ===> 
+
+
+RALLONGES "UNIQUES" À DROITE
+
+‒ Rallonges pas forcément uniques mais il faut trouver le mot le plus difficile.
+‒ Pluriels, féminins et conjugaisons (passé simple –A) si pas évidents.
+
+ANOMAL{R}A		AZIMUT{R}A		BACHAT{R}A		BACUL{R}A 
+BANG{R}A		BILANT{R}A		BLETS{R}A		BOOT{R}A	
+BRILLANT{R}A	CANT{R}A		CHEB{R}A		COMPUT{R}A
+CONTOUR{R}A 	COUCOU{R}A		DARSHAN{R}A 	DENIAIS{R}A
+DIOL{R}A		DOUCIN{R}A		DRAFT{R}A		EPICE{R}A
+ERRAT{R}A		FRANCHIS{R}A	MADRAS{R}A		MAILLET{R}A
+MARKKA{R}A		MECHOUI{R}A 	MOUND{R}A		MULET{R}A
+MULL{R}A		MULTIPLEX{R}A	NORI{R}A		PASSEPOIL{R}A
+PITCH{R}A		PLACENT{R}A	PREFORMAT{R}A	PUNCH{R}A
+QUINQUIN{R}A	REFORMAT{R}A 	REMPLI{R}A		ROMANIS{R}A
+SANDWICH{R}A	SHAN{R}A		SOUPES{R}A		TRANCHEFIL{R}A
+
+ACHE{R}B		COR{R}B		CRI{R}B		DEMO{R}B	
+GUI{R}B		RHUM{R}B				
+
+ACCRO{R}C		ADON{R}C		ALLO{R}C		ARE{R}C
+ASPI{R}C		ASSE{R}C		ASTI{R}C		BARBE{R}C
+BASI{R}C		BUS{R}C		CHIA{R}C 		CODE{R}C	
+COGNA{R}C		COLLE{R}C		COLO{R}C		CORNA{R}C
+CORSA{R}C		ECHE{R}C		FIS{R}C		FLAN{R}C	
+GALLE{R}C		LAMBI{R}C		LIRA{R}C		PARSE{R}C
+PRO{R}C		PROVO{R}C		REDU{R}C		REGALE{R}C
+SERA{R}C		SPI{R}C		TILLA{R}C		TOMBA{R}C
+VAIN{R}C
+
+ACHAR{R}D		BAR{R}D		BAU{R}D		BAYOU{R}D 
+BLENDE{R}D		BRAN{R}D		CABILLAU{R}D	CASTAR{R}D
+CLOU{R}D		COSTAR{R}D		CROBAR{R}D			
+ELAN{R}D		EMOU{R}D		FIEL{R}D		GOR{R}D	
+LOUBAR{R}D		MASTAR{R}D		MESSIE{R}D		NIBAR{R}D
+PALU{R}D		POLAR{R}D		POULAR{R}D		RASSIE{R}D	
+ROMAN{R}D		TABAR{R}D		TABLAR{R}D			
+TOLAR{R}D		TOUCHAU{R}D	TOUR{R}D		VIBOR{R}D
+
+ABIETINE{R}E 	ADOPTANT{R}E	AIGRETTE{R}E	ALCOOLAT{R}E
+ALUNIT{R}E		ANAPHORES{R}E	APANAGER{R}E	APLATISSOIR{R}E	
+ARILLE{R}E		ASSESSEUR{R}E	AUTOPORT{R}E	AZOTAT{R}E 
+BAGDADI{R}E	BAGOUS{R}E		BAISANT{R}E	BALAIS{R}E
+BANDIT{R}E		BARYTE{R}E 	BEUS{R}E		BILLET{R}E
+BLAST{R}E		BOUGNAT{R}E	BOUILLE{R}E	BOULAI{R}E
+BOUQUET{R}E	BOURG{R}E		BOURS{R}E		BOUTEFEU{R}E
+BROU{R}E		CACHER{R}E		CAJOLANT{R}E	CALIER{R}E
+CANNAI{R}E		CARAT{R}E		CARDER{R}E		CARTAI{R}E
+CASSAT{R}E 	CELLA{R}E		CENDRIER{R}E	CENSEUR{R}E
+CHAPE{R}E		CHARRE{R}E		CHARROI{R}E	CHAUFFEUR{R}E
+CHENILLE{R}E	CHLORAT{R}E	CHOTT{R}E		CHROMAT{R}E
+CINES{R}E		CLEBARD{R}E	CLIQUETANT{R}E	COMMANDEUR{R}E
+COMPON{R}E		(CO)POSSESSEUR{R}E			CORROI{R}E	
+CORROYER{R}E	COUETTE{R}E 	COURE{R}E 		COURRIER{R}E
+COUTANT{R}E	COVID{R}E		CRISSANT{R}E	CROQUENOT{R}E
+CUISTOT{R}E	CYTOKINES{R}E	DECELER{R}E	DECONFIS{R}E
+DECROTTOIR{R}E	DECRUS{R}E		DEMONTANT{R}E	DESENNUI{R}E
+DORIN{R}E		DOUBLIER{R}E	DOUF{R}E		DRAYOIR{R}E
+DRUS{R}E		EMPOIS{R}E		ENTENT{R}E		ENTRESOL{R}E
+EPAGNEUL{R}E	EPINAI{R}E		FADAIS{R}E 	FASCICULE{R}E
+FAUSSET{R}E	FELIBRE{R}E	FERMENTANT{R}E	FERRAT{R}E	
+FEUILLAGE{R}E	FEUTRANT{R}E	FICHAIS{R}E	FICHANT{R}E
+FLANQUANT{R}E	FLOUS{R}E		FLUAT{R}E		FORMIER{R}E
+FOUDRIER{R}E	FOUGER{R}E		FOYER{R}E		FRAYER{R}E	
+FRISOT(T)ANT{R}E				FROTTANT{R}E	FULMINAT{R}E
+FUMIER{R}E		GABIER{R}E		GAGEUR{R}E		GALIBOT{R}E
+GAMET{R}E		GANGUE{R}E		GAZONNANT{R}E	GELATINE{R}E 
+GEMELLE{R}E	GENTIL{R}E		GLYCEROL{R}E	GOUGER{R}E	
+GOUROU{R}E		GRADIN{R}E		GRANITIER{R}E	GRAVITANT{R}E
+GRONDANT{R}E	GUERIT{R}E		HAIR{R}E		HEMATOS{R}E
+HERBAGER{R}E	HIRUDINE{R}E	HIVERNANT{R}E	HOUSSAI{R}E 
+HUMECTANT{R}E	HYDRANT{R}E 	IMAM{R}E		IMPOSTEUR{R}E
+INTEGRAS{R}E	INTERCESSEUR{R}E				JACQUARD{R}E 
+JAMBE{R}E		JONCHAI{R}E	JONCHER{R}E	JOUISSANT{R}E
+JUMENT{R}E		LAMBLIAS{R}E	LAVANES{R}E	LEITMOTIV{R}E
+LIEUS{R}E		LIGNARD{R}E	LONGER{R}E		MAGNAT{R}E	
+MALABAR{R}E	MALFRAT{R}E	MALTAS{R}E		MANGEUR{R}E
+MARNAIS{R}E	MASTER{R}E		MATADOR{R}E	MATURAS{R}E 
+MELEZ{R}E		MEUBLANT{R}E	MINUTIER{R}E	MISER{R}E	
+MITRE{R}E		MORDE{R}E 		MORNE{R}E		MORPHOS{R}E
+MOUILLER{R}E	MUEZZIN{R}E	MUSCAT{R}E		NANAN{R}E	
+NANISANT{R}E	NOCHER{R}E		NYMPHOS{R}E	OFFICIER{R}E
+ONGLE{R}E		OPPRESSEUR{R}E	ORDRE{R}E		ORNAIS{R}E	
+OSTEOS{R}E		OUILLER{R}E	OXYDAS{R}E		OXYGENAS{R}E
+PALIER{R}E		PANICULE{R}E	PARC{R}E		PARER{R}E	
+PATER{R}E		PATTE{R}E		PAYS{R}E		PEIGNIER{R}E
+PELANT{R}E		PEROXYDAS{R}E	PETAS{R}E		PHALANGER{R}E
+PHENIQUE{R}E	PHOSPHATAS{R}E	PILOTIN{R}E	POLYPORE{R}E
+POMMETTE{R}E	POTENTAT{R}E	PREBENDE{R}E	PRECURSEUR{R}E
+PRELAT{R}E		PRESSIER{R}E	PRIEUR{R}E		PROFITANT{R}E
+PROPYLE{R}E	PRYTANE{R}E	PYRROL{R}E		QUESTEUR{R}E
+QUILLARD{R}E	RABBIN{R}E		RAFALE{R}E		RAPPORTEUR{R}E	
+RAYER{R}E		REBUS{R}E		RETRAYANT{R}E	REVISEUR{R}E
+RONDIER{R}E	RUBEFIANT{R}E	SALICINE{R}E	SANTON{R}E
+SAPROPEL{R}E	SCATOL{R}E		SCHIZOS{R}E	SCULPTEUR{R}E
+SECURIT{R}E	SENESTRE{R}E	SEPTAIN{R}E	SERRANT{R}E
+SIMPLEX{R}E	SOLLICITEUR{R}E	SOMMIER{R}E	STRASS{R}E
+STRASSE{R}E	SUCCESSEUR{R}E	SUCRA(S,T){R}E	SUCRIN{R}E	
+SUPER{R}E  	SURET{R}E		TARENT{R}E		TARTAN{R}E	
+TERGAL{R}E		THANATOS{R}E	TISSU{R}E		TONNANT{R}E
+TORCHER{R}E	TORTILLER{R}E	TOUCOULEUR{R}E	TRAITEUR{R}E
+TREBUCHE{R}E	TRIER{R}E		TRIMER{R}E		TRIOS{R}E	
+TROUVER{R}E	TUSSOR{R}E 	TYRAN{R}E		VACHER{R}E	
+VANILLINE{R}E	VENET{R}E		VERDIN{R}E		VERGE{R}E	
+VERRE{R}E		VIVRE{R}E		VOYER{R}E		WENDAT{R}E	
+WOK{R}E		ZIRCON{R}E
+ASPERGERAI{R}E	BANANERAI{R}E	CHATAIGNERAI{R}E
+COCOTERAI{R}E	COUDRAI{R}E	FOUGERAI{R}E	FRAISERAI{R}E	
+FRAMBOISERAI{R}E				JONCHERAI{R}E	MURAI{R}E	
+MURERAI{R}E	ORANGERAI{R}E	OSERAI{R}E		PALMERAI{R}E
+PEUPLERAI{R}E	POMMERAI{R}E	ROSERAI{R}E
+ANDROGENES{R}E	BIOGENES{R}E	CANCEROGENES{R}E
+CARCINOGENES{R}E 			CATAGENES{R}E	GLYCOGENES{R}E
+HETEROGENES{R}E	LITHOGENES{R}E	MORPHOGENES{R}E	MUTAGENES{R}E	
+NEUROGENES{R}E	ONCOGENES{R}E	OROGENES{R}E	OSTEOGENES{R}E
+PATHOGENES{R}E	PHOTOGENES{R}E	PSYCHOGENES{R}E	TERATOGENES{R}E 
+THERMOGENES{R}E	TRANSGENES{R}E
+
+BARDA{R}F		BEAU{R}F		BENE{R}F		BONI{R}F	
+BRIE{R}F		CAL{R}F		CHERI{R}F		CHOU{R}F	
+CLE{R}F		CONTRECLE{R}F	DON{R}F		GNOU{R}F	
+GRAF{R}F		KENA{R}F		KIF{R}F		MATA{R}F
+MATI{R}F		PERI{R}F		PEU{R}F		PILA{R}F	
+REDIF{R}F		RELIE{R}F		RIF{R}F		SCHNOUF{R}F
+SEL{R}F		SKIF{R}F		SNIF{R}F		TARA{R}F	
+TARI{R}F		TEF{R}F
+
+ARE{R}G		BAN{R}G		BASTIN{R}G		COIN{R}G	
+DUGON{R}G		FAN{R}G		FIXIN{R}G		FLA{R}G	
+GAMIN{R}G		LEGGIN{R}G		MIN{R}G		PLU{R}G	
+PROLO{R}G		QIN{R}G		SAMPAN{R}G		SARON{R}G
+SEIN{R}G		SOLIN{R}G		SON{R}G		SWIN{R}G	
+TAN{R}G		TON{R}G		TREPAN{R}G		TROTTIN{R}G 	
+
+AMIS{R}H		ARC{R}H		BAT{R}H		BEU{R}H	
+BIZUT{R}H		BUS{R}H		CAS{R}H		CETERAC{R}H
+CHEIK{R}H		COPRA{R}H		FINIS{R}H		FOUTA{R}H
+HALAKHA{R}H	HOURRA{R}H		LABNE{R}H		LAVAS{R}H
+LUT{R}H		MAC{R}H		MAHARA(D)JA{R}H	MAT{R}H 
+MENORA{R}H		MEZOUZA{R}H	MULLA{R}H		NARGHILE{R}H
+OSTROGOT{R}H	PADICHA{R}H	PEU{R}H		PLINT{R}H
+POLIS{R}H		POUSSA{R}H		RA(D)JA{R}H	RAS{R}H	
+RUS{R}H		RELIS{R}H		SCHEIK{R}H		SMALA{R}H
+SPAT{R}H		TEC{R}H		TEMPE{R}H		TURBE{R}H
+VERMOUT{R}H
+
+BAZAR{R}I 		BIB{R}I		CHAMP{R}I		CHIANT{R}I
+CONGA{R}I		DEPART{R}I		FARS{R}I		INTERRO{R}I
+MARTIN{R}I		MONO{R}I		NANT{R}I		REVERS{R}I
+SENSE{R}I
+
+BORD{R}J		DE{R}J		FEU{R}J
+
+ARA(C){R}K		BATI{R}K		BE(U)R{R}K		BLOC{R}K	
+BOURE{R}K		BRIC{R}K		CLIC{R}K		CRAC{R}K	
+CREE{R}K		DES{R}K		FOL{R}K		FUN{R}K	
+HAI{R}K		KANA{R}K		KAPO{R}K		LAMBIC{R}K 
+MAMELU{R}K		POTTO{R}K		TRIC{R}K  		TRUC{R}K	
+ZOU{R}K
+
+ACCENTUE{R}L 	AFFIXA{R}L 	AZIMUTA{R}L	BAGUE{R}L 
+BARRE{R}L		BISSE{R}L		BLONDE{R}L		BRADE{R}L 
+CAMAI{R}L		CAMERA{R}L 	CAPTA{R}L 		CARME{R}L
+CHANCE{R}L		CHAPITRA{R}L	CHLORA{R}L		CLAUSTRA{R}L
+CONSO{R}L		CONTRERAI{R}L	COQUETE{R}L	COXA{R}L	
+DISPERSA{R}L	DUQUE{R}L		ENTERA{R}L		ENTRERAI{R}L
+EXTREMA{R}L	FERIA{R}L		FERMAI{R}L		FOIRA(I){R}L
+FONTINA{R}L	FORCAI{R}L		FOURNI{R}L		FOUTRA{R}L
+FOVEA{R}L		FULGURA{R}L 	GEMMAI{R}L		GLYCERO{R}L
+HIBERNA{R}L	HISTORIA{R}L	IMAGINA{R}L 	INHABITUE{R}L
+KATA{R}L		LESIONNE{R}L	LISTE{R}L		LUSTRA{R}L
+MARTE{R}L		MATERNE{R}L	MINERA{R}L		MISSE{R}L
+NOMINA{R}L		OBJECTA{R}L	OFFICIA{R}L 	OPINE{R}L
+PAGE{R}L		PARTIE{R}L		PATERNE{R}L	PERSE{R}L
+PETRE{R}L		PLEURA{R}L		POINTA{R}L		PONCTUE{R}L
+PORTAI{R}L		PREFIXA{R}L	RECTA{R}L		SACRA{R}L
+SCATO{R}L		SEGMENTA{R}L	SERAI{R}L		SERIA{R}L
+SUFFIXA{R}L	SYNCOPA{R}L	TAMA{R}L		TERRI{R}L
+TIBIA{R}L		TRAMAI{R}L 	TRIO{R}L		UNISEXUE{R}L
+VACCINA{R}L	VANTAI{R}L	
+
+ALE{R}M		APRE{R}M		ASHKENAZI{R}M	BEGU{R}M	
+BROU{R}M		CHU{R}M		DENI{R}M		DIA{R}M	
+ESSAI{R}M		GO(I,Y){R}M	IDE{R}M		ITE{R}M	
+LINGA{R}M		MAL{R}M		MODE{R}M		NEE{R}M	
+SACHE{R}M		SEFARDI{R}M	SOU{R}M		SPA{R}M	
+STEM{R}M		ZOO{R}M
+
+ABELIE{R}N		ADO{R}N		APOLLO{R}N		ARCADIE{R}N
+AZUREE{R}N		BACTERIE{R}N	BAGDADIE{R}N	BAHREINIE{R}N
+BOUCHAI{R}N	BRIO{R}N		BROWNIE{R}N	CAFTA{R}N
+CAPELA{R}N 	CERULEE{R}N	CHAPO{R}N		CHASSEE{R}N 
+CHINO{R}N		COMPO{R}N	 	COOKIE{R}N		CORNEE{R}N 
+CYCLOPIE{R}N	DELIE{R}N		DOLMA{R}N		DURAI{R}N
+EBURNEE{R}N	ELECTRO{R}N	FARCI{R}N		FELLATIO{R}N
+FRAICHI{R}N	GALERIE{R}N	GENIE{R}N		GEODESIE{R}N
+GERME{R}N		GOURE{R}N		GREE{R}N		GRUERIE{R}N
+GUINEE{R}N		HALO{R}N		HELI(C)O{R}N	HISTORIE{R}N
+HOLOSTEE{R}N	INDUSIE{R}N	INTRO{R}N		IRIDIE{R}N
+JULIE{R}N		KABOULIE{R}N	KARMA{R}N		KOWEITIE{R}N
+LANCEE{R}N		LICHE{R}N		LINO{R}N		LUTHERIE{R}N
+LYCEE{R}N		MACHO{R}N		MACRO{R}N		MAGNA{R}N
+MAGNESIE{R}N	MAGNETO{R}N	MANDEE{R}N		MORIO{R}N
+OCTAVIE{R}N	OCTAVO{R}N 	PAIE{R}N		PARIA{R}N 
+PATRO{R}N		PELAGIE{R}N	PELEE{R}N		PENO{R}N	
+PESO{R}N		PHO(N,T)O{R}N	PICTO{R}N		PRIAPEE{R}N
+PROTO{R}N		PYGMEE{R}N		PYTHIE{R}N		QATARIE{R}N
+RHODIE{R}N		ROUSSI{R}N		SALIE{R}N		SAMIE{R}N
+SATURNIE{R}N	SAURIE{R}N		SERRA{R}N		SHAMA{R}N
+SOMALIE{R}N	SOUDA(I){R}N	TANGO{R}N		TIGREE{R}N
+TOTO{R}N		TRAGEDIE{R}N	TROCHLEE{R}N	TYPO{R}N	
+URANIE{R}N		VENERIE{R}N	VERDI{R}N		VERDIE{R}N
+VIRGINIE{R}N	VISIO{R}N		VOUTAI{R}N
+
+ABSTRACT{R}O	AGI{R}O		AGITAT{R}O		ALCOOL{R}O
+ALLOC{R}O		ANIMAT{R}O 	ARCHE{R}O		AVIS{R}O	
+BANC{R}O		BARRI{R}O 		BIBLI{R}O		BING{R}O	
+BLANC{R}O		BOL{R}O		BOT{R}O		BRASER{R}O
+BUT{R}O		CACA{R}O		CALA{R}O		CAME{R}O	
+CAMP{R}O		CAP{R}O		CAPUCIN{R}O	CHIP{R}O
+CHOC{R}O		COL{R}O		COMMAND{R}O	CONCERT{R}O
+CONTINU{R}O 	CORS{R}O		CROC{R}O		
+DEM{R}O		DING{R}O		DIT{R}O		DOL{R}O	
+EDIT{R}O		ESPERANT{R}O	EXPRESS{R}O	FILA{R}O	
+FILM{R}O		FIL{R}O		FRANC{R}O		GELAT{R}O
+GOUR{R}O		GRANIT{R}O		HOST{R}O		INQUART{R}O
+KOT{R}O		LADIN{R}O		LAMENT{R}O		LATIN{R}O
+LEGAT{R}O		LENT{R}O		LIBER{R}O		LISTA{R}O
+LOG{R}O		LOL{R}O		MACH{R}O		MACHIN{R}O 
+MAGNET{R}O		MAS{R}O		MEL{R}O		MIR{R}O
+MIS{R}O		MODERAT{R}O	NON{R}O		OST{R}O	
+PARE{R}O		PATI{R}O		PERF{R}O		PERS{R}O	
+PHOT{R}O		PIAN{R}O		PISTOLER{R}O	POLI{R}O	
+PONCH{R}O		PORT{R}O		PUR{R}O		PUTT{R}O
+QUAD{R}O		QUART{R}O		QUINT{R}O		RANCH{R}O
+RANCI{R}O		RAND{R}O		RHUMAT{R}O		RODE{R}O	
+ROMANCER{R}O	ROND{R}O		ROT{R}O		SANG{R}O	
+SCAT{R}O		SECOND{R}O		SERINGUER{R}O	SERRAN{R}O
+SOCIAL{R}O		SOMBRER{R}O	STERE{R}O		SUBIT{R}O
+TANGUER{R}O	TIENT{R}O		TIF{R}O		TIFOS{R}O
+TOND{R}O		TOP{R}O		TOT{R}O		TURC{R}O	
+VAQUER{R}O		VERS{R}O		VET{R}O		VIBRAT{R}O
+VIDE{R}O		VIRE{R}O		VOMIT{R}O
+
+CANTALOU{R}P	CLAM{R}P		CLOU{R}P		HOU{R}P	
+LIS{R}P		RECU{R}P		SALE{R}P		TRAM{R}P	
+TURNE{R}P		
+
+BLENDE{R}R		BORDAGE{R}R 	BOSSUE{R}R		BROUILLASSE{R}R	
+BUTO{R}R		CANULA{R}R		CATHETE{R}R 	CHARTE{R}R 
+CULTIVA{R}R	FILLE{R}R		GABIE{R}R		GENRE{R}R
+GOURNABLE{R}R	LANDE{R}R		LANGUIE{R}R	LIGNAGE{R}R
+MENSTRUE{R}R	MESSE{R}R		MODULO{R}R		MOMIE{R}R
+NADA{R}R		NEPE{R}R		PAROI{R}R 		PHALANGE{R}R
+POITRINE{R}R	POKE{R}R		PORCHE{R}R		PORTO{R}R	
+POULIE{R}R		RAIDE{R}R		REMPLIE{R}R	RONDIE{R}R	
+ROTO{R}R		STEPPE{R}R		TENDE{R}R		TOURIE{R}R	
+VERNIE{R}R
+
+ACCOMODAT{R}S	AIGUILLAT{R}S	ALTERNAT{R}S	APOSTAT{R}S
+ASSIGNAT{R}S	AUGURAT{R}S	AUTOLYSAT{R}S	BACHAT{R}S
+BARRIT{R}S 	BATONNAT{R}S	BECHER{R}S 	BENEFICIER{R}S
+BIPER{R}S		BITTER{R}S		BOMBER{R}S		BOOSTER{R}S
+BRAYER{R}S		BREAKER{R}S	BROYAT{R}S		BUZZER{R}S
+CACHER{R}S		CADRAT{R}S		CANTER{R}S		CARTER{R}S
+CASTRAT{R}S	CHEVILLER{R}S	CHOPPER{R}S	CLIPPER{R}S
+COGNAT{R}S		COMBINAT{R}S	COMPUTER{R}S	CONCORDAT{R}S
+CONDENSAT{R}S	COORDINAT{R}S	CORDAT{R}S		CORRELAT{R}S
+COUDRE{R}S		CRACHAT{R}S	DEALER{R}S		DEBATER{R}S
+DEBUCHER{R}S	DEBUGGER{R}S	DECROIT{R}S	DENIER{R}S
+DISTILLAT{R}S	DRIVER{R}S 	EJACULAT{R}S	ENTRAIT{R}S
+EXCEDANT{R}S	EXPIRANT{R}S	EXPRES{R}S		EXSUDAT{R}S
+FACIAL{R}S		FEUILLANT{R}S	FILTRAT{R}S	FLOCULANT{R}S	
+FORCAT{R}S		GABARIER{R}S	GARDIENNAT{R}S	GEINDRE{R}S
+GRADER{R}S		GRADUAT{R}S	GRANULAT{R}S	GRAVAT{R}S
+GRENAT{R}S		GUINDANT{R}S	HABITAT{R}S	HACKER{R}S
+HYDROLYSAT{R}S	INCARNAT{R}S	INFILTRAT{R}S	ISOLAT{R}S
+JOGGER{R}S		JUMPER{R}S		JURAT{R}S		LACHER{R}S
+LAINER{R}S 	LIXIVIAT{R}S	LUGER{R}S		LYOPHILISAT{R}S	
+LYSAT{R}S		MACERAT{R}S	MAJORAT{R}S	MANAGER{R}S
+MANGER{R}S		MARCHER{R}S	MATER{R}S		MENTORAT{R}S
+MINORAT{R}S	MIXER{R}S		MONITORAT{R}S	MURGER{R}S
+NOTARIAT{R}S	NUER{R}S		ORANGEAT{R}S	ORANGER{R}S
+PAGER{R}S		PAILLER{R}S	PALMER{R}S		PALPER{R}S
+PARLER{R}S		PENSER{R}S		PIAFFER{R}S	PISSAT{R}S
+PLACER{R}S		POINTER{R}S	PORTER{R}S		POSTULAT{R}S
+PRIMAT{R}S		PUTTER{R}S		QUILLER{R}S	RACKETTER{R}S
+RADIER{R}S		RAFFINAT{R}S	RAMENER{R}S	RANGER{R}S
+RAPPER{R}S		RENTRAIT{R}S	REPENTIR{R}S	REVER{R}S
+REWRITER{R}S	RIDER{R}S		RUCHER{R}S		SALAT{R}S
+SALER{R}S		SAMPLER{R}S 	SHOOTER{R}S	SPOILER{R}S
+SQUATTER{R}S	STRAS{R}S		STREAMER{R}S	STRIPPER{R}S
+TAGGER{R}S		TAILLANT{R}S	TANNAT{R}S		TOASTER{R}S
+TOMBER{R}S		TRANSSUDAT{R}S	TRIBAL{R}S		TUNER{R}S
+TUTORAT{R}S	TWEETER{R}S	VANILLER{R}S	VIOLAT{R}S	
+
+ANGLE{R}T		ANNELE{R}T		ARTICULE{R}T	ASSIS{R}T 
+ATTELE{R}T 	ATTIFE{R}T		BARJO{R}T		BASQUE{R}T 
+BATELE{R}T		BISTRO{R}T		BLANCHE{R}T 	BOGUE{R}T
+BOUGNA{R}T		BRECHE{R}T		BREN{R}T		CABRIOLE{R}T
+CAF(E)TAN{R}T	CAPELAN{R}T	CAPELE{R}T		CAPE{R}T
+CELEBRE{R}T 	CHIPOC{R}T 	CHOUQUE{R}T 	CISELE{R}T	
+CLAQUE{R}T 	CLOPE{R}T		COCHE{R}T		CORDONNE{R}T 
+COURCAILLE{R}T	CRADO{R}T		CUMULE{R}T		DROGUE{R}T	
+FAGOT{R}T		FAUCHE{R}T		FAUSSE{R}T		FERRE{R}T	
+FICHE{R}T		FOLIO{R}T		FRIQUE{R}T		FUSTE{R}T	
+GENTILLE{R}T	GORGE{R}T		GRASSE{R}T		GRELE{R}T	
+GRISE{R}T		HORS{R}T		H(O,U)CHE{R}T	INDICAN{R}T
+JONCHE{R}T		LABR(E,I){R}T	LARGE{R}T		LINGUE{R}T	
+LOUVE{R}T		MAGNE{R}T		MENUE{R}T		MIGNONNE{R}T
+NAN{R}T		NORDE{R}T		OCTAVIEN{R}T	OISELE{R}T	
+PAIEN{R}T		PANTE{R}T		PASSE{R}T		PELLE{R}T	
+PERCE{R}T		PHO{R}T		PICARDAN{R}T	PLACE{R}T	
+POTELE{R}T		PRETES{R}T		PURO{R}T		RAISINE{R}T
+RHODIEN{R}T	ROBER{R}T		SACRE{R}T		SEXTE{R}T	
+SINGLE{R}T		SOLEN{R}T		SOUCHE{R}T		SUPPO{R}T	
+SURE{R}T		TANTINE{R}T	TREBUCHE{R}T	TR(A,I,O)QUE{R}T
+TRIPLAN{R}T	VANNE{R}T		VELE{R}T		VELO{R}T	
+VENDREDI{R}T	VENE{R}T		VERVE{R}T	
+
+ALLE{R}U		BAO{R}U		CHEVE{R}U		COURBAT{R}U
+DEGUE{R}U		DONA{R}U		GLUA{R}U		GOURO{R}U	
+MAT{R}U		PACHTO{R}U		PANS{R}U		PEC{R}U	
+QUIPO{R}U 		RESTA{R}U		SEC{R}U		TOUCHA{R}U
+
+COU{R}V
+
+ALPA{R}X		BORA{R}X		BOTO{R}X		DEMODE{R}X		
+HUMIDE{R}X		INFO{R}X		LARI{R}X		MINIME{R}X
+MULTIPLE{R}X	NITRO{R}X		OPE{R}X		PANA{R}X	
+SAGE{R}X		SILE{R}X		SIMPLE{R}X		SIRE{R}X	
+SOLE{R}X		SOUPLE{R}X		SURFAI{R}X		THORA{R}X
+TRIPLE{R}X		VELU{R}X		VERTE{R}X
+
+AIS{R}Y		ART{R}Y		BOGE{R}Y		BRAND{R}Y
+CAR{R}Y		CHAMBRA{R}Y	CHARDONNA{R}Y	COLLE{R}Y
+ECSTAS{R}Y		FLASH{R}Y		FUNK{R}Y		GIRL{R}Y 
+JUNK{R}Y		LAD{R}Y		MERCURE{R}Y	MOL{R}Y	
+MORNA{R}Y		PAP{R}Y		PART{R}Y		PUNCH{R}Y
+SAC{R}Y		SEXTO{R}Y		SHORT{R}Y		TREND{R}Y
+TROLLE{R}Y	
+
+CACHERE{R}Z	CHAUVE{R}Z		CHERE{R}Z		ESTAMPIE{R}Z
+FECULERIE{R}Z	FORCERIE{R}Z	FOULERIE{R}Z	HERBERIE{R}Z
+HIBERNIE{R}Z	LECHERIE{R}Z	REGNIE{R}Z		
+	
+ <===
+
+`;
+// ================================================================
+
+const mots = donneesBrutes.trim().split(/\s+/).filter(m => m.includes('{R}'));
+let motActuelObj = {};
+
+function parserMot(motBrut) {
+    let indexBalise = motBrut.indexOf('{R}');
+    let avant = motBrut.substring(0, indexBalise);
+    let apresBalise = motBrut.substring(indexBalise + 3); 
+    
+    // La lettre rouge est celle qui suit directement la balise
+    let bonneLettre = apresBalise[0].toUpperCase();
+    
+    // On conserve ce qui pourrait rester après (cas de parenthèses ou autres lettres)
+    let resteApres = apresBalise.substring(1);
+    
+    // Le mot affiché (le ? remplace la balise et la lettre rouge)
+    let motAffiche = avant + "?" + resteApres;
+    
+    // La solution affiche le mot complet, lettre rouge mise en évidence
+    let solutionHTML = `<span class="noir">${avant}</span><span class="rouge">${bonneLettre}</span><span class="noir">${resteApres}</span>`;
+    
+    return { base: motAffiche, solution: solutionHTML, bonneLettre: bonneLettre };
+}
+
+function chargerNouveauMot() {
+    const motDeBaseEl = document.getElementById('mot-de-base');
+    const solutionEl = document.getElementById('solution-container');
+    const messageEl = document.getElementById('message');
+    const entreeEl = document.getElementById('entree-lettre');
+    const btnSuivant = document.getElementById('btn-suivant');
+
+    if (mots.length === 0) { 
+        motDeBaseEl.innerText = "Veuillez coller votre texte."; 
+        return; 
+    }
+    
+    const index = Math.floor(Math.random() * mots.length);
+    motActuelObj = parserMot(mots[index]);
+    
+    motDeBaseEl.innerText = motActuelObj.base;
+    solutionEl.innerHTML = motActuelObj.solution;
+    
+    solutionEl.style.display = "none";
+    messageEl.innerText = "";
+    entreeEl.value = "";
+    entreeEl.style.display = "inline-block";
+    btnSuivant.style.display = "none";
+    entreeEl.focus();
+}
+
+document.getElementById('entree-lettre').addEventListener('input', function() {
+    if (this.value.length === 1) {
+        const saisie = this.value.toUpperCase();
+        const messageEl = document.getElementById('message');
+        const solutionEl = document.getElementById('solution-container');
+        const btnSuivant = document.getElementById('btn-suivant');
+
+        if (saisie === motActuelObj.bonneLettre) {
+            messageEl.innerText = "BRAVO !"; 
+            messageEl.className = "bravo";
+        } else {
+            messageEl.innerText = "ERREUR !"; 
+            messageEl.className = "erreur";
+        }
+        solutionEl.style.display = "block";
+        this.style.display = "none";
+        btnSuivant.style.display = "block";
+    }
+});
+
+chargerNouveauMot();
+</script>
+</body>
+</html>

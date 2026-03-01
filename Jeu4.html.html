@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Jeu de Tirages Joker - Direct</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; background-color: #7ECFF4;
+        }
+        
+        .compteur { 
+            background: white; padding: 10px 30px; border-radius: 50px; 
+            border: 3px solid #000; margin-bottom: 25px;
+            font-weight: bold; font-size: 1.2em;
+        }
+
+        .cadre {
+            background-color: yellow; color: black; border: 5px solid #000;
+            padding: 50px; cursor: pointer; min-width: 450px; max-width: 90vw;
+            text-align: center; font-weight: bold; font-size: 2.5em;
+            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            user-select: none;
+            transition: background-color 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="compteur" id="nb-tirages">ANALYSE DU TEXTE...</div>
+
+    <div id="jeu-container">
+        <div id="zone-affichage" class="cadre" onclick="piocher()">
+            CLIQUEZ POUR COMMENCER
+        </div>
+    </div>
+
+<script>
+// =========================================================
+// COLLEZ TOUT VOTRE TEXTE CI-DESSOUS (ENTRE LES ` `)
+// =========================================================
+const texteBrut = `
+
+
+SPÉCIAL TIRAGES JOKER À SOLUTIONS MULTIPLES
+
+
+
+
+
+Avec lettres à 1 point :
+
+EENOOSS + ? = 2 (mt)
+AAENORU + ? = 2 (gm)
+EEEIIT + ?? = 2 (bf,np)
+EILOTTU + ? = 2 (rv)
+AENOORS + ? = 2 (tz)	
+AOOTTUU + ? = 2 (mr)
+
+IIRSTTU + ? = 2 (mn)
+AEEILLL + ? = 2 (dg)
+LNNOOSU + ? = 2 (de) 
+EIILNRU + ? = 2 (gs)
+INITIER + ? = 2 (af)
+EINNNOS + ? = 2 (be) 
+INOTTTU + ? = 2 (ae)
+AEEIOSS + ? = 2 (cr)
+AENOORU + ? = 2 (mt)
+AALNNOO + ? = 2 (gm)	EINOTUU + ? = 2 (fg)	EEINNNS + ? = 2 (lo)	
+AAAEILR + ? = 2 (bv)	AOSTTTU + ? = 2 (er)	ANRSTUU + ? = 2 (pt)
+EEIILTT + ? = 2 (ls)	AAEELLN + ? = 2 (gt)	INNTUU + ? = 2 (ef,js)	
+LORSTUU + ? = 2 (am)	AIRRSUU + ? = 2 (es)	AILNOOR + ? = 2 (bm)
+INUSUEL + ? = 2 (rs)	AOLTUU + ?? = 2 (mr,rs)	ALORTUU + ? = 2 (ms)
+AELOORT + ? = 2 (kz)	AALRRSU + ? = 2 (be)	EELORRS + ? = 2 (ci)
+EIINOTT + ? = 2 (cp)	Assonée + ? = 2 (pu)	AEEENTU + ? = 2 (gt)
+AALNOO + ?? = 2 (gn,mn)	ALLNOOS + ? = 2 (pu)	ACLLNOO + ? = 2 (ei)
+LUNURES + ? = 2 (ai)	ANNNOOR + ? = 2 (gr)	EILSTTT + ? = 2 (ao)
+AAELORR + ? = 2 (cu)	AAEILOS + ? = 2 (cp)	AAEILOT + ? = 2 (uv)
+AILLOO + ? = 2 (cd,cn)	AARRSST + ? = 2 (eu)	ILNRUU + ?? = 2 (es,pt)
+ILNTUU + ?? = 2 (be,rp)	EILROUU + ? = 2 (cg)	AAAILLR + ? = 2 (ps)
+EILOOSU + ? = 2 (gv)	EEEIORT + ? = 2 (nr)	NOORUU + ?? = 2 (cc,ns)
+
+NORTUU + ? = 2 (bs)	EOOONS + ? = 2 (gz)	ELSSTT + ? = 2 (hy)
+AAARTU + ? = 2 (dm)	IILNOO + ? = 2 (fp)	AEOORT + ? = 2 (bn)
+TTOROS + ? = 2 (io)	ALSTUU + ? = 2 (mr)	ENNUU + ?? = 2 (ch,es)
+EIOOSU + ? = 2 (dv)	AAEORS + ? = 2 (bg)	IILNOR + ? = 3 (cprs²)
+OOORTU + ? = 2 (dp)	ELNOOT + ? = 2 (pv)	ANNOOS + ? = 2 (cx)
+AAEELN + ? = 2 (mz)
+
+AEELLLN + ? = 3 (fpy)	AEROSOL + ? = 3 (krs)	AEILLNO + ? = 3 (cmn)
+IINORTU + ? = 3 (csv)	ELORSTT + ? = 3 (ein)	AIOORRT + ? = 3 (eot)
+AOOSTTU + ? = 3 (nps)	INNEITE + ? = 3 (rs3v)	AAEILLU + ? = 3 (glm)
+STOMATO + ? = 3 (nps)	EILOORU + ? = 3 (cgk)	EIILNOT + ? = 3 (ams)
+IINNOTT + ? = 3 (asu)	EILNNOR + ? = 3 (bgp)	ELOOTUU + ? = 3 (glp)
+AEILNNU + ? = 3 (cm²z)	EIILLOS + ? = 3 (blx)	ILOORSS + ? = 3 (eis)
+ENNOOTT + ? = 3 (bir)	AAILLOS + ? = 3 (cmu)	AEOORRT + ? = 3 (dip) 
+IILNNOT + ? = 3 (ago)	AEELOTT + ? = 3 (cmu)	ROSEOLE + ? = 3 (cks)
+EILNRRT + ? = 3 (ago)	AAEERRU + ? = 3 (mpt)	AAELOT(S) + ? = 3 (nux)	
+AAENOSS + ? = 3 (mpr)	AAENOST + ? = 3 (glp)	SENNEUR + ? = 3 (aos)
+AAEISTU + ? = 3 (bmr)	NOSSTUU + ? = 3 (eqr)	AELSTUU + ? = 3 (clr)
+EIOORRT + ? = 3 (aps)	IIOORT + ?? = 3 (ap,fr,ns)
+EIIOOT + ?? = 3 (jn,ns,sp)	AEINOOR + ? = 3 (dtz)	TATIANA + ? = 3 (dmr)
+AENRSUU + ? = 3 (egl)	AAENORS + ? = 3 (gis)	AEILNNR + ? = 3 (cft)
+AALSTTU + ? = 3 (fin)	EOORRTU + ? = 3 (lnp)	EIIOSSS + ? = 3 (fmt)
+ALOORR + ?? = 3 (ce,cp,es)				AAARSTU + ? = 3 (bdm)
+AAANSST + ? = 3 (cim)	AEEIINN + ? = 3 (flm)	AAEENNS + ? = 3 (bgm)
+AEIINTU + ? = 3 (hqr)	EEEIIRS + ? = 3 (bfl)	AEENSUU + ? = 3 (grx)
+AENTTUU + ? = 3 (ioq)	AEILNRR + ? = 3 (opt)	IIORSST + ? = 3 (afn)
+ELOORTT + ? = 3 (gnu)	ILRTUU + ?? = 3 (at,ce,np)
+AEEIOST + ? = 3 (bmp)	EORTTTU + ? = 3 (ent)	AELLLU + ?? = 3 (ai,cr,eq)
+
+AOOSTT + ? = 3 (bhm)	AANNSS + ? = 3 (cei)	AAEENT + ? = 3 (chs)
+IOORRT + ? = 3 (bd²p)	AOORRS + ? = 3 (lty)	AALNOS + ? = 3 (ctv)
+EERTTT + ? = 3 (iso)	
+
+
+AIOORTS + ? = 4 (bdmp)	EEILNOU + ? = 4 (bcms)	AEIOORT + ? = 4 (bcnr)
+EEINOTU + ? = 4 (acqr)	EIINORR + ? = 4 (bgst)	AILLLO + ?? = 4 (ad,et,ev,is)
+AEEEIRS + ? = 4 (clns)	AAELORT + ? = 4 (bmpu)	EEORTUU + ? = 4 (bc²fs) =
+ALNSTTU + ? = 4 (aior)	INTELLO + ? = 4 (crs²u)	AAILRRT + ? = 4 (bepu)
+ILIENNE + ? = 4 (ac²ms)	AEEINNO + ? = 4 (crsz)	AAEINOR + ? = 4 (gstv)
+AEERSUU + ? = 4 (g²mnt)	NIAOULI + ? = 4 (cmps) AAEENNR + ? = 4 (lnxz)
+USUELLE + ? = 4 (bkns)	EIINNRT + ? = 4 (aefo)	EIILRTT + ? = 4 (a²bhl)
+RUISSEAU + ? = 4 (glrx)	AAEIORS + ? = 4 (bcnv)	EILOORT + ? = 4 (fgms)
+EEELNTU + ? = 4 (lrtv)	AILOOST + ? = 4 (fgps)	EIINNOT + ? = 4 (chrs)
+AENOOST + ? = 4 (cdrz)	AILNOOT + ? = 4 (bcnv)	AELLORT + ? = 4 (bcir)
+EIINORR + ? = 4 (bgst)
+
+EEEITU + ? = 4 (dpxz)	ALORRS + ? = 4 (cnot)	AAORRT + ? = 4 (bgps) 
+
+REUNION + ? = 5 (cghst²)		AELNRRU + ? = 5 (bgost)
+AUNIONS = + ? = 5 (bfl²os²)	SOIERIE + ? = 5 (blmns²)
+IINRSTU + ? = 5 (aefost)		ALITAIS = + ? = 5 (cfgns)
+EEILTTU + ? = 5 (bnqst)		AAEIILS + ? = 5(dgnr3s)
+EILRSUU + ? = 5 (dgnqr)		EEIONNN + ? = 5 (imr²st)
+EIOORRS + ? = 5 (cdnpt)		LUTEINE + ? = 5 (acrs4t)
+AEEINOS + ? = 5 (dglnv)		SUTURAL + ? = 5 (efotx)
+SAUTANT + ? = 5 (ejlrt)		EOORSTU + ? = 5 (bcgln)
+TROTTEE + ? = 5 (hnsxz)		AINNOOS + ? = 5 (cfluv)
+SONNEES + ? = 5 (bcnru)		AAILNOT + ? = 5 (bhn3pr²)
+
+
+NOUENT + ? = 5 (cgnr²s)		OLEATE + ? = 5 (fnpsu)	
+
+ENOOOS + ?? = 5 (cc,dm,gm,nt,sz)	
+EEOOSU + ?? = 5 (cp,cr,dy,ft,vy) 
+
+TOLLEE + ? = 5 (cimprt)
+
+LETTREE + ? = 6 (bcgmsv)
+
+ANOOSTT + ? = 7 (bhimpsu)
+
+AAOO + ???? = 9 (ALCOOLAT ANALOGON ANOMALON AUTOCOAT AUTOGOAL BAZOOKAS HORODATA OPOPANAX SADOMASO)
+
+
+Avec B :
+
+BEEEILN + ? = 2 (ap)	BENNEES + ? = 2 (az)	ABINOOR + ? = 2 (ly)	
+ABIILNU + ? = 2 (fq)	ABILRRT + ? = 2 (ae)	BEELOOT + ? = 2 (su)
+AABLRRU + ? = 2 (es)	AABINOU + ? = 2 (ce)	EBLOSUU + ? = 2 (ce)
+BEEIILO + ? = 2 (fp)	BELRTUU + ? = 2 (cu)	ABNOORU + ? = 2 (jn)
+BEEELLO + ? = 2 (mr)	ABEIINU + ? = 2 (hz)	BOORUU + ?? = 2 (ak,gl)
+AABENOS + ? = 2 (il)	BEOORTU + ? = 2 (ls)	ABIILNO + ? = 2 (mt)	
+BEEIIOT + ? = 2 (nr)	ABEEIIL + ? = 2 (bs)
+
+ABNOOR + ? = 2 (yz)	BINAIS + ? = 2 (hm)	BILOOS + ? = 2 (ns)
+ABILNU + ? = 2 (oq)	BILOSS + ? = 2 (eo)	ABNRUU + ? = 2 (ks)
+
+AAABRTU + ? = 3 (gqs)	BOOLIEN + ? = 3 (bds)	ABEESUU + ? = 3 (dgs)	
+AABENOR + ? = 3 (dn²r)	BEEELNO + ? = 3 (gvz)	ABEIINO + ? = 3 (dgm)
+ABEELNU + ? = 3 (dij)	BISSENT + ? = 3 (a3io3)	LUBERON + ? = 3 (dst) 
+BEIINNT + ? = 3 (aht)	EBIINSU + ? = 3 (g²ql)	AABENSU + ? = 3 (hit)
+BEEELOR + ? = 3 (alt)	ABELOUU + ? = 3 (dgx)	BEELOUU + ? = 3 (gsx)
+BEEOTUU + ? = 3 (fqr)	BENOORU + ? = 3 (gns)	AAABLLT + ? = 3 (bis)
+ABEINNU + ? = 3 (dtx)	ABILNOO + ? = 3 (rst)	AUBURN + ?? = 3 (er,ks,ot)
+ABISSTU + ? = 3 (ors)	
+
+ABEEES + ? = 3 (cmr)	BOSTUU + ? = 3 (aor)	BEELNO + ? = 3 (goz)	
+
+ABEIISU + ? = 4 (glrs)	BEEILNU + ? = 4 (aoqs)	BEEILNO + ? = 4 (l²nsu)
+ABLNOOS + ? = 4 (bgiu)	BEELMST + ? = 4 (ainr)	ABIILOT + ? = 4 (flnu)
+BRISTOL + ? = 4 (e²osu)	BENNOTU + ? = 4 (aios)	BBILNO + ?? = 4 (au,eo,eu,gy)
+BOULOTER + ? = 4 (a²dnt)
+
+AABEIN + ? = 4 (dknu)
+
+BOURRER + ? = 5 (a²deiu)		ABEEITU + ? = 5 (ghqrs)
+BATNEEN + ? = 5 (aors²t)		ENTUBES + ? = 5 (aei²or)
+NUBILES + ? = 5 (a3eio3q)		Bélénos + ? = 5 (giosz)
+ABOORU + ?? = 5 (ds,jn,ku,nn,sy)	
+BIORRT + ? = 5 (adeou)			
+
+Avec C :
+
+ACLOOTU + ? = 2 (bk)	ALCOOLE + ? = 2 (ns)	AACOTTU + ? = 2 (or)
+CILNOTU + ? = 2 (ao)	CEIILRU + ? = 2 (dl)	CEINNNO + ? = 2 (tu)
+CEINNRU + ? = 2 (ao)	CEINNSU + ? = 2 (ae)	AACELOU + ? = 2 (dq)
+CENRTUU + ? = 2 (op)	ACEILUU + ? = 2 (nr)	ACELSUU + ? = 2 (lt)
+ACELNUU + ? = 2 (ix)	CEENRUU + ? = 2 (lo)	AACEOSS + ? = 2 (rv)
+ACELLOU + ? = 2 (hp)	AACLOTU + ? = 2 (gn)	ACILLOO + ? = 2 (dn)
+AAACLNR + ? = 2 (dv)	CCEIORU + ? = 2 (fn)	CCEOORU + ? = 2 (nu)
+ACCOTUU + ? = 2 (or)	AACEIOS + ? = 2 (lr)	ACLSTTU + ? = 2 (op)
+AACLRTU + ? = 2 (is)	ACILNUU + ? = 2 (eq)
+
+AACLRU + ? = 2 (cn)	
+
+CELLUUS + ? = 3 (act)	ACIOORR + ? = 3 (dmy)	AACCRTU + ? = 3 (hos)	
+CELOORU + ? = 3 (diu)	ACOORUU + ? = 3 (glm)	AACEOST + ? = 3 (c²mv)
+AACENOS + ? = 3 (gpu)	AACEORS + ? = 3 (ils)	ACEOORS + ? = 3 (mpt)
+CEILSTT + ? = 3 (aeh)	ACILNSS + ? = 3 (eot)	ACEEIOT + ? = 3 (nrv)
+ACEEIOS + ? = 3 (lps)	NOIRCIT + ? = 3 (ftu)	AEHIPRSU + ? = 3 (ceo)
+CEOORTU + ? = 3 (kns)	CEILNUU + ? = 3 (afq)	AAACTU + ?? = 3 (bd,de,pr)
+ACILTUU + ? = 3 (bfm)	CEILTUU + ? = 3 (cmr)
+
+AACLNO + ? = 3 (mrs)	CELLNU + ? = 3 (aei)	ACLTUU + ? = 3 (bfm)
+
+CILLORS + ? = 4 (ae²k)	ACNOORU + ? = 4 (ndtx)	AACNRSU + ? = 4 (aely)
+CANASTA + ? = 4 (g²lrs)	LICITEE + ? = 4 (afhs²)	CEIIILN + ? = 4 (dmsv)
+CEILRUU + ? = 4 (aeot)	COURSAS + ? = 4 (aei3t)	CAILLOU + ? = 4 (dfqx)
+
+AACNOU + ? = 4 (begp)	ACOTUU + ? = 4 (behr)
+
+CLONERA + ? = 5 (ae²i4o)		COUENNE + ? = 5 (mrstv)
+AAACRST + ? = 5 (dnsvy)		ACIEREE + ? = 5 (cflps)
+ROCOUER + ? = 5 (adiny)		CRUAUTE + ? = 5 (bhors)
+CATELLE + ? = 5 (aisux)		NACELLE + ? = 5 (cmnosy)
+AACEENN + ? = 5 (bmnot)		CAILLOT + ? = 5 (be3frs²)
+INCITEE + ? = 5 (dhrst)		ACEEINO + ? = 5 (dmnrt)
+AACELOS + ? = 7 (cfilprv)		ACISUU + ?? = 5 (es,hq,lm,mx,rr)
+
+
+Avec D :
+
+DERSTUU + ? = 2 (ao)	AADSSTT + ? = 2 (er)	ADIILLU + ? = 2 (ov)
+ADEINNU + ? = 2 (bo)	DEEILLO + ? = 2 (au)	ADEOOLR + ? = 2 (cd)
+ADIINOU + ? = 2 (bt)	AADEOTU + ? = 2 (ft)	ADEOSUU + ? = 2 (lv)
+Doillon + ? = 2 (mu)	DEEELNU + ? = 2 (bp)	DOLLIES + ? = 2 (gu)
+AADEENT + ? = 2 (mp)	ADELNOU + ? = 2	(dr)	DEEILOT + ? = 2 (dn)
+ADILOOS + ? = 2 (bg)	DENRUU + ?? = 2 (lo,sv)	AADELOS + ? = 2 (mr)
+AADEOSU + ? = 2 (mv)	ADDEIIN + ? = 2 (rv)	AADILOU + ? = 2 (gs)
+ADEITUU + ? = 2 (qr)	ADEIRUU + ? = 2 (st)	DEEOORS + ? = 2 (iv)
+ADEELNU + ? = 2 (bp)	ADEEIOT + ? = 2 (mz)	ADEINNN + ? = 2 (ei)
+DEINNNO + ? = 2 (dt)	AAADINS + ? = 2 (fn)	AADLNOR + ? = 2 (np)
+ADLNORT + ? = 2 (pu)
+	
+AADLMT + ? = 2 (ei)	ADLLRU + ? = 2 (en)	DRELINinv + ? = 2 (ab)
+DEILUU + ? = 2 (qr)	AAADNS + ? = 2 (cr)	DENOOT + ? = 2 (ar)
+
+DNORSUU + ? = 3 (frt)	ADLSTRU + ? = 3 (aei)	DILLOTU + ? = 3 (ace)
+DEEEIRU + ? = 3 (npt)	DEELOOR + ? = 3 (cht)	DEIOOST + ? = 3 (mnv)
+DEILNSU + ? = 3 (aco)	DEIILOR + ? = 3 (aos)	ADIIOSS + ? = 3 (cnp)
+DOUALAS + ? = 3 (inr)	DEIINOR + ? = 3 (csz)	ADERTUU + ? = 3 (iqs)
+DEEEINU + ? = 3 (gqr)	ADULAIT + ? = 3 (cfs)	ADEIINO + ? = 3 (bft²)
+ADEEOSU + ? = 3 (bcv)	ADILORR + ? = 3 (egu)	ADNOOU + ?? = 3 (bs,cr,vz)
+DILOSTU + ? = 3 (aes)	ODONATE + ? = 3 (nrs)	DEIIORR + ? = 3 (ftz)
+
+ADNOOS + ? = 3 (lry)	DEOORT + ? = 3 (lnp)	DEIILN + ? = 3 (a3cw)	
+
+DUELLES + ? = 4 (ajox)	DEEILNO + ? = 4 (dgnt)	ADIRSSU + ? = 4 (ceo²p²)
+DEEILNN + ? = 4 (aeoy)	AADEISU + ? = 4 (cgpq)	ADIIORT + ? = 4 (ehns)
+DEIILSU + ? = 4 (fqrt)	LIEUDIT + ? = 4 (cfsv)	ADINOOR + ? = 4 (enst)
+DOUELLE + ? = 4 (ipsv)	ADEOORT + ? = 4 (hmnr)	AADNORS + ? = 4 (lipt)
+ADIRSTT + ? = 4 (eiou)	DEINOOT + ? = 4 (nrsv)	DEITUU + ?? = 4 (aq,ar,eq,sx) 
+ADEIISU + ? = 4 (gqrt)	
+
+AADOSU + ? = 4 (blmp)	DEEIINS + ? = 4 (ac3f²t²)	
+
+DEIILRU + ? = 5 (acmqs)		INDIENS + ? = 5 (agoru)
+ADEIINN + ? = 5 (clnst²)		TAUDEES + ? = 5 (ilnrs)
+ADEOUU + ?? = 5 (bl,bq,gr,ls,sv)
+
+ADEOOT + ?? = 7 (hr,mr,mz,nn,nr,ns,rr)
+
+
+	
+Avec F :
+
+EFIIRTU + ? = 2 (ar)	EFIINNO + ? = 2 (ls)	EFIILOU + ? = 2 (nq)
+EFIILSU + ? = 2 (dr)	EFILRRS + ? = 2 (au)	EFOORSU + ? = 2 (lw)
+FIILSSS + ? = 2 (ae)	AAEFINU + ? = 2 (pv)	EFINTUU + ? = 2 (no)
+AFORRST + ? = 2 (in)	FLOORSU + ? = 2 (ei)	AAFIILN + ? = 2 (ps)
+EFINOUU + ? = 2 (rt)	FINOSUU + ? = 2 (gt)	EFIOORT + ? = 2 (cl)
+FLRSTUU + ? = 2 (ae)	
+
+AAFLOU + ? = 2 (fm)	AAFINN + ? = 2 (ci)	
+
+FILORSU + ? = 3 (dno)	AAEFIIT + ? = 3 (bcn)	ELFRRSU + ? = 3 (iou)
+EFILRSS + ? = 3 (aiu)	AAFILOS + ? = 3 (cfy)	FILLOO + ?? = 3 (er,es,hl)
+FIILNOR + ? = 3 (dps)	EFINRRU + ? = 3 (ego)	EEFOTUU + ? = 3 (brs)
+AFINRTU + ? = 3 (eg²l)	TIFOSIS + ? = 3 (rap)	FIINRSU + ? = 3 (aot)	
+AAEFFLS + ? = 3 (fgi)	
+
+AEFNOS + ? = 3 (fhs)
+
+FATSIAS + ? = 4 (cfnu)	AFIINOR + ? = 4 (cfgm)	EFIIORR + ? = 4 (adgh)
+SNIFANT + ? = 4 (efou)	EFIISST + ? = 4 (lnrx)	EFLOORS + ? = 4 (cmnu)
+EFISUU + ?? = 4 (er,fx,kq,ll)
+
+
+AEEFIRU + ? = 5 (ilqrv)		AFOORT + ?? = 5 (be,cn,in,lm,ns)	
+EFNOUU + ?? = 5 (ar,fo,gx,ir,it)	
+
+
+Avec G :
+
+AEGLOOR + ? = 2 (cg)	AEGORUU + ? = 2 (dm)	AGINOOS + ? = 2 (lt)
+AGILOOT + ? = 2 (gs) 	AEGIOO + ?? = 2 (lp,ms)	AAGLOTU + ? = 2 (co)
+AGNNNOO + ? = 2 (fr)	AGNSTUU + ? = 2 (ei)	AOGTUU + ?? = 2 (fr,ss)
+EGLOOSU + ? = 2 (iv)	EGILOOT + ? = 2 (or)	EGLOOTU + ? = 2 (tu)
+GLOORUU + ? = 2 (be)	EGNOTUU + ? = 2 (hi)	EGILOOS + ? = 2 (gu)
+EEGORUU + ? = 2 (fm)	EGOORSS + ? = 2 (iy)	EGINOOR + ? = 2 (eh)
+EGRSSTU + ? = 2 (ai)	EGIOOSS + ? = 2 (nr)	EGIOSSU + ? = 2 (rv)
+EGLORRT + ? = 2 (ei)	EEGIOOR + ? = 2 (nu)	GIINNRT + ? = 2 (ao)
+GIILNNU + ? = 2 (ae)	GGLNOU + ?? = 2 (ac,is)	EGOORST + ? = 2 (nu)
+GILOORS + ? = 2 (an)	EGLIOTU + ? = 2 (nr)	AEGLTTU + ? = 2 (ae)
+EGNOOTT + ? = 2 (lp) EGIOOSU + ? = 2 (lz)	AEEGGLU + ? = 2 (nr)
+AEGGLNU + ? = 2 (ae)	AAEGLOS + ? = 2 (nu)	AEEEGRU + ? = 2 (ms)
+AGLNOOT + ? = 2 (dg)	
+
+EGOOTU + ? = 2 (rv)	GOORTU + ? = 2 (ey)	EGOORT + ? = 2 (pu)
+EEGNOO + ? = 2 (rz)	AGLNOO + ? = 2 (bd)
+
+
+GIINNOT + ? = 3 (ilr)	EEGINOO + ? = 3 (lrv)	EGINRUU + ? = 3 (asz)
+EGILOOR + ? = 3 (ltu)	GENESES + ? = 3 (aru)	EEGIOTT + ? = 3 (ghs)
+EGIIORR + ? = 3 (fmn)	OURAGAN + ? = 3 (des)	AEEEGNU + ? = 3 (cnt)
+GEILSTU + ? = 3 (a3dn²)	GILNSTU + ? = 3 (ae²h)	AEEGTUU + ? = 3 (lqs)
+EGLOOTT + ? = 3 (mnu)	EGLNOOT + ? = 3 (gr²t)	AAAGINT + ? = 3 (cmr)
+EEGILOU + ? = 3 (bpx)	EGGOONU + ? = 3 (stu)	EGISSTT + ? = 3 (ain)
+AEGINUU + ? = 3 (djr)	AEGOUU + ?? = 3 (bl,dr,mr)
+
+AGORAS + ? = 3 (ent)	AAGILO + ? = 3 (cps)	EGIOOS + ? = 3 (bdn)
+AEGNUU + ? = 3 (jlx)	AAGEOT + ? = 3 (nop)	AAAGRR + ? = 3 (bfg)
+
+EEGINNO + ? = 4 (jprs)	GIINRST + ? = 4 (egho)	GRATTES + ? = 4 (ae²i3u)
+RIGOLER + ? = 4 (astu)	NEOGENE + ? = 4 (cdrs)	AEGNRUU + ? = 4 (ilst)
+EEGIORR + ? = 4 (cnuv)	EEGIORT + ? = 4 (lnuz)	EEGIORU + ? = 4 (dort)
+EEEGNST + ? = 4 (imr²t)	EEGNOOR + ? = 4 (cims)	EGLORUU + ? = 4 (bino)
+EEEGNOT + ? = 4 (chil)	AEGNSUU + ? = 4 (ejrt)	AGLOOR + ?? = 4 (ce,eg,is,mn)
+EGIOORU + ? = 4 (belu)	AEGNTUU + ? = 4 (jlrs)	AGLNOOS + ? = 4 (bdip)
+EGIIRTU + ? = 4 (blmn)	AAGNRRT + ? = 4 (efio)	AEGNOO + ?? = 4 (cl,dn,mn,mr)
+EGOORUU + ? = 4 (ilst)	
+
+AAAGIN + ? = 4 (kmrz)	EEGOUU + ?? = 4 (bl,fr,mr,st)
+
+AGILOOS + ? = 5 (dg²nrt)		EEGLNOO + ? = 5 (dilm²p)
+GEIILRT + ? = 5 (deosu)  		EGIILNU + ? = 5 (abfnr)
+AEEGISU + ? = 5 (bimru)		AGINOTU + ? = 5 (cepst)
+GINOSTU + ? = 5 (acnor)		SONGEES + ? = 5 (bi3ruz)	
+SLOGANS + ? = 5 (einpt²)		AEEGOSU + ? = 5 (bclnr)
+EGIINRU + ? = 5 (fgltz)		EGILNOU + ? = 5 (bfhs²t)
+AAGILNO + ? = 5 (ekmns)		
+
+GOUROU + ?? = 6 (ac,bl,ei,el,hi,is)
+
+
+Avec H :
+
+AEEHNRR + ? = 2 (ac)	EEHLOTT + ? = 2 (nu)	AEEHNRU + ? = 2 (mt)
+AEEEHRS + ? = 2 (mp)	EHIIMMS + ? = 2 (cs)	AEEHITU + ? = 2 (bl)
+EHIILRT + ? = 2 (at)	AEHIINU + ? = 2 (bt)	HONOREE + ? = 2	(ms)
+AAHINNS + ? = 2 (go)	EEEHNU + ?? = 2 (aq,mr)	EHNNUU + ?? = 2 (cs,iq)
+EEHIIST + ? = 2 (cg)	AAHRSST + ? = 2 (an)	EHIIRSU + ? = 2 (ls)
+AEHLNTU + ? = 2 (cr)	HIORSST + ? = ? (ae)	HLLOOST + ? = 2 (ei)
+EEHIINT + ? = 2 (cl)	EEEHRTT + ? = 2 (bn)	EHILOOS + ? = 2 (dt)
+EHIOOST + ? = 2 (mz)
+
+EHOTTU + ? = 2 (lr) 	AEHTTU + ? = 2 (cr)	AEHNNO + ? = 2 (im)
+EHISSU + ? = 2 (kt)	AEEEHT + ? = 2 (c²n)	AEHIOS + ? = 2 (rt)
+AHINO + ? = 2 (fz)	
+
+EEHIINR + ? = 3 (bcg)	AEHLNRS + ? = 3 (cop)	EHINSTU + ? = 3 (ctz)
+HOTTEES + ? = 3 (adu)	EHORSTU + ? = 3 (cnt)	EEHIOST + ? = 3 (lr²y)
+EEHLOST + ? = 3 (cio)	HINOORT + ? = 3 (aco)	AHORSTU + ? = 3 (ckm)
+EHIRSTT + ? = 3 (aeo)	EEHINOT + ? = 3 (cfr)	AHILOST + ? = 3 (egi)
+AEHILOS + ? = 3 (cut)	HIINSRT + ? = 3 (ego)	THONINE + ? = 3 (cis²)
+AHIINST + ? = 3 (ceu)	HEROINE + ? = 3 (dst)	AEHIILS + ? = 3 (rtw)
+HONNETE + ? = 3 (afs)	LESOTHO + ? = 3 (eil)	AAHIOSU + ? = 3 (crt)
+AAHIOST + ? = 3 (cgu)	AAEHITU + ? = 3 (nrv)	AHIIORT + ? = 3 (cds)
+AHILNOT + ? = 3 (abp)
+
+HELENT + ? = 3 (cew)	humoir + ? = 3 (bdt)	AAHLRS + ? = 3 (ekm)
+AEHINO + ? = 3 (fnp)	AHLSSS + ? = 3 (cep)	
+
+HOUARIS + ? = 4 (acde)	AEHINOT + ? = 4 (frtu)  HOUATES + ? = 4 (ciqx)
+HOONSS + ?? = 4 (eh,gu,ot,su)
+
+EHIINST + ? = 5 (aclrt)		AEHIOSU + ? = 5 (c²lrst)		
+AEHNNOT + ? = 5 (cefnp)		AETHUSE + ? = 5 (cmprs²)
+HUTIAS + ? = 5 (bcn²os)
+
+EHORSST + ? = 6 (eilo²py)		
+
+
+Avec M :
+
+AEMNOOR + ? = 2 (gu)	ALMOORS + ? = 2 (fl)	EIILMNN + ? = 2 (et)
+ALMNNOO + ? = 2 (ap)	AIMOORS + ? = 2 (nt)	AAMNOTT + ? = 2 (cs)
+AEMOORS + ? = 2 (cz)	AEMOOSS + ? = 2 (tz)	AEMTTUU + ? = 2 (gr)
+AMNOORT + ? = 2 (hi)	AMNOOTU + ? = 2 (en)	IIMNNST + ? = 2 (ao)
+AAMOSSU + ? = 2 (ks)	EILMOOT + ? = 2 (dr)	AALMOSU + ? = 2 (bf)
+EEMOORT + ? = 2 (dp)	IMOOSTU + ? = 2 (qr)	AELLMOU + ? = 2 (bi)
+ELMNOOR + ? = 2 (gs)	AEMNRUU + ? = 2 (cx)	SURMOIS = + ? = 2 (e²o)
+ALMSTTU + ? = 2 (ei)	EILMORR + ? = 2 (fp)	AEIIMTU + ? = 2 (fx)
+IIMNOOT + ? = 2 (mn)	ILMNOOR + ? = 2 (al)	EILLLM + ?? = 2 (ai,fu)
+AAMNUU + ?? = 2 (cr,dl)	AEMNUU + ?? = 2 (cr,rx)	
+AMORTUU + ? = 2 (lx)	AALMNOU + ? = 2 (rt)	AALMNRU + ? = 2 (eo)
+AILMOOR + ? = 2 (fn)	AILMOOS + ? = 2 (nv)	AAIMOSU + ? = 2 (qr)
+AEMORUU + ? = 2 (gx)	ELMNUU + ?? = 2 (ct,ix)
+AELMOOT + ? = 2 (gp)	EMOORSS + ? = 2 (pu)	OOMRSSU + ? = 2 (ei)
+EEIMNNOU + ? = 2 (pr)
+
+MOROTE + ? = 2 (lp)
+
+AEMNOOU + ? = 3 (prt)	EMNNOOT + ? = 3 (iou)	EMNOORU + ? = 3 (aop)
+ELMNOOT + ? = 3 (els)	AAMOTTU + ? = 3 (erz)	IILMNOR + ? = 3 (aet)
+AEMNOOS + ? = 3 (bpz)	EIIMRTU + ? = 3 (gln)	ALMNOOR + ? = 3 (ghi)
+AEMOOST + ? = 3 (suz)	EEMNTTU + ? = 3 (agr)	EEEMSUU + ? = 3 (clr)
+EEEMNNO + ? = 3 (il²y)	ELLMNOS + ? = 3 (aio)	MASALAS + ? = 3 (ers)
+AAMOSTT + ? = 3 (ins)	AILMNOO + ? = 3 (prs)	ILMNOOU + ? = 3 (lps)
+AIMRSUU + ? = 3 (amn)	AAELMNU + ? = 3 (irs)	EEELMTU + ? = 3 (prt)
+AAMNOTU + ? = 3 (lnq)	AALMOST + ? = 3 (c²il)	LMNTUU + ?? = 3 (ca,ce,gr)
+AIILMOT + ? = 3 (cmn)	EIILMRU + ? = 3 (dht)	MNOOOR + ?? = 3 (dt,eu,xy)
+ALMORST + ? = 3 (emu)	EIMNUU + ?? = 3 (lx,oq,rt)
+EIIMORR + ? = 3 (agt)	EIILMNR + ? = 3 (ceo)	AAAELMR + ? = 3 (brx)
+AILMMU + ?? = 3 (be,ce,pe)
+
+AALMNU + ? = 3 (dit)	AIMOOS + ? = 3 (fgz)	
+
+AAMNORU + ? = 4 (eilx)	AIMNSST + ? = 4 (e3oru)	EEEMSST + ? = 4 (i²npr)
+AEMNOOT + ? = 4 (cptu)	AILMNOR + ? = 4 (ceio)	EEILMNN + ? = 4 (a²oiu)
+EEMNOOR + ? = 4 (fghm) 	ILMOSTU + ? = 4 (cenp)	AMOOTU + ?? = 4 (en,es,nn,tu)
+AAEIMNU + ? = 4 (lsvq)	AAIMORU + ? = 4 (nsxy)	EEIIMOR + + ? = 4 (nstz)
+LIMITES + ? = 4 (ae²no)	AMEOTTU + ? = 4 (abfq)	EMNTUU + ?? = 4 (cl,ir,ox,qs)
+AAMORTU + ? = 4 (bdty)	ALLMOO + ?? = 4 (es,bt,ls,rs)
+AELMOO + ?? = 4 (bz,gt,ls,pt)
+EEILMRTT + ? = 4 (aios)
+AELLMO + ? = 4 (cirs)
+
+AALMORT + ? = 5 (defry)		IMOORSU + ? = 5 (bnrst)
+OSMOSEE + ? = 5 (gnstx)		AIMNOOR + ? = 5 (chlst)
+SAMOSAS + ? = 5 (kmntu)		AUNAMES + ? = 5 (ilstx)	
+RAMONAI + ? = 5 (c3ns²t²u)		AALMSTU + ? = 5 (bhnrs)
+AEMOUU + ?? = 6 (bq,cj,gr,pt,rx,ss)	
+EMSSUU + ? = 5 (abmoq)		ELMOOR + ? = 5 (bfipt)
+AALMNO + ? = 5 (acemr)		IIMNSU + ? = 5 (bdmpt)
+
+		
+
+Avec P :
+
+ENOOPTU + ? = 2 (su)	ANOOPTU + ? = 2 (tu)	AAEINPU + ? = 2 (fs)	
+EELNNOP + ? = 2 (iu)	AENNPUR + ? = 2 (hl)	EIIOOPS + ? = 2 (dt)	
+PUTTEES + ? = 2 (ij)	AILOOPT + ? = 2 (cs)	AEEIILP + ? = 2 (fr)
+ALOPTTU + ? = 2 (cs)	EIIPRRU + ? = 2 (af)	EOPRRUU + ? = 2 (gv)
+EEELNPU + ? = 2 (dr)	AAAENPS + ? = 2 (gh)	ATROPOS + ? = 2 (ip)
+EIOOPRR + ? = 2 (st)	ELOOPUU + ? = 2 (pt)	APOLLOS + ? = 2 (en)
+EINNNOP + ? = 2 (pt)	ELNNPRU + ? = 2 (ao)	EILLPRT + ? = 2 (eo)
+IIPRSST + ? = 2 (ae)	EEEILPT + ? = 2 (ao)	EEEPSUU + ? = 2 (gr)
+AOPTUU + ?? = 2 (er,no)	EEIILPS + ? = 2 (mx)	EEINNPR + ? = 2 (ae)
+PLANTON + toutes les voyelles sauf O.		
+
+
+AAALNP + ? = 2 (tu)	ELOOPR + ? = 2 (ms)	IOPPRT + ? = 2 (be)
+
+AALNNOP + ? = 3 (cft)	EILNNP(S) + ? = 3 (iou)		EEILNPU + ? = 3 (crv)
+EEINOPU + ? = 3 (ahs)	AOOPSTT + ? = 3 (mnu)		AAAILPT + ? = 3 (glr)
+AAELOPS + ? = 3 (cir)	AAENOPS + ? = 3 (cst)		EILLOPS + ? = 3 (nuy)
+ELOOPTU + ? = 3 (itu)	AOOPTTU + ? = 3 (nrs)		IIOPRST + ? = 3 (aln)
+EPOUTIT + ? = 3 (a²s3q)	EELPSUU + ? = 3 (mpt) 		ENOPPRT + ? = 3 (adi)
+EILOPTU + ? = 3 (clo)	PUTTERS + ? = 3 (afu)		AAEPTTT + ? = 3 (mnw)
+
+AINNP + ? = 3 (iot)	
+
+LAPONNE + ? = 4 (soft)	EILOOPS + ? = 4 (bmnt)	EEEIINP + ? = 4 (grtx)
+AENOPRU + ? = 4 (gist)	PARTOUT + ? = 4 (ae²no)	ENPRTUU + ? = 4 (acls)
+PUISOIR + ? = 4 (agqs)	PUROTIN + ? = 4 (ae4mn)	EEPRRRU + ? = 4 (dios)
+ELNOPRU + ? = 4 (gins)	ILOOPST + ? = 4 (aenu²)	ILOPRST + ? = 4 (aein)
+
+ELPSUU + ? = 4 (cqrt)	
+
+EELNPRU + ? = 5 (deilt)		POELENT + ? = 5 (c²irtu)
+EPOINTA + ? = 5 (ecmu²z²)		EPINAIE + ? = 5 (fpr3st)
+REPOLIR + ? = 5 (a²fmsu)		EILNPRU + ? = 5 (aceov²)
+EEILNOP + ? = 5 (cnpst)		EILPRUT + ? = 5 (aeirs)
+ALOOPR + ?? = 5 (ce,cr,ct,di,np)	EIILNOP + ? = 5 (lmrsu)
+SNIPERS + ? = 5 (giot²u²)		panotée + ? = 5 (g²imnrs)
+PAROIRS + ? = 6 (ei²lmtu)		AIOOPST + ? = 5 (cglpr)
+TAPOTAS + ? = 6 (dei3nrs²)		ELOPPRS + ? = 5 (adeuy)
+	
+
+Avec V :
+
+AELNSUV + ? = 2 (mo)	AALORTV + ? = 2 (py)	AILNNOV + ? = 2 (gl)
+INORTUV + ? = 2 (is)	AAEINNV + ? = 2 (nr)	AOORTV + ? = 2 (gn)
+ANOORTV + ? = 2 (gs)	AILSTUV + ? = 2 (ac)	AEILNUV + ? = 3 (cpv)
+AELOOV + ?? = 2 (cr,di)
+
+EIOSUV + ? = 2 (oq)
+
+VANNAIS + ? = 3 (gor²)	ALVEOLE + ? = 3 (ces)	AAAENTV + ? = 3 (dgl)
+EINNSUV + ? = 3 (ade)	EIIORRV + ? = 3 (ilp)
+
+IORSTV + ? = 3 (aen)
+
+IORSSUV + ? = 4 (aeno)	Vistule + ? = 4 (clrv)	VENTURI + ? = 4 (cils²)
+SOLIVES + ? = 4 (a3cdk)	EOSSUUV + ? = 4 (alnr)	EIIORTV + ? = 4 (cilt)
+AAILTOV + ? = 4 (cegs)
+
+EIINUV + ? = 4 (dqst)	
+
+MISSIVE + ? = 5 (acesu²)		VIRTUEL + ? = 5 (acens)
+VISAMES + ? = 5 (afils²)		VICIENT + ? = 5 (a3dino²)
+INNOVEE + ? = 5 (bdjs²t)		VIRETON + ? = 5 (a3cglp²)
+AEISSUV + ? = 7 (abeoqrt)
+
+
+Avec BB :
+
+BBEILNO + ? = 2 (ou)	ABBEEIL + ? = 2 (in)	butable + ? = 2 (e+ti)
+
+BIBITES + ? = 3 (glt)	BBEILST + ? = 3 (aio)	BBELOU + ?? = 3 (en,in,ou)
+AABBIRS + ? = 3 (elo)
+
+ABBLOU + ?? = 4 (am,as,in,ou)	
+
+
+Avec BC :
+
+BCEINOU + ? = 2 (qr)	BCEILLO + ? = 2 (ay)	BCELSTU + ? = 2 (iu)
+BBCERSU + ? = 2 (lr)	BCILSTU + ? = 2 (eo)	ABCEILU + ? = 2 (lt)
+BBCELRS + ? = 2 (au)	BCIOSTU + ? = 2 (hl)	ABCEIIL + ? = 2 (rv)	
+AABCNRR + ? = 2 (do)	AABCORU + ? = 2 (nt)
+
+AABCEI + ? = 2 (dr)	COBOLS + ? = 2 (eh)	BECOOR + ? = 2 (ht)
+
+BINOCLE + ? = 3 (ahs)	AABCELO + ? = 3 (grt)	AABCNRS + ? = 3 (hik)
+ABCEIIS + ? = 3 (dnt)	BCINORU + ? = 3 (des)	ABCELNO + ? = 3 (iut)
+BCEEINR + ? = 3 (alo)	BCEOOST + ? = 3 (nrt)	BCCEOU + ?? = 3 (as,ih,ms)
+BCCEIL + ?? = 3 (io,nu,sy)
+
+CIBOULE + ? = 4 (rstz)	BECAUSE + ? = 4 (ahl3x)	BANCOUL + ? = 4 (ehst)
+AABCNOR + ? = 4 (nrtu)	BCEEEE + ?? = 4 (an,dt,hr,lr)
+
+ABCEELTU + ? = 4 (aeor)
+
+BCIORS + ? = 4 (enps)	AABCSU + ? = 4 (l²mru)	BCELRU + ? = 4 (a3bmo²)
+
+BACILLE + ? = 5 (osuvy)		ABCERTU + ? = 5 (ehio3u)
+
+BECIOU + ? = 5 (adlpq)			
+	
+
+
+Avec BD :
+
+AABDDEI + ? = 2 (bg)	ABBDINO + ? = 2 (er)	ABDISSU + ? = 2 (ei)
+BDEEII + ? = 2 (pr)	AABDDI + ? = 2 (ag)	ABDLORR + ? = 2 (au)
+
+ABDEILT + ? = 3 (eio)	
+
+ABDEIIO + ? = 4 (mnst)	BDEIRRU + ? = 4 (agot)
+
+BDILUS + ? = 4 (aeop)	AABDNU + ? = 4 (elmt)
+
+DIABLES + ? = 5 (aersu)		AABDLNS + ? = 5 (de3iou)
+
+
+Avec BF :
+
+BEFILSS + ? = 2 (iu)	BEFIILU + ? = 2 (nr)	BEFIILR + ? = 2 (lu)
+
+ABEFOTU + ? = 3 (nrs)	ABEFORT + ? = 3 (aou)	ABFIIOT + ? = 3 (cln)
+BFIORT + ? = 3 (anu)	ABEFLOR + ? = 3 (isu)	
+
+FAUBERS + ? = 5 (eio²rt)	
+
+BFIILO + ? = 2 (em)	
+
+Avec BG :
+
+BEEGILL + ? = 2 (ir)	GOURBIS + ? = 2 (en)	BGLORUU + ? = 2 (eo)
+BIGLENT + ? = 2 (ao)	BEGILLR + ? = 2 (ei)	AABEGLL + ? = 2 (er)
+ABEEGLO + ? = 2 (lr)	BBGINU + ?? = 2 (as,cl)
+BGILLNO + ? = 2 (eu)
+
+ABGLOO + ? = 2 (mn) ABGGIT + ? = 2 (iu)	BGLLOU + ? = 2 (de)
+
+BGLNOSU + ? = 3 (aeo)	BEGILOO + ? = 3 (cim)	BEGIINO + ? = 3 (aet)
+BEGILNU + ? = 3 (a²io)	GOBIONS + ? = 3 (lu²y)	BGIORR + ?? = 3 (au,en,fu)
+BEGORSS + ? = 3 (acu)	BEGIRTU + ? = 3 (ain)	ABGNOO + ?? = 3 (gt,ls,nu)
+
+BEUGNER + ? = 4 (aimz)	GOBEUSE + ? = 4 (adrs)	BIOGENE + ? = 4 (irsz)
+BASTING + ? = 4 (ades)	ABEGNST + ? = 4 (ioru)	BEGUINE + ? = 4 (jrsz)
+ˈBOUGNERˈ+ ? = 4 (dios)	BGOORU + ?? = 4 (ei,en,hs,lu)
+BEGIIL + ? = 4 (afnz)
+
+
+GABELLE + ? = 5 (alor²s)			
+	
+
+Avec BH :
+
+BHOOSTU + ? = 2 (ac)	BHIOSTU + ? = 2 (ac)	ABHOSTU + ? = 2 (io)
+ABEHLNR + ? = 2 (ei)	ABHINSS + ? = 2 (eg)	BENTHOS + ? = 2 (er)
+ABEHIOT + ? = 2 (cl)
+
+BEEHOS + ? = 2 (cm)	BHIIRS + ? = 2 (at)	BHOOR + ?? = 2 (ce,gu)
+
+ABHNSU + ? = 2 (am)	BEHMSU + ? = 2 (ln)
+
+BEEHORS + ? = 3 (act)	BHINORS + ? = 3 (ceg)	ABHOOS + ?? = 3 (ci, il, tu)
+ABEHILN + ? = 3 (cir)	ABEHORU + ? = 3 (c3ei)	HUBRIS + ?? = 3 (gn,mo,tt)
+
+AABHLN + ? = 3 (irt)	ABEHRU + ? = 3 (clt)	BHISTU + ? = 3 (amz)
+
+ABEHIIN + ? = 4 (lr3tu)	BHIORU + ?? = 4 (ae,co,jp,ms)
+ABHINS + ? = 4 (cegi)
+
+
+Avec BM :
+
+AABMOSU + ? = 2 (lm)	ABEMOOR + ? = 2 (hj)	BEEELMO + ? = 2 (hl)
+BEILMNU + ? = 2 (ao)	ABEELMO + ? = 2 (pt)	BEIMNOU + ? = 2 (ls)
+AABEELM + ? = 2 (cn)	BEEMNST + ? = 2 (lo)	
+
+AABMOS + ? = 2 (cl)	BEMRUU + ? = 2 (ox)	BMROUU + ? = 2 (es)
+BLMOOO + ? = 2 (ct)	
+
+BIMORSU + ? = 3 (cho)	BEIMNRU + ? = 3 (ers)	ABEELMT + ? = 3 (ost)
+BEMNOOS + ? = 3 (alu)	AABLMSU + ? = 3 (ort)	BIMNOOR + ? = 3 (dns)
+AABELMN + ? = 3 (dei)	BIMOORS + ? = 3 (enu)	BABALLE + ? = 3 (ms²t)	
+BRIMENT + ? = 3 (aot)	AABLMOU + ? = 3 (bcs)	BBELMO + ?? = 3 (ac,it,sy)
+AABLMNU + ? = 3 (dgt)	BEMRSUU + ? = 3 (eos)	ABEEILM + ? = 3 (kru)
+BEEMRTU + ? = 3 (noz)
+
+BOOMER + ? = 3 (bls)	ABBILO + ? + 3 (aet)	AAABMR + ? = 3 (bcl)
+BELMOO + ? = 3 (cnr)
+
+BOOMERS + ? = 4 (bilr)	SALAMBO + ? = 4 (mpsu)	NIMBAIS + ? = 4 (epor)
+ABEEOMR + ? = 4 (gjsu)	BEIMRRU + ? = 4 (anst)	AABMRSU + ? = 4 (ilst)
+
+AMIBIEN + ? = 5 (enors)		
+	
+
+Avec BP :
+
+BEENIPU + ? = 2 (an)	BEEILPR + ? = 2 (ou)	AABLLPR + ? = 2 (et)
+
+ABEINP + ? = 2 (lm)	BEPRTU + ? = 2 (ae)
+ABSSP + ? = 2 (iy)
+
+PUBERES + ? = 3 (ast²)	BIPOLES + ? = 3 (eos)	BILOOP + ?? = 3 (es,fk,mr)
+ABIPRST + ? = 3 (eiu)
+
+ABOPT + ?? = 4 (cs,el,lm,nr)	
+
+BIPALES + ? = 5 (clins)
+
+Avec BV :
+
+RUBLEV + ?? = 2 (ao,ep)
+BEERTUV + ? = 2 (io)	ABEELNV + ? = 2 (di)	BEEEIRV + ? = 2 (tu)
+ABEORRV + ? = 2 (lu)	BELIRUV + ?? = 2 (op,ou)
+
+ABEILOV + ? = 3 (lmt)
+
+OBVENUS + ? = 4 (eimr)	
+
+		
+
+Avec CC :
+
+CCEIOOR + ? = 2 (rt)	ACCELUU + ? = 2 (hm)	CCEEEIR + ? = 2 (ax)
+CCELORT + ? = 2 (eu)	CCISSU + ? = 2 (en)	
+
+CCIINOT + ? = 3 (aeh)	COTICES + ? = 3 (e²hr)	CCEILNU + ? = 3 (abo)
+CONCILE + ? = 3 (i²su)	AACCELL + ? = 3 (ino)	ECCRINE + ? = 3 (ios)
+ACCELLR + ? = 3 (iou²)	
+
+CCEISS + ? = 3 (aou)	
+
+CACOLET + ? = 4 (hlns)	CCEELOT + ? = 4 (hlru)	CCEILOU + ? = 4 (nstz)
+SCIENCE + ? = 4 (lors)	
+
+CICLEES + ? = 5 (ahiny)		
+
+Avec CD :
+
+ACCEDIU + ? = 2 (st)	ACDEEOS + ? = 2 (tu)	CDILLOU + ? = 2 (at)
+CDIINOU + ? = 2 (am)	CCDEEER + ? = 2 (ln)	AACDLOS + ? = 2 (iv)
+ACDIIOT + ? = 2 (ef)	CCDEILU + ? = 2 (iu)	CDEEIIL + ? = 2 (fh)
+ACDRUU + ?? = 2 (lm,ot)
+ACDLOT + ? = 2 (iy)	
+
+ACDLOOR + ? = 3 (ent)	ACCDELO + ? = 3 (ahy)	CDIRSSU + ? = 3 (aeo)
+CDEEOTU + ? = 3 (nrt)	AACDIOL + ? = 3 (nsz)	CSARDAS + ? = 3 (e3lt)
+ACDLOTU + ? = 3 (ce²r)	AACDISS + ? = 3 (ehn)	CDORSTU + ? = 3 (eiu)
+
+ACDNOOR + ? = 4 (clnu)	AACDEIU + ? = 4 (hlns)	INDICEE + ? = 4 (hns3t)
+CDEOORU + ? = 4 (lrvy)	CLANDES + ? = 4 (a²e²i²o4)
+
+CDENOSU + ? = 5 (ai4o²rv)		ACDEENN + ? = 5 (iolrt²)
+ACDEELU = 5 (bipqr)
+ACDEIIL + ? = 6 (aglnpu)
+
+
+
+
+Avec CF :
+
+CEEFIRR + ? = 2 (eo)	CEFILSU + ? = 2 (ax)	CEFILUU + ? = 2 (gn)
+CCFILOS + ? = 2 (nu)	AACEFLN + ? = 2 (mt)	AACEFII + ? = 2 (st)
+CCEFIRU + ? = 2 (io)	CEFLORS + ? = 2 (ou)	ACEFORU + ? = 2 (hi)
+CFOSTU + ?? = 2 (er,in)
+
+FROLIC + ? = 2 (as)	
+
+ACEFIRU + ? = 3 (otx)	CEEFIIS + ? = 3 (adp)	ACCFIST + ? = 3 (eio)
+ACCEFIL + ? = 3 (dis)	
+
+ACFILR + ? = 3 (deo)	CEFLO(S) + ? = 3 (ahu)	
+
+CEFINTU + ?? = 3 (co,et,or)
+
+LOCATIF + ? = 4 (fhls)	CEFLOSU + ? = 4 (eln²r)	AACFIO + ?? = 4 (cc,ip,ls,nn)
+AACFIUS + ? = 4 (ehrt)	ACEEFO + ?? = 4 (bk,il,lm,nn)	
+
+AACFIST + ? = 5 (elnsu)	ACEFITU + ? = 6 (dglrx)
+	
+
+Avec CG :
+
+CEEEGOT + ? = 2 (ns) CLERGES + ? = 2 (ai)	CEEEGIR + ? = 2 (ns)
+ACEGRTT + ? = 2 (ae)	AACGLRTU + ? = 2 (it)	CEEGLLS + ? = 2 (ae)
+AACGIN + ? = 2 (eh)	ACEGGI + ? = 2 (hr,ln)
+
+CALIGUA + ? = 3 (eox)	ACGINNS + ? = 3 (dko)	AACEGIU + ? = 3 (lnr)
+ACCGINO + ? = 3 (eht)	
+
+AACGOU + ? = 4 (ghln)	
+
+REGENCE + ? = 5 (aiosv)		
+
+Avec CH :
+
+EECHOON + ? = 2 (lo)	CHISSTT + ? = 2 (op)	CEHIOOR + ? = 2 (ds)
+CEHIOOS + ? = 2 (nr)	ACHILNR + ? = 2 (bu)	CEEHNOO + ? = 2 (lo)
+CEHLLOU + ? = 2 (ai)	CEEEHLN + ? = 2 (cl)	CEHILNU + ? = 2 (gz)
+ACHLTTU + ? = 2 (ao)
+
+CHINOO + ? = 2 (kr)	
+
+ACHLLOU + ? = 3 (emn)	ACHHIRS + ? = 3 (e²io)	CHILIEN + ? = 3 (fst)
+CEHTOUU + ? = 3 (aqr)	NICHOIR + ? = 3 (bps)	
+
+ACEEHOS + ? = 4 (cmpt)	ACHLOTT + ? = 4 (aipu)	CEHOORS + ? = 4 (ilnt)
+TCHATES + ? = 4 (a3e3iu²)
+
+SCHISME + ? = 5 (a²eior)		ACEEHIL + ? = 5 (lmprs)
+CEEHIILN + ? = 5 (fmnpt)
+
+LOUCHER + ? = 6 (aitru²x)		chaline + ? = 6 (abcgtv)
+louchie + ? = 7 (lmpqrsz)
+
+Avec CM :
+
+LEUCOME + ? = 2 (ls)	CEEEMNO + ? = 2 (su)	CIIMOU + ?? = 2 (br,dn)
+ACIMOOR + ? = 2 (nr)	AACLMOU + ? = 2 (bf)	RECTUMS + ? = 2 (ko)
+CEEMOOT + ? = 2 (py)	ACMNOOT + ? = 2 (es)	CEIIMNU + ? = 2 (ps)
+AACLMOR + ? = 2 (ip)	OMICRON + ? = 2 (ae)	ACMORTU + ? = 2 (np)
+CEIILMS + ? = 2 (ab)	CLMOOU + ?? = 2 (bs,ev)	CEEEILM + ? = 2 (au)
+CEEEMTU + ? = 2 (hy)	CEEILMN + ? = 2 (ay)	CEIILMO + ? = 2 (dl)	
+SITCOMS + ? = 2 (ae)
+ACCIMS + ? = 2	(em)	CLMOOO + ? = 2 (bn)	CIIMNO + ? = 2 (at)
+ACIMMS + ? = 2 (ci)	
+
+CALUMET + ? = 3 (nos)	CEELMRU + ? = 3 (hst)	CIMOSTU + ? = 3 (ael)
+CEEMOSS + ? = 3 (knt)	AACEEMN + ? = 3 (hnr)	CIMNOST + ? = 3 (ehi)
+AAACILM + ? = 3 (bcn)	ACEIMNN + ? = 3 (lot)	CEILMOR + ? = 3 (ahp)
+CEEILMO + ? = 3 (hpv)
+ACMNTU + ? = 3 (ehj)	
+
+CUMULES + ? = 4 (dept)	MOISSAC + ? = 4 (npst)	AAACIMN + ? = 4 (bhls)
+CIMOSS + ? = 4 (atuy)	
+
+ACMNOTU + ? = 5 (hmrsx)	CEEMNSU + ? = 5 (ilort)
+ACCIMS + ?? = 5 (ee,el,eo,ho,lu)	
+
+ACIMOSU + ? = 6 (behmnt)
+
+	
+Avec CP :
+
+PROCESS + ? = 2 (io)	CEEILPR + ? = 2 (as)	CEEPPRS + ? = 2 (tu)
+CEILPTU + ? = 2 (ao)	CENOOPR + ? = 2 (in)	CILPPSU + ? = 2 (eo)
+AACELOP + ? = 2 (rs)	CCEOPRS + ? = 2 (eo)	CINOPTU + ? = 2 (ah)
+CEIINPU + ? = 2 (cm)	AACNPTU + ? = 2 (iq)	AACINPR + ? = 2 (de)
+ACCENPR + ? = 2 (ai)	CCEINPR + ? = 2 (ao)	ACIINPU + ? = 2 (cl)
+CIILNPS + ? = 2 (ao)	
+
+CEOOPU + ? = 2 (lx)	CNOOPR + ? = 2 (pu)
+
+AACENOP + ? = 3 (stu)	ACEIILP + ? = 3 (dls)	CEEINPU + ? = 3 (lrs)
+CILOPPS + ? = 3 (anu)	CAPELLA + ? = 3 (bpr)	CAPRICE + ? = 3 (nst)
+CEEEPSS + ? = 3 (aht)	CIINPST + ? = 3 (iou)	
+
+AACILPU + ? = 4 (hlst)	COOPTES + ? = 4 (em²io) POUCETS + ? = 4 (a²l²nr)
+CEEOPSS + ? = 4 (aitu)	CEOOPSU + ? = 4 (ehlu)	COPIEES + ? = 4 (anps)
+CEINPRT + ? = 4 (aeos)	CLIPART + ? = 4 (eosu)	PRECUIT + ? = 4 (a²eps²)
+CAPULET + ? = 4 (eins5)	ACOPRUU + ? = 4 (ersx)	CEOOPRR + ? = 4 (delm)
+
+PINCURE + ? = 5 (aelos²)		CEELNOP + ? = 5 (ist²uy)
+AACENPR + ? = 5 (chist²)		ACEPRRU + ? = 5 (eiost)
+CUPESSE + ? = 6 (alorst)		AACEELP + ? = 6 (dgh²mrt)		
+
+Avec CV :
+
+ACLNOTV + ? = 2 (eo)	CCEEIRV + ? = 2 (ot)	AAACSOV + ? = 2 (ns)
+CEIIRUV + ?? = 2 (dz)	CEIISUV + ?? = 2 (eq)	ACCEIOV + ? = 2 (lt)
+AACCERV + ? = 2 (hi)
+
+ACVNRU + ? = 2 (ei)	CEIIUV + ? = 2 (qx)
+
+CEEILTV + ? = 3 (eou)	CEIILNV + ? = 3 (aio²)	ACIIOTV + ? = 3 (an²r)
+ACELNOV + ? = 3 (cst)	ACILOTV + ? = 3 (aem)	ACIINUV + ? = 3 (nrx)
+ACCEILV + ? = 3 (onr)	AACIILV + ? = 3 (lor)	AACEOSV + ? = 3 (lst)
+
+ACIIRTV + ? = 4 (aeou)	ACNOSUV + ? = 4 (ehi²l)	ACEELOV + ? = 4 (bi²ls)	
+
+CENTAVO + ? = 5 (ilnrs)		CUIVRES + ? = 5 (ae²nos²)
+CLIVEES + ? = 5 (adhlu)		
+
+Avec DD :
+
+ADDEILU + ? = 3 (abc)
+
+DDEELMO + ? = 2 (ou)	DDENOUU + ? = 2 (mn)	ADDEELN + ? = 2 (ei)
+
+
+ADDIST + ? = 2 (cu)	
+
+Avec DF :
+
+DEFIINU + ? = 2 (gt)	ADEFLNS + ? = 2 (er)	DEEFOT + ?? = (rn)²
+DEEFINN + ? = 2 (eo)	DEFINOU + ? = 2 (bs)	ADFLORT + ? = 2 (et)
+DEFIITU + ? = 2 (ln)	AADEFO + ?? = 2 (ij,tu)
+ADEEFTU + ? = 2 (qr)	
+DEEFOT + ? = rien	ADFIRU + ? = 2 (at)	DEEEFU + ? = 2 (qr)
+
+ADEFITU + ? = 3 (cnr)
+
+DEFIIST + ? = 4 (cegr)	ADEEFLS + ? = 4 (nor²t)	ADEFRTU + ? = 4 (efin)
+DFINOU + ?? = 4 (ar,be,br,es)	 DFNOOU + ?? = 4 (cn,hx,ks,mr)
+ADFNOU + ?? = 6 (br,dh,er,ir,pr,rs)
+
+Avec DG :
+
+DEEGLOO + ? = 2 (np)	ADGLORS + ? = 2 (il)	ADGILSU + ? = 2 (ae)
+DEGOUU + ?? = 2 (ar,in)	AADGILR + ? = 2 (lm)	DEGINUU + ? = 2 (ao)
+
+DEEGII+ ? = 2 (rt)	DGILOR + ? = 2 (ae)
+
+LIGANDS + ? = 3 (aer)	ADEGNNO + ? = 3 (ors)	ADEGRUU + ? = 3 (lor)
+AADGILS + ? = 3 (inu)	NEGONDO + ? = 3 (ars)	DEGRSTU + ? = 3 (eio)
+AADGILO + ? = 3 (lnu)	GRONDIN + ? = 3 (ais)	DGIIOU + ? = 3 (bs,ns,tu)
+DROGMAN + ? = 3 (asu)	Diogène + ? = 3 (c²lr)	AADEGO + ?? = 3 (br,lp,rt)
+
+ADGILO + ? = 3 (hlr)	DEGNOO + ? = 3 (bln)	ADDGI + ?? = 3 (ab,es,np) 
+
+GOURDES + ? = 4 (ae²it)	DEGIUU + ?? = 4 (an,ax,lv,no)	
+
+ADGILOS + ? = 5 (ehlor)		GLANDUE + ? = 5 (ilrst)
+
+
+Avec DH :
+
+DHINOOR + ? = 2 (ls)	ADEHSSU + ? = 2 (or)	AAADHNR + ? = 2 (ms)
+ADEHNN + ?? = 2 (ee,gi)			DHIOOS + ?? = 2 (dr,el,nr)
+DEHION + ? = 2 (ru)	ADDHIS + ? = 2 (jk)
+
+ADEEHIR + ? = 3 (nrz)	DEHIION + ? = 3 (mnp)	DEEHLRU + ?? = 3 (io,is,us)
+DEHIOS + ? = 3 (cry)		
+DHIO + ? = 3 (bst)	
+
+ADEHIST + ? = 4 (cemy)	ADHNOTU + ? = 4 (cflr)	
+
+ADEHINS + ? = 5 (ckorp)		DHOLES + ?? = 5 (an,ap,ee,io,ry)
+
+Avec DM :
+
+DEIILMU + ? = 2 (gr)	ADIIMSU + ? = 2 (np)	AAADEMN + ? = 2 (ip)
+ADDIMOS + ? = 2 (eo)	DILMOSU + ? = 2 (ai)	DEIMRTU + ? = 2 (an)
+DEEMNOU + ? = 2 (rs)	DURUM(S) + ?? = 2 (ep,iv)
+AADMORU + ? = 2 (et)
+
+AADMSTU + ? = 3 (eir)	ADIMOOS + ? = 3 (dns)	DIMNOU + ?? = 3 (al,ax,ci)
+DEIIMNO + ? = 3 (hsz)	DEMSUU + ?? = 3 (aq,cl,pr)
+DEMUNIT + ? = 3 (npr)	MULARDE + ? = 3 (eos²)	DEIMOOR + ? = 3 (lns)	
+AADMNU + ? = 3 (bil)	AADMOR + ? = 3 (ilt)
+
+ADDEIM + ? = 4 (eior)	ADMIMES + ? = 4 (ahou)	DEEIMOT + ? = 4 (ahsv)
+ADEINPU + ? = 4 (hl²tv)	
+
+DOMISME + ? = 5 (acnr²s)		
+DEEMOU + ? = 5 (bl²rsz)			
+
+Avec DP :
+
+ADIIPSU + ? = 2 (mt)	ADILPPU + ? = 2 (ae)	LAPIDUS + ? = 2 (cd)
+ADILPSS + ? = 2 (ey)	DEIINOP + ? = 2 (eh)	DELOPST + ? = 2 (au)
+DELOPSU + ? = 2 (ot)	AADEIPU + ? = 2 (st)	DELPRRU + ? = 2 (ae)
+DEPLIENT + ? = 2 (o3u)	DEIIOPP + ? = 2 (ls)	AAADNPS + ? = 2 (ar)
+DILOOPR + ? = 2 (au)	DILOPRU + ? = 2 (eo)
+
+ISOPODE + ? = 3 (irs)	ADOPRRS + ? = 3 (ace)	ADDPRU + ?? = 3 (el,eo,hs)
+DEIOOPR + ? = 3 (stu)	DEILMRU + ? = 3 (cei)	ADELNPR + ? = 3 (eio²)
+LIPOIDE + ? = 3 (dps)	DEEINOP + ? = 3 (ipt)	AADEPSU + ? = 3 (irt)
+DEEIIPS + ? = 3 (brs)
+
+PARADOS + ? = 4 (i²lnr)	DEOOPRS + ? = 4 (intu)	PANDOUR + ? = 4 (fpst)
+DOPEURS + ? = 4 (ein4o)	PANADOS + ? = 4 (irtu)
+
+DEIIPOS + ? = 5 (hlopr)		
+
+Avec DV :
+
+DEIIRVU + ? = 2 (cs)	ADEINUV + ? = 2 (px)	DEIORRV + ? = 2 (ce)
+DEOVUU + ?? = 2 (as,pr)	DNOOTV + ?? = 2 (ei,ru)
+
+DEEINUV + ? = 3 (inr)	INDUVIE + ? = 3 (els)
+
+AADEINV + ? = 4 (cgrt)	
+
+Avec FF :
+AAFFNOR + ? = 2 (nt)	
+
+AFFIIOR + ? = 4 (lnrt)	EFFINSU + ? = 4 (lort)
+
+Avec FG :
+
+EFGIIOR + ? = 2 (lr)	EFGNNOT + ? = 2 (al)	EFGILUU + ? = 2 (cl)
+EFGRSTU + ? = 2 (ai)	GUELFES + ? = 2 (ao)	AAEFGNU + ? = 2 (lr)
+AAFGOR + ? = 2 (gr)	
+
+EFGINOU + ? = 3 (lpq)	FGIILNO + ? = 3 (ams)	EEFGIIN + ? = 3 (lrz)
+
+EFGILOU + ? = 4 (noqs)	EEFGITU + ? = 4 (anst)	
+FGINOT + ? = 4 (alor)	
+
+EFGIINR + ? = 5 (abelu)		EFGIINU + ? = 4 (dglr)
+EEFGINR + ? = 5 (aiotu)
+
+EFGIOR + ? = 5 (almnz)		
+
+Avec FH :
+
+EFHINOT + ? = 2 (ae)	
+
+Avec FM :
+
+EEFIMNN + ? = 2 (it)	AAFLMNO + ? = 2 (ct)	FIMRSTU + ? = 2 (an)
+AAEFILM + ? = 2 (mr)	EEFIMRT + ? = 2 (su)	EFILLMT + ? = 2 (ei)
+
+AFLMRU + ? = 2 (os)	AAFLMO + ? = 2 (ru)	FILMSU + ? = 2 (eo)
+FIIMSS + ? = 2 (et)	
+
+FOUIMES + ? = 3 (rst)	AEFIIMU + ? = 3 (gst)	
+
+AFIMNSU + ? = 4 (ehlo)	AFMNORS + ? = 4 (eiot)	EFMNOOR + ? = 4 (cdet)
+EEFMORT + ? = 4 (anru)
+
+Avec FP :
+
+AFIOPRN + ? = 2 (an)	EEFILPT + ? = 2 (rx)	AEFLNOP + ? = 2 (nu)
+EEFPRRU + ? = 2 (as)	FIILNOP + ? = 2 (ir)	AFILNPT + ? = 2 (ip)	
+
+EFIPRSU + ? = 5 (ailnt)		EEFILPR + ? = 5 (aio²st)
+
+
+Avec FV :
+
+EFIORUV + ? = 2 (mo)	AEEFIVR + ? = 2 (nu)
+
+Avec GG :
+
+AEGGLNU + ? = 2 (ae)	EGGNOOU + ? = 2 (su)	EGGIINR + ? = 2 (uz)
+
+AAGGINR + ? = 3 (e3fm)	grignée + ? = 3 (aol)	AAEGGIO + ? = 3 (npt)	
+GGENORU + ? = 3 (ars)	GRUGEOIR + ? = 3 (est)	AGGIIST + ? = 3 (beo)
+
+GGENOOT + ? = 4 (lnru)	GLAGEON + ? = 4 (fijs)	GGILNO + ?? = 4 (ae,an,bg,su)	
+
+Avec GH :
+
+AGHIINT + ? = 2 (cf)	GHILNOU + ? = 2 (ae)	AEEGHLN + ? = 2 (co)
+GHNOTUU + ? = 2 (de)	EGHILNU + ? = 2 (co)	AAEEGHL + ? = 2 (dt)
+GHINOOS + ? = 2 (rt)	GEHILNR + ? = 2 (ahe)	AEEGHON + ? = 2 (lx)
+EEEGHON + ? = 2 (tx)	EEGHOON + ? = 2 (mp)	GEEHILR + ? = 2 (an)
+GHIRSU + ?? = 2 (bn,ce)
+
+GEHILS + ? = 2 (dn)	GHLOSU + ? = 2 (ai)	AGHILO + ? = 2 (dt)	
+AGHINO + ? = 2 (rs)	GHILOS + ? = 2 (bu)	GHINOS + ? = 2 (an)
+EEGHIN + ? = 2 (oy)	EEGHNO + ? = 2 (ir)	EEGHNR + ? = 2 (eo)	
+
+
+AEGHILN + ? = 3 (cnr)	AEGHILR + ? = 3 (ent)	AGHINSS + ? = 3 (bov)
+EEGHILN + ? = 3 (erw)	EEGHINR + ? = 3 (cil)	EEGHNOS + ? = 3 (ipr)
+AEGHINN + ? = 3 (cdl)
+AEGHLT + ?? = 3 (ae,ir,sw)	GHOORU + ?? = 3 (bs,iu,ty)
+EGHINS + ? = 3 (clp)
+
+GHINORS + ? = 4 (abco)
+AGHINS + ? = 4 (bcov)	EEGHO + ?? = 4 (cr,in,nr,py)
+
+GHIOS + ?? = 5 (an,be,bl,lu,nn)
+
+EEGHON + ?? = 9 (al,ax,et,ex,is,mo,op,ps,rs)
+
+
+Avec GM :
+
+GRANUMS + ? = 2 (eo)	EGILMOO + ? = 2 (by)	AEGMOOS + ? = 2 (ei)
+GLMNOOR + ? = 2 (ae)	EEGILMR + ? = 2 (lu)	AAEGIMU + ? = 2 (rs)
+GELMOSS + ? = 2 (ae)
+
+AGIMOOS + ? = 3 (egs)	AEGLMOT + ? = 3 (ieo)	GERMOIR + ? = 3 (ais)
+EGIMRTU + ? = 3 (ain)	AGIMOST + ? = 3 (enr)	EGIIMOS + ? = 3 (adn)
+GOEMONS + ? = 3 (l²ot)	AEEGMNO + ? = 3 (d²rt)	AEEGIMU + ? = 3 (jps)
+AGMNSRT + ? = 3 (aio)	AAEGLMU + ? = 3 (cls)	EGIINMO + ? = 3 (svz)
+MEGOTER + ? = 3 (aeu)	GOLMOTE + ? = 3 (ast)
+
+ORGANUM + ? = 4 (dist)	AEEGMOR + 4 = (bfnt)	MORGUEE + ? = 4 (bs²tu)
+EEEGMRU + ? = 4 (alnp)	EEGIMSU + ? = 4 (afpr)	GILMNU + ?? = (bt,ch,ee,no)
+
+EEGMNOR + ? = 5 (aimos)		
+
+Avec GP :
+
+EGIPRSS + ? = 2 (ny)	AAAGNPS + ? = 2 (ei)	EEEGOPT + ? = 2 (ar)
+AGINPST + ? = 2 (er)	EEGNOOP + ? = 2 (hl)
+GEINPU + ? = 2 (rt)	
+
+EEEGILP + ? = 3 (nos)	EEGILOP + ? = 3 (ehu)	GINOPPS + ? = 3 (hrt)
+GUIPEES + ? = 3 (emr²)	
+
+AEEGLPU + ? = 4 (acnr)	
+
+PLANAGE + ? = 5 (h²irst)		
+
+
+Avec GV :
+
+AGILNRV + ? = 2 (ei)	GRAVOIR + ? = 2 (es)	EGIOSUV + ? = 2 (cs)
+
+EGOOUV + ? = 2 (lt)	AGLNOV + ? = 2 (ae)	AGILTV + ? = 2 (io)	
+
+AGINSSV + ? = 3 (ehy)	AEGRROV + ? = 3 (iou)	AAGINNV + ? = 3 (ist)
+EGIORSV + ? = 3 (in²t)	AGIILNV + ? = 3 (grt)	AGLNOV + ?? = 3 (as,es,in)
+
+EGIINRV + ? = 4 (aio²)	EEEGINV + ? = 4 (anrt)	EEGNORV + ? = 4 (cgnu)
+
+VAGINS + ? = 5 (e3hory)
+
+
+Avec HH :
+
+Avec HM :
+
+AHILMTU + ? = 2 (il)	AEHMNTT + ? = 2 (ac)	MENTHES + ? = 2 (ai²)	
+EHIMNSS + ? = 2 (ao)	AAEHMTT + ? = 2 (nr)	
+
+AAAHMNTT + ? = 2 (nr)	LITHAMS + ?? = 2 (eo,lu)
+	
+AAHMNO + ? = 2 (ci)	HILMTU + ? = 2 (iu)	Herman + ? = 2 (ou)
+HMORTU + ? = 2 (ai)	
+
+EEHMORT + ? = 3 (aem)	EHIIMUT + ? = 3 (del)	AEHMNOR + ? = 3 (cis)	
+AEHLMNO + ? = 3 (cdt)	EEHLMOS + ? = 3 (i²py)	EHIIMSS + ? = 3 (ckm)
+AAEEHMN + ? = 3 (bct)	AHMNORT + ? = 3 (aco)	AAHIMRS + ? = 3 (c²ot)
+ASTHMES + ? = 3 (nrt)	AEEHLMR + ? = 3 (btu)	EHIMOO + ?? = 3 (bn,lr,st)
+AAHIMOS + ? = 3 (c²nr)	EHMORSU + ? = 3 (cmn)	
+
+HIMORU + ? = 3 (bdt)	AMISHS + ? = 3 (aiu)	AAEHMT + ? = 3 (irs)
+
+AAHIMNS + ? = 4 (copu)	EHIMNST + ? = 4 (ae²oy)	AAEHMNT + ? = 4 (elst)
+AEEHMOT + ? = 4 (mpsr)	AAHIMST + ? = 4 (cers)		
+
+THOMISE + ? = 5 (mnost)		
+SHILOM + ? = 5 (cekps)		
+OHNISME + ? = 6 (ceinst)		
+
+
+Avec HP :
+
+EEHIPPT + ? = 2 (ay)	EHINPRS + ? = 2 (ac)	EEHINPR + ? = 2 (at)	
+SPAHIS + ? = 2 (ar)	AEHINPR + ? = 2 (es)	AEHNPU + ?? = 2 (di,nr)
+PHILOS + ?? = 2 (ay,et)				EHLOOPT + ? = 2 (iy)
+
+EHIPSST + ? = 3 (ior)	EHINOPR + ? = 3 (clm)	AEHNOPR + ? = 3 (acn)
+EEHNOPT + ? = 3 (dry)	hopeles + ? = 3 (clm)	AEHIOPS + ? = 3 (nrs)
+EHOOPRS + ? = 3 (emn)	PHLEOLE + ? = 3 (ces)	EEHOOP + ?? = 3 (ah,gn,rs)
+AEHOPSS + ? = 3 (c²it)	EEEHIPS + ? = 3 (bcn)	AEHILPR + ? = 3 (ace)
+
+
+EEHINOPT + ? = 3 (his)	AEHNIPST + ? = 3 (aio)	
+
+EHNOPR + ? = 3 (noy)	AAHNPR + ? = 3 (iot)	
+
+HOPLITE + = 4 (cors)	PHARAON + ? = 4 (egns)	EEHIPTT + ? = 4 (acer)
+EHIOPRT + ? = 4 (aclm)	EHOPSST + ? = 4 (airy)	AAAHPS + ?? = 4 (cn,en,lt,pr)
+PHORUS + ?? = 4 (cm,dj,ei,iz)
+
+EHIOPSS + ? = 5 (acmty)		HARPAIS + ? = 5 (elnst)
+EPHORES + ? = 5 (fi²not²)
+
+SOPHRO + ?? = 8 (ad,as,bt,ci,ee,em,en,kw)
+
+
+Avec HV :
+
+AAEHNRV + ? = 2 (ci)	EEHIUV + ?? = 2 (cl,mq)
+
+Avec MM :
+
+AAEMMNN + ? = 2 (ei)	ELMOOO + ?? = 3 (bc,np)
+
+AIMMRSU + ? = 3 (aeu)	AAEIMMT + ? = 3 (dfs)	TRIMMER + ? = 3 (asu)
+EMMNOTU + ? = 3 (cmn)	MORMONE + ? = 3 (eis)	MONOMES + ? = 3 (cdr)
+MOUSMES + ? = 3 (ein)	NOMMAIT + ? = 3 (elr)	
+
+EEMMOT + ? = 3 (npt)	EELMMU + ? = 3 (agp)	
+ELMMU + ? = 3 (akr)	
+
+EELMMOR + ? = 4 (gipu)	
+EIMMRU + ? = 4 (afps)	
+
+
+Avec MP :
+
+AMNOOPU + ? = 2 (el)	EIIMPOT + ? = 2 (gs)	LMNOOPU + ? = 2 (ai)
+AEEMOPU + ? = 2 (ly)	EEMPOSU + ? = 2 (ip)	ILMNOOP + ? = 2 (au)
+IMNOPTU + ? = 2 (rs)	AEMNPRU + ? = 2 (st)	IIIMPRT + ? = 2 (fn)
+
+ALLMPU + ? = 2 (in)	
+
+ALMNOOP + ? = 3 (inu)	EILMPTU + ? = 3 (lsy)	ALMOOPT + ? = 3 (ceh)
+IILMPSU + ? = 3 (afh)	EEIMNOP + ? = 3 (gpy)	EMOPSTU + ? = 3 (hir)
+
+AEMNOOP + ? = 4 (istu)	IMPOSTU + ? = 4 (elmn)	PAUMENT = 4 (irs²t)
+EIMOPRU + ? = 4 (m²suv)	
+
+EMOOPR + ? = 4 (glst)	IMPUNIE + ? = 4 (cjst)	EMMPRSU + ? = 4 (aiou)
+
+
+Avec MV :
+
+EEMORSV + ? = 2 (nu) = AAIMNUV + ? = 2 (de) EELMOV + ?? = 2 (is, ru)
+AELMRUV + ? = 2 (io) = AEIMNRV + ? = 2 (lt)
+AAMOV + ?? = 2 (bc,rs)	
+
+EIMOORV + ? = 3 (fnu)	AEIMSTV + ? = 3 (aer)	EEIMNUV + ? = 3 (aex)
+EEIMRTV + ? = 3 (eno)	AEEMRTV + ? = 3 (brs)
+
+EEMORUV + ? = 4 (lpsz)	AEIMRTV + ? = 4 (bno²s)	EEILMSV + ? = 4 (aoru)
+AEILMRV + ? = 4 (lnsu)
+
+
+Avec PP :
+
+EELOPPT + ? = 2 (is)	AEEIPPU + ? = 2 (rt) ILLPP(S)U + ? = 2 (eo)
+PEOPLES + ? = 2 (rt)	AILOPP + ? = 2 (cs)	
+
+ELOPPUU + ? = 3 (mox)	EELNOPP + ? = 3 (eiy)
+AGINPP + ? = 3 (lrz)	
+
+AEILNPP + ? = 4 (eors)	PAPOOSE + ? = 4 (crst)	POPOTES + ? = 4 (ains)
+
+EINOPP + ? = 4 (ensu)
+
+Avec PV :
+
+ELOPRUV + ? = 2 (il)	AELOPTV + ? = 2 (ru)	PENSIVE + ? = 2 (lr)
+EIIOPSV + ? = 2 (nt)	EELPOV + ?? = 2 (ar,tu)
+AEOOPRTV + ? = 2 (mt)
+
+EELPRUV + ? = 3 (abe)	
+
+AEEIPSV + ? = 4 (orst)	
+
+Avec VV :
+
+AEINUVV + ? = 2 (al)	AEILUVV + ? = 2 (nr)	EEINRVV + ? = 2 (et)
+
+EIIOTVV + ? = 3 (lmz)
+
+Avec BCD :
+
+BCDNORU + ? = 2 (ei)	
+BCEDIORU + ? = 2 (ln)
+ABCDELU + ? = 4 (aeor)	
+
+ABCDEI + ? = 2 (ai)	
+BCDEO + ?? = 4 (ar,hi,ii,iu)	
+
+
+Avec BCF :
+
+BECFIN + ?? = 2(ao,ee)	
+
+Avec BCG :
+
+Rien pour l’instant !
+Avec BCH :
+
+ABCEHNU + ? = 2 (or)	
+
+BCHINOR + ? = 3 (ais)	BCEHIOU + ? = 3 (coz)
+AAABCH + ? = 3 (lrt)		
+
+ABCHNOU + ? = 5 (aeilt)				
+
+
+Avec BCM :
+
+ABCIMSU = + ? = 2 (mo) CBIMORU + ? = 2 (is) BCEIILM + ? = 2 (es)	
+
+ABCIILMO + ? = 2 (lt)		
+
+COLOMBO + ? = 3 (ens)	ABCMOOR + ?? = 3 (dl,el,ks)
+BCLMNOO + ? = 3 (ios)
+
+AABCMU + ? = 3 (ems)
+
+Avec BCP :
+
+ABECOPU + ? = 2 (lu)
+
+BICEPS + ?? = 2 (al,ou)	BCEIOP + ?? = 2 (al,us)
+
+BCPORS + ? = 2 (ei)
+
+Avec BCV :
+
+ABCEEOV + ? = 2 (hl)	ABCEILV + ? = 2 (il)
+AABCOV + ? = 2 (hm)
+
+Avec BDF :
+
+BDFNORU + ? = 2 (ai)	ABDFNO + ?? = 2 (ru,ss)	ABDEEF + ?? = 2 (ck,ir)
+ABDEFFRU + ? = 2 (eo)	BDILNOOR + ? = 2 (af)
+
+Avec BDG :
+
+ABDGENR + ? = 2 (ai)	AABDDEG + ?  = 2 (ei)
+
+ABDGIT + ? = 2 (an)	
+
+AABDGI + ? = 3 (det)
+
+ABDEGIT + ? = 4 (aeru)	BEDEGAR + ? = 4 (dsuz)	BDEGORU + ? = 4 (aein)
+
+Avec BDH :
+
+Avec BDM :
+
+AABDLMN + ? = 2 (eu)	BDIMNU + ?? = 2 (be,su)	AABDMSU + ? = 2 (en)
+
+ABDLMO + ? = 2 (ir)
+
+Avec BDP :
+
+Avec BDV :
+
+Avec BFG :
+
+Avec BFH :
+
+Avec BFM :
+
+ABEFLMO + ? = 3 (iry)	
+
+Avec BFP :
+
+Avec BFV :
+
+Avec BGH :
+
+BGHINRS + ? = 2 (ou)
+
+BOGHEIS + ?? = 2 (bl,nn)	
+
+BGHIO + ?? = 3 (es,ls,nr)	
+
+Avec BGM :
+
+BGIMNOS + ? = 2 (ab)	BGMNTU + ?? = 2	(ae,il)	
+
+BGLMOU + ?? = 3 (ap,as,em)	
+
+BEEGMRS + ? = 4 (abiu)	
+
+Avec BGP :
+
+Avec BGV :
+
+ABEGRUV + ? = 2 (er)	
+
+Avec BHM :
+
+BEHIMNO + ? = 2 (eo)	BHMORSU + ? = 2 (it)	
+
+AABHLM + ? = 2 (ek)	
+
+Avec BHP :
+
+BEEHIPS + ? = 2 (ae)	BEHILP + ?? = 2 (et,gi)
+
+BEHINOPS + ? = 2 (lo)	
+
+
+Avec BHV :
+
+Avec BMP :
+
+BEIMPRU + ? = 2 (es)	BEEMOPR + ? = 2 (ln)	BEEIMP + ?? = 2 (ch,ru)	
+
+
+Avec BMV :
+
+ABIMRSTV + ? = 2 (ae)	
+
+Avec BPV :
+
+Avec CDF :
+
+ACDFOR + ? = 2 (er)	ACDFOU + ? = 2 (eh)	
+
+ACDEFIR + ? = 4 (ahlo)	CDEEFRR + ? = 2 (io)
+
+Avec CDG :
+
+CDEEGIR + ? = 2 (io)	CDEGIIR + ? = 2 (eo)	CDEGIIO + ? = 2 (dr)
+
+CAGADE + ? = 4 (ilrs)	
+
+Avec CDH :
+
+ACDEHLN + ? = 2 (ae)	CDEHMSU + ? = 2 (eo)	ACDEHIM + ? = 2 (ns)
+ACCDHRU + ? = 2 (ei)	ACDHIRU + ? = 2 (ce)	CDEHNOT + ? = 2 (ou)
+
+ACDHNU + ? = 2 (ei)
+
+CDEEHIL + ? = 3 (fio)	ACDHINR + ? = 3 (aep) CDEHIM + ?? = 3 (an,as,io)
+ACDHOT + ? = 3 (eru)	
+
+ACDHIST + ? = 4 (aenr)	DRACHER + ? = 4 (aeio)AACDHMR + ? = 4 (benu) 
+
+Avec CDM :
+
+CDEIMRS + ? = 2 (au)	CDEIMOT + ? = 2 (im)	AACDILM + ? = 2 (eu)
+CDEIMRU + ? = 2 (ls)	ACDIMOT + ? = 2 (nr)
+CDEMOR + ? = 2 (eu)	
+
+CDEIIOM + ? = 3 (hlt)
+
+DECIMER + ? = 4 (a²orv)	MEDICAL + ? = 4 (ae3o²s)	
+
+COSMIDE + ? = 5 (emnsu)
+
+Avec CDP :
+
+CDEENPU + ? = 2 (ar)	CDEIILP + ? = 2 (as)	PICIDES + ? = 2 (lr)
+CEDIOPS + ? = 2 (ah)
+
+AACDINP + ? = 3 (hrs)	
+
+ACDOPRS + ? = 4 (ehir)	
+
+
+Avec CDV :
+
+ACDOVT + ?? = 2 (aa, ir)	CDEIITV + ? = 2 (nr)	CDEITUV + ? = 2 (ao)
+
+ACDEEILV + ? = 3 (lnr)
+
+ACDEVIR + ? = 5 (aeilu)
+
+Avec CFG :
+
+CFGINO + ?? = 2 (it,rs)
+
+Avec CFH :
+
+FICHTRE + ? = 2 (ao)	
+
+Avec CFM :
+
+ACFIMNR + ? = 2 (ou)	ACFIRMS + ? = 2 (eo)	ACFLMNO + ? = 2 (ae)
+AACFLMO + ? = 2 (nu)	ACEEFLM + ? = 2 (io)	
+
+ACEEIFM + ? = 3 (lns)
+
+Avec CFP :
+
+CEEFPRT + ? = 2 (io)	ACFIPRT + ? = 2 (eo)	
+
+
+Avec CFV :
+
+Avec CGH :
+
+CGHIOUN + ? = 2 (ae)	CEEGHLO + ? = 2 (am)	
+
+ACEGHNO + ? = 3 (cmr)	CGEHNOR + ? = 3 (asu)	lichage + ? = 3 (acn)
+galuche + ? = 3 (aos)	CCGHNO + ?? = 3 (ae,ai,is)
+
+ACGHNIO + ? = 4 (cpsu)
+
+
+Avec CGM :
+ACEGLMU + ? = 3 (aio)	
+
+Avec CGP :
+
+Avec CGV :
+
+Avec CHM :
+
+ACHLMOS + ? = 2 (ae)	CEEHLMO + ? = 2 (gi)	CHIMORU + ? = 2 (eo)
+CHEMRTUU + ? = 2 (ce)	CEEHLMORU + ? = 2 (bo)	FICHAMES + ? = 2 (il)
+
+CHIMMR + ?? = 2 (os,tu)	CHIMOR + ? = 2 (am)	
+
+CHLMO + ? = 2 (io)		
+
+CHMOSTU + ? = 3 (aez)	AAACHMR + ? = 3 (nrw)	ACHLMN + ?? = 3 (aa,ai,eo)
+Michèle + ? = 3 (aot)
+
+Meilhac + ? = 4 (efis)	ACEHMTT + ? = 4 (enou)
+CHAIRMAN + ? = 4 (eior)	ACHIMNOR + ? = 4 (aeos²)
+
+MIOCHES + ? = 5 (anrsu)		MOHICAN = + ? = 5 (beps4u)	
+MANCHOU + ? = 5 (de²is²t)		
+AMOCHER + ? = 6 (bgnprs3)		
+
+Avec CHP :
+
+ACHLOPT + ? = 2 (at)	CHNOPTU + ? = 2 (ai)	CEHOOP + ?? = 2 (ht,su)
+ACHNOPU + ? = 2 (ct)	
+
+CHOPSS + ? = 2 (uy)	
+
+CEEEHPT + ? = 3 (iot)	CEEHIPT + ? = 3 (eotinv)	ACHEIPP + ? = 3 (aow)
+LAPACHO + ? = 3 (stu)
+
+CHOPSU + ? = 3 (ais)	
+
+Avec CHV :
+
+CEHISTV + ? = 2 	(ey)	CEEHNRV + ? = 2 (ay)	
+
+CCEHISV + ? = 3 (aeo)
+
+ACEHORV + ? = 4 (bgtu)	
+
+
+Avec CMP :
+
+CELMPSU + ? = 2 (ou)	CMOPRSU + ? = 2 (ah)	
+
+ACIMPRT + ? = 3 (aeo)	CMNIPU + ?? = 3 (as,hk,ie)
+ACIMNP + ? = 3 (glu)	
+
+CLAMPEE + ? = 4 (dars²)	
+
+Avec CMV :
+
+CEEIMV + ?? = 2 (dr, lo)	CELMOV + ?? = 2 (ei,ou)
+CEELMV + ?? = 2 (aa,io)	ACEILMOV + ? = 2 (s,t)
+
+Avec CPV :
+
+CEIOPRSV + ? = 6 (aeilnr)
+
+
+Avec DFG :
+
+DEFGINO + ? = 2 (or)	
+DEFGIN + ?? = 4 (et,iu,oo,or)
+
+Avec DFM :
+
+ADFIIMT + ? = 2 (eo)	DFIIMOR + ? = 2 (et)	
+
+Avec DFP :
+
+DEFNOPR + ? = 2 (ao)	DFPNORU + ? = 2 (ae)	
+
+
+Avec DFV :
+
+
+Avec DGH :
+
+ADEGHOR + ? = 2 (iu)	ADGHIO + ?? = 2 (er,ls)
+DEGHORUY + ? = 2 (fn)
+
+ADEGHO + ?? = 3 (bs,ir,ru)
+
+Avec DGM :
+
+DEEGIMR + ? = 2 (au)	
+ADEGIMNT + ? = 2 (ou)	
+
+ADEGIMR + ? = 4 (eimn)
+
+Avec DGP :
+ADEGLOP + ? = 2 (ae)	
+
+ADEEGOP + ? = 3 (lmt)	DEEGIPR + ? = 3 (epu)	
+
+ADGNIP + ? = 3 (ade)	
+
+Avec DGV :
+
+Avec DHM :
+
+ADEHLMO + ? = 2 (an)	ADHIMSS + ? = 2 (ir)
+DEHIMOST + ? = 2 (ei)	DIRHEM + ?? = 3 (ee,ey,op)
+
+ADHMRS + ? = 4 (ai²ou)	
+	
+
+Avec DHP :
+
+ADEHILP + ? = 2 (ao)	DEHILOP + ? = 2 (an)	DEHILNP = 2 (eo)
+EDHOOPRT + ? = 2 (ey)	
+
+DEHLOP + ?? = 4 (ai,as,in,ly)
+
+Avec DHV :
+
+DEEHIV + ?? = 3 (as,cr,ks)
+
+Avec DMP :
+
+AADEIMP + ? = 2 (cz)	DEELMPS + ? = 2 (iu)		
+
+DIIMPS + ? = + ?? = 4 (au,el,hs,ir)
+
+Avec DMV :
+
+DEIMNTV + ? = 2 (ei)	
+
+VIDAMIE + ? = 3 (prs)	
+
+Avec DPV :
+
+Avec FGH :
+
+Avec FGM :
+
+AEFGIMN + ? = 2 (iu)	
+
+Avec FGP :
+
+Avec FGV :
+
+
+Avec FHM :
+
+Avec FHP :
+
+Avec FHV :
+
+Avec FMP :
+
+AEFMOP + ?? = 2 (rr)²	
+
+Avec FMV :
+
+EFIMORV + ? = 2 (ou)	AEFIMV + ? = + ?? = 2 (ss,su)
+
+Avec FPV :
+
+Avec GHM :
+
+AEGHMN + ?? = 2 (co,su, sz)
+AEEGHIMT + ? = 2 (lr)
+
+
+Avec GHP :
+
+GEHOOP + ?? = 2 (az,en)	
+
+Avec GHV :
+
+AEGHINRV + ? = 2 (er)
+
+Avec GMP :
+
+AGILMPS + ? = 2 (en)	
+
+AGIMNPS + ? = 4 (celm) 
+
+Avec GMV :
+
+AEGIMSUV + ? = 2 (ru)
+
+Avec GPV :
+
+AEGOPV + ?? = 2 (at,ir)
+	 
+Avec HMP :
+
+AEHMPU + ?? = 2	(cs,im)	HILMPU + ?? = 2 (is,rt)
+HIMOPSS + ? = 2 (ei)		AEHLMP + ?? = 2 (ny,pt)
+AHILMOPT + ? = 2 (er)
+
+EEHIMPT + ? = 3 (aem)		HIMNOPR + ? = 3 (ego)
+
+EHIMOPR = 4 (dnst)		HIIMPS + ? = + ?? = 4 (ds,ep,lu,os)
+
+Avec HPV :
+
+
+
+Avec MPV :
+
+EEIMPRV + ? = 2 (su)	EMOPRUV + ? = 2 (ei)
+
+
+Avec 4 lettres semi-chères :
+
+CDEFGNO + ?? = 2 (ae,io)	ACDGHE + ?? = 2 (er,iu)	ACGHOPS + ? = 2 (ae)
+CGHILNTU + ? = 2 (ab)	ACDMOOPR + ? = 2 (er)	
+DEHIMOP + ? = 2 (gr)	
+AEGHIILM + ? = 2 (ep) AEEGHLMP + ? = 2 (io)AEEGHMNP + ? = 2 (io) 
+GHIMONPS + ? = 2 (ar)		
+
+BCDEEHR + ? = 3 (aou)	ACDEEGP + ? = 3 (aei)	ACDEFHOS + ? = 3 (lnr)
+CGHILNU + ? = 3 (aem)	ADHOPRS + ? = 3 (ceo)
+
+	
+ACEHMP + ? = 4 (eoru)	CHOMAGE + ? = 4 (nrsu)
+
+
+`;
+// =========================================================
+
+let pile = [];
+let compteurCouleur = 0;
+const zoneAffichage = document.getElementById('zone-affichage');
+
+function extraire() {
+    // Éclate les colonnes et les lignes
+    let propre = texteBrut.replace(/\t/g, '\n').replace(/[ ]{2,}/g, '\n');
+    let lignesRaw = propre.split('\n');
+    
+    pile = lignesRaw
+        .map(l => l.trim())
+        .filter(l => l.length > 5 && (l.includes('?') || l.includes('=')));
+    
+    document.getElementById('nb-tirages').innerText = pile.length.toLocaleString() + " TIRAGES JOKER DISPONIBLES";
+}
+
+function piocher() {
+    if (pile.length === 0) extraire();
+    if (pile.length === 0) return;
+
+    const hasard = Math.floor(Math.random() * pile.length);
+    const tirageComplet = pile[hasard];
+    
+    // Affichage immédiat du texte complet (plus de cache jaune)
+    zoneAffichage.innerText = tirageComplet;
+    
+    // Alternance des couleurs Jaune / Vert
+    if (compteurCouleur % 2 === 0) {
+        zoneAffichage.style.backgroundColor = "yellow";
+    } else {
+        zoneAffichage.style.backgroundColor = "#90EE90"; // Vert
+    }
+    compteurCouleur++;
+}
+
+window.onload = extraire;
+</script>
+</body>
+</html>

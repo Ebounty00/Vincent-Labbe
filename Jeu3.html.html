@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Jeu de Tirages - Liste 4 (Défilement Rapide)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #jeu-container {
+            text-align: center;
+        }
+        .cadre {
+            background-color: yellow;
+            color: black;
+            border: 3px solid #000;
+            padding: 50px;
+            cursor: pointer;
+            min-width: 350px;
+            max-width: 85vw;
+            text-align: center;
+            font-weight: bold;
+            font-size: 2.2em;
+            user-select: none;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .cadre:active {
+            transform: scale(0.95);
+            background-color: #ffd700;
+        }
+        .instructions {
+            margin-top: 25px;
+            color: #555;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div id="jeu-container">
+    <div id="zone-affichage" class="cadre" onclick="chargerNouvelExemple()">
+        Chargement...
+    </div>
+    <div class="instructions">
+        Cliquez sur le texte pour passer au tirage suivant.
+    </div>
+</div>
+
+<script>
+const exemples = [
+    "EELNNOU + ? =", "EIINOTU + ? =", "AELNOOR + ? =", "AAEESTU + ? =", "AANNOTU + ? =",
+    "ANNOOSU + ? =", "AAEEORR + ? =", "EELLNTU + ? =", "AINRSUU + ? =", "ILOORTU + ? =",
+    "(A)ALLOSS + ? =", "AELNTUU + ? =", "ENNRUU + ?? =", "ELLNORS + ? =", "INUSUAL + ? =",
+    "EILNNTT + ? =", "AALRRTU + ? =", "ELOORRS + ? =", "ELLNOOT + ? =", "AELRRTT + ? =",
+    "AAELLNR + ? =", "EIINOTU + ? =", "EINOOTU + ? =", "EEIORTU + ? =", "EEIILNO + ? =",
+    "ANNSSTU + ? =", "AELLNOO + ? =", "AEOORTU + ? =", "AAOOSS + ?? =", "TAUREAU + ? =",
+    "EOORSUU + ? =", "AAAELNR + ? =", "EEIOORS + ? =", "EIRRSSS + ? =", "TUITION + ? =",
+    "EEIIRSU + ? =", "INNSTUU + ? =", "EEINOOT + ? =", "AEINNRR + ? =", "ROTOTOS + ? =",
+    "EELLNOO + ? =", "TUILEUR + ? =", "IIILLR + ?? =", "AALSTUU + ? =", "EIILORR + ? =",
+    "ALLNOO + ? =", "AILOOS + ? =", "EELNOO + ? =", "EOOSTF + ? =", "EOOSTG + ? =",
+    "EOOSTK + ? =", "EOOSTT + ? =", "EOOSTU + ? =", "EOOSTV + ? =", "RUNNER + ? =",
+    "EIIORU + ? =", "INNNR + ?? =", "INOTTU + ? =", "ILLUUT + ?? =", "AANOUS + ? =",
+    "AAENOR + ? =", "AEIRUU + ? =", "EIIORR + ? =", "AENOUU + ? =", "LRSTUU + ? =",
+    "BEENOOR + ? =", "BEIOOSU + ? =", "BEILNRU + ? =", "BEIILOR + ? =", "AABIRUU + ? =",
+    "ABILNNS + ? =", "BENSUU + ?? =", "BEELNRU + ? =", "ABEISUU + ? =", "ALBINON + ? =",
+    "ABERTUU + ? =", "BEIIOSS + ? =", "ABELOO + ?? =", "EBNOUU + ?? =", "BENOOT + ? =",
+    "ABMOOR + ? =", "ABLOOS + ? =", "ABLNOO + ? =", "BNOTUU + ? =", "ABOORU + ? =",
+    "CEENOOR + ? =", "ACOOSTU + ? =", "ACINOOR + ? =", "AACEELU + ? =", "CNRSUU + ?? =",
+    "CIINNU + ?? =", "NUCULES + ? =", "CASTRUM + ? =", "CEELUU + ? =", "AACEOS + ? =",
+    "DEENOOR + ? =", "DEILOOT + ? =", "DELOORU + ? =", "DNORTUU + ? =", "DILLSRU + ? =",
+    "ADNNOSU + ? =", "DEEIINO + ? =", "AADEENS + ? =", "ADEINOO + ? =", "DENRSUU + ? =",
+    "DILUENT + ? =", "ROLLAND + ? =", "DUREUSE + ? =", "AADELLN + ? =", "ADELLOU + ? =",
+    "ADNTUU + ?? =", "AADLORR + ? =", "DEIRSUU + ? =", "DEISTUU + ? =", "ADEOOS + ? =",
+    "DILOTU + ? =", "DELLNO + ? =", "DOORTU + ? =", "DILOST + ? =", "ADEOOU + ? =",
+    "EEFNOOR + ? =", "SOUTIFS + ? =", "FUMURES + ? =", "FILNRTU + ? =", "EEFIILU + ? =",
+    "AFINOOT + ? =", "EFINOOT + ? =", "FOORUU + ? =", "FOORUU + ?? =", "FIILLN + ?? =",
+    "FESTONS + ? =", "EFOOSTU + ? =", "AAEFIIS + ? =", "AEFOSST + ? =", "EFTTUU + ?? =",
+    "AEFNOSU + ? =", "EFNOOS + ? =", "(FouG)INOOT + ? =", "FOORTT + ? =", "EFOORU + ? =",
+    "ISOGONE + ? =", "AEGNOOR + ? =", "EEGIIRR + ? =", "AAGLLNR + ? =", "GIIILO + ?? =",
+    "EEGLLOU + ? =", "EEEGIOR + ? =", "EEGIIOR + ? =", "GIOORR + ?? =", "AEGLLOT + ? =",
+    "EGIOORS + ? =", "AGLOOTU + ? =", "EGILLNO + ? =", "AGLOORS + ? =", "GIOOSU + ? =",
+    "AAEGOL + ? =", "EGINOO + ? =", "UNGUIS + ? =", "AAEEHL + ? =", "EEGTUU + ? =",
+    "AGNNRS + ? =", "AGLOOS + ? =", "AGLOOT + ? =", "AEHNNOR + ? =", "AEEHNOR + ? =",
+    "AEEHORS + ? =", "EHNSUU + ?? =", "EEHLOOR + ? =", "HIRTTU(S) + ? =", "TUSSAHS + ? =",
+    "AEHOOST + ? =", "HUILANT + ? =", "EHILOTT + ? =", "EHNOOSS + ? =", "HOTTAIS + ? =",
+    "AAHLNOT + ? =", "AEEHLRU + ? =", "AHNNOU + ? =", "AEHNORU + ? =", "EHLORSU + ? =",
+    "HOOSTU + ? =", "EHLNOR + ? =", "HIORTU + ? =", "EEHLOS + ? =", "AEHNSU + ? =",
+    "HIINST + ? =", "HIORST + ? =", "AAHMNR + ? =", "HOORU + ?? =", "AEMSTUU + ? =",
+    "AEIILMO + ? =", "AELMOOS + ? =", "AEMOOSU + ? =", "EEMNOOT + ? =", "AEMOORT + ? =",
+    "AEIMRUU + ? =", "AEIMOOR + ? =", "ALMOORT + ? =", "AIMOOTT + ? =", "IMOSSTT + ? =",
+    "MRTTUU + ?? =", "AMMNOOS + ? =", "EILLMTU + ? =", "MOOORS + ?? =", "UMLAUTS + ? =",
+    "MARLINS + ? =", "AIMNRSS + ? =", "AMRTUU + ? =", "IILMOR + ? =", "AAMOSU + ? =",
+    "AAMOTU + ? =", "AEIMOO + ? =", "IIMSST + ? =", "MRSSUU + ? =", "MRSTTU + ? =",
+    "ALLMOO + ? =", "AAELNOP + ? =", "AEELNOP + ? =", "ALLNOPT + ? =", "EIILNPU + ? =",
+    "ELNOOPR + ? =", "OUTPUT + ?? =", "AEIPTTT + ? =", "EELPRTT + ? =", "EIOOPTU + ? =",
+    "AAELLPU + ? =", "EINOOPT + ? =", "INOPRRU + ? =", "AALLOPS + ? =", "EINPPTU + ? =",
+    "EEIILNP + ? =", "PROCTOR + ? =", "AALNOP + ? =", "EUPNEE + ? =", "NOOPPR + ? =",
+    "EELLORV + ? =", "AEOOSV + ?? =", "AAILLRV + ? =", "IILOOTV + ? =", "IINNUV + ?? =",
+    "VANUATU + ? =", "EIOORTV + ? =", "ALOORV + ?? =", "EOOSTV + ? =", "IOSTTV + ? =",
+    "AIOORV + ? =", "EOORRV + ? =", "EIOOTV + ? =", "ABBNOOS + ? =", "ABCEIIT + ? =",
+    "BCEILNU + ? =", "BCEEIIL + ? =", "BCEIITU + ? =", "BCEIILO + ? =", "BCNSUU + ? =",
+    "BCIINO + ? =", "BCEOOT + ? =", "BDOOSTU + ? =", "BRIDAIT + ? =", "BDENOO + ? =",
+    "ABFLLOR + ? =", "ABEFNS + ?? =", "BEEFLS + ? =", "ABFUN + ?? =", "BEFITU + ? =",
+    "BEGIIST + ? =", "GIBBONS + ? =", "ABEGNNR + ? =", "ABEEGIL + ? =", "BGOORU + ? =",
+    "BHLOOS + ? =", "AABHIIN + ? =", "AABEEHU + ? =", "BEHIMR + ?? =", "BEHINOO + ? =",
+    "BETHUN + ?? =", "BEHOTU + ? =", "BHOTT + ?? =", "BHINOR + ? =", "BEMNOOR + ? =",
+    "AABEMNR + ? =", "ABEEOMT + ? =", "EMBRUNS + ? =", "NIMBENT + ? =", "ABEIMUU + ? =",
+    "AABIMNR + ? =", "BEEIMNT + ? =", "BENIMES + ? =", "AABMNSU + ? =", "ABIMOOS + ? =",
+    "BIMORU + ? =", "ABEEILP + ? =", "ABEENPU + ? =", "ABOPST + ? =", "BIOPRS + ? =",
+    "ABEOSUV + ? =", "BEILVR + ? =", "BENUUV + ? =", "TICTACS + ? =", "ACCTTU + ?? =",
+    "CCIOTU + ? =", "CDEMNOU + ? =", "ACDMNOU + ? =", "ICDMNOU + ? =", "CDMNOOU + ? =",
+    "CDEIOOR + ? =", "AACDIOS + ? =", "ACCDEEL + ? =", "CEIIPRT + ? =", "CDINOR + ? =",
+    "ACFOORR + ? =", "CEEFLNO + ? =", "CEEFLNS + ? =", "CEFIRSU + ? =", "CEFIRRS + ? =",
+    "ACEFRRR + ? =", "CEFFLO + ?? =", "AACFILR + ? =", "ACEFLRU + ? =", "ACFILRU + ? =",
+    "CEEFOSS + ? =", "AACFOST + ? =", "ACFLRU + ? =", "CEEGLRU + ? =", "CEEIGNU + ? =",
+    "ACGILNU + ? =", "AGACAIT + ? =", "ACGL(N,O)R + ? =", "CHANNES + ? =", "CHOMIST + ? =",
+    "EEECHTU + ? =", "CHEILNU + ? =", "CEILMOT + ? =", "AACMNRU + ? =", "AACMRTU + ? =",
+    "ACELMNU + ? =", "OCULISM + ? =", "CIMMOR + ? =", "CIMNOO + ? =", "ACILLPU + ? =",
+    "AACEPSU + ? =", "AACELPU + ? =", "AACINNP + ? =", "CIOPSTU + ? =", "ACENNPR + ? =",
+    "COOPRRS + ? =", "CNOOPRT + ? =", "COOPRS + ? =", "CIINNV + ?? =", "ACNNOV + ? =",
+    "ADDEILS + ? =", "AADDISU + ? =", "ADFNOTU + ? =", "ADFINTU + ? =", "AADFORR + ? =",
+    "DFNOUU + ?? =", "DFNOOU + ? =", "DFIORU + ? =", "ADFLON + ? =", "DEGINOO + ? =",
+    "DEGIILR + ? =", "ADGIILU + ? =", "DGIINOR + ? =", "ADGLLO + ? =", "DEGSUU + ? =",
+    "DGILNO + ? =", "DEGILR + ? =", "ADHII(S)T + ? =", "ADEHLRU + ? =", "ADEHLSU + ? =",
+    "DEEHLOR + ? =", "DEHILOR + ? =", "ADHIMTU + ? =", "ADEHION + ? =", "DEEHINO + ? =",
+    "DEHILNO + ? =", "DEEHOS + ? =", "ADEMOOS + ? =", "AADEIMU + ? =", "DEIMNNR + ? =",
+    "DIMRSUU + ? =", "DEILMT + ? =", "DIMOOR + ? =", "PIPIDES + ? =", "POUDRIN + ? =",
+    "DEELOPT + ? =", "DEILNPR + ? =", "ADIOOPR + ? =", "ADLNOPT + ? =", "ADLOPT + ? =",
+    "DPOOST + ? =", "DUPLOS + ? =", "OPPIDA + ? =", "AADLOSV + ? =", "AADORSV + ? =",
+    "DEEILUV + ? =", "ADINSUV + ? =", "AFFLRRU + ? =", "EEFFNRU + ? =", "FFINORT + ? =",
+    "DEFFRS + ? =", "AFHOST + ? =", "AAEIFMT + ? =", "EMOTIFS + ? =", "AAFIIMN + ? =",
+    "EEEFMTU + ? =", "FIIMOT + ? =", "FIILMO + ? =", "FATIMA + ? =", "AEFINPR + ? =",
+    "AEFIPU + ? =", "GGILSU + ?? =", "GRINGES + ? =", "NURAGHI + ? =", "AEGHNTU + ? =",
+    "ROUGH + ?? =", "AGHLOS + ? =", "AGMNOSU + ? =", "AGIMMT + ?? =", "EGIIMOT + ? =",
+    "AGIMNSU + ? =", "AEGIMOU + ? =", "AEEGMO + ? =", "GEIMOU + ? =", "AEGNNOP + ? =",
+    "EEEGNPU + ? =", "EEGLOPR + ? =", "GINOOP + ? =", "AGILNOV + ? =", "EEGLORV + ? =",
+    "LIVINGS + ? =", "AGIRSUV + ? =", "EEHMNOR + ? =", "AEHLMOT + ? =", "EEEHMOT + ? =",
+    "RHUMATO + ? =", "AMATHIE + ? =", "LITHAMS + ? =", "AAEHLMT + ? =", "AAHLMR + ? =",
+    "AHIMST + ? =", "AEEEHM + ? =", "AHMOSS + ? =", "AAHLOPS + ? =", "AEHLOPS + ? =",
+    "AHILOPS + ? =", "AHLNOPS + ? =", "AHINNOP + ? =", "PHALLUS + ? =", "AHLOPS + ? =",
+    "AHILPS + ? =", "PHILOS + ? =", "OPHULS + ? =", "THRIPS + ? =", "EHOOP + ?? =",
+    "EHLISV + ?? =", "EHIOSTV + ? =", "EHNTUV + ?? =", "EHLISV + ? =", "MAMOURS + ? =",
+    "EEEMMO + ? =", "IMMOTU + ? =", "EILLMOP + ? =", "AEMOOPS + ? =", "AIMOOPT + ? =",
+    "ALMNPSU + ? =", "EILMSUV + ? =", "EMINOSV + ? =", "EEIMNOV + ? =", "AEIIMV + ? =",
+    "LLPPSUU + ? =", "AILPPR + ? =", "ELIOPSV + ? =", "AEPSTUV + ? =", "PLEUVE + ? =",
+    "ABCMOOR + ? =", "AABCLOM + ? =", "ABDEEGO + ? =", "BDEEIMR + ? =", "BDEEIMT + ? =",
+    "ABGHI + ?? =", "BHIOPRU + ? =", "ACDEGII + ? =", "ACDEGNR + ? =", "AAACDH + ? =",
+    "DIRCOMS + ? =", "ACDEMOT + ? =", "CDIIPS + ? =", "CDEIOP + ? =", "CEFGLU + ?? =",
+    "ACFOPRT + ? =", "CEFPRT + ?? =", "CGEHTU + ? =", "CEGIRP + ?? =", "AACCHP + ? =",
+    "AACLMOP + ? =", "ADEFIIM + ? =", "DEFORMO + ? =", "ADEFIM + ? =", "AADGMIR + ? =",
+    "AADEGLM + ? =", "AADGRP + ? =", "DEHMOSU + ? =", "ADHMSU + ? =", "DEHNOPT + ? =",
+    "OPHULS + ? =", "AADEMNP + ? =", "ADEEEMP + ? =", "DEEEMNP + ? =", "DEEEMPT + ? =",
+    "ADMOPR + ? =", "DIMITROV + ? =", "AEGHIM + ?? =", "AAGHMI + ? =", "GEIMPOT + ? =",
+    "AHIOMPR + ? =", "MUPHTI + ?? =", "AEHLMPT + ? =", "AEHMPU + ? =", "AEHMNP + ? ="
+];
+
+const zoneAffichage = document.getElementById('zone-affichage');
+
+function chargerNouvelExemple() {
+    // Sélection aléatoire d'un index
+    const index = Math.floor(Math.random() * exemples.length);
+    // Affichage direct du texte (pas de split ici pour garder le texte complet)
+    zoneAffichage.innerText = exemples[index];
+    
+    // Petite animation de feedback visuel
+    zoneAffichage.style.backgroundColor = "#fffbcc"; 
+    setTimeout(() => {
+        zoneAffichage.style.backgroundColor = "yellow";
+    }, 100);
+}
+
+// Initialisation au chargement de la page
+window.onload = chargerNouvelExemple;
+</script>
+
+</body>
+</html>
