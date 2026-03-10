@@ -43,32 +43,34 @@
         }
 
         .bouton {
-            background: linear-gradient(145deg, #FFD700, #FFA500); 
-            color: #001F3F; 
+            background: #FFD700; 
+            color: black; 
             border: 4px solid black;
             padding: 20px 10px; 
-            border-radius: 15px; 
+            border-radius: 10px; 
             font-weight: bold; 
             font-size: 1.2em;
             text-decoration: none; 
+            width: 280px; 
             box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
             transition: all 0.2s ease;
             display: flex; 
             flex-direction: column; 
             align-items: center;
-            justify-content: center;
-            min-height: 160px;
             box-sizing: border-box;
+            min-height: 160px;
+            justify-content: center;
         }
 
         .bouton:hover { 
-            background: linear-gradient(145deg, #FFF000, #FFB500);
+            background: #FFFFF0; 
             transform: translateY(-5px);
             box-shadow: 12px 12px 0px rgba(0,0,0,0.6);
         }
 
         .picto-container {
-            height: 80px; 
+            width: 100px; 
+            height: 90px; 
             display: flex; 
             align-items: center; 
             justify-content: center;
@@ -85,25 +87,28 @@
             text-transform: uppercase;
             text-align: center;
         }
-
-        .symbole-carte { font-size: 4em; line-height: 1; color: #001F3F; }
         
-        svg { width: 70px; height: 70px; fill: #001F3F; }
+        .bouton:hover .incrustation { color: #001F3F; }
+
+        .symbole-carte { font-size: 4em; line-height: 1; color: black; }
+        
+        svg { width: 100%; height: 100%; fill: black; }
 
         footer { 
-            margin-top: 40px; 
+            margin-top: auto; 
             padding: 40px; 
             color: #FFFFF0; 
             letter-spacing: 3px; 
             font-size: 1em; 
             opacity: 0.8;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
 
     <h1>ET POUR QUELQUES TIRAGES DE PLUS...</h1>
-    <div class="sous-titre">Entraînement intensif aux jeux de lettres</div>
+    <div class="sous-titre">Entraînement gratuit... mais sévère !</div>
 
     <div class="menu">
         <a href="Jeu1.html.html" class="bouton">
@@ -111,7 +116,7 @@
                 <svg viewBox="0 0 24 24"><path d="M12,1L9,9L1,9L7,14L5,22L12,17L19,22L17,14L23,9L15,9L12,1Z"/></svg>
                 <span class="incrustation" style="top:42%; font-size: 0.7em;">SHE</span>
             </div>
-            Benjamins avec joker
+            Rallonges Western
         </a>
 
         <a href="Jeu2.html.html" class="bouton">
@@ -119,39 +124,50 @@
                 <svg viewBox="0 0 24 24"><path d="M12,1L9,9L1,9L7,14L5,22L12,17L19,22L17,14L23,9L15,9L12,1Z"/></svg>
                 <span class="incrustation" style="top:42%; font-size: 0.7em;">RIF</span>
             </div>
-            Benjamins uniques (2)
+            Rallonges Eastern
         </a>
 
         <a href="Jeu6.html.html" class="bouton">
             <div class="picto-container">
-                <svg viewBox="0 0 24 24"><path d="M2,18C2,19.1 2.9,20 4,20H20C21.1,20 22,19.1 22,18V17C22,16.45 21.55,16 21,16H3C2.45,16 2,16.45 2,17V18M12,4C9.5,4 7.2,5.5 6.3,7.8C6.1,8.2 6,8.6 6,9V15H18V9C18,8.6 17.9,8.2 17.7,7.8C16.8,5.5 14.5,4 12,4Z"/></svg>
+                <svg viewBox="0 0 24 24" style="width: 80px; height: 80px; fill: black;">
+                    <path d="M2,18C2,19.1 2.9,20 4,20H20C21.1,20 22,19.1 22,18V17C22,16.45 21.55,16 21,16H3C2.45,16 2,16.45 2,17V18M12,4C9.5,4 7.2,5.5 6.3,7.8C6.1,8.2 6,8.6 6,9V15H18V9C18,8.6 17.9,8.2 17.7,7.8C16.8,5.5 14.5,4 12,4Z"/>
+                </svg>
             </div>
-            Benjamins uniques (6)
+            Benjamins uniques
         </a>
 
         <a href="Jeu3.html.html" class="bouton">
-            <div class="picto-container"><span class="symbole-carte">♠</span></div>
+            <div class="picto-container">
+                <span class="symbole-carte">♠</span>
+            </div>
             Tirages joker unique
         </a>
 
         <a href="Jeu4.html.html" class="bouton">
-            <div class="picto-container"><span class="symbole-carte">♥</span></div>
+            <div class="picto-container">
+                <span class="symbole-carte">♥</span>
+            </div>
             Tirages jokers multiples
         </a>
 
         <a href="Jeu7.html.html" class="bouton">
-            <div class="picto-container"><span class="symbole-carte">♦</span></div>
+            <div class="picto-container">
+                <span class="symbole-carte">♦</span>
+            </div>
             Tirages joker avec lettres chères
         </a>
 
         <a href="Jeu8.html.html" class="bouton">
-            <div class="picto-container"><span class="symbole-carte">♣</span></div>
+            <div class="picto-container">
+                <span class="symbole-carte">♣</span>
+            </div>
             Lettres cachées
         </a>
 
         <a href="Jeu5.html.html" class="bouton">
-            <div class="picto-container">
+            <div class="picto-container" style="width:120px; height:80px;">
                 <svg viewBox="0 0 24 24"><path d="M12,2C10,2 6,3 4,5C2,7 2,10 2,12C2,14 4,15 6,15C7,15 8,14 9,13V15C9,18 11,21 12,22C13,21 15,18 15,15V13C16,14 17,15 18,15C20,15 22,14 22,12C22,10 22,7 20,5C18,3 14,2 12,2Z"/></svg>
+                <span class="incrustation" style="top:32%; font-size:0.45em; width: 60px; line-height: 1;">BUFFALO GRIL</span>
             </div>
             Plus de 50 000 tirages !
         </a>
