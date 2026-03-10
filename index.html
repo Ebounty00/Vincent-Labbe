@@ -6,7 +6,7 @@
     <style>
         body { 
             font-family: 'Georgia', serif; 
-            background-color: #001F3F; /* Bleu Nuit */
+            background-color: #001F3F; 
             text-align: center; 
             padding: 40px 20px; 
             margin: 0;
@@ -17,7 +17,7 @@
         }
 
         h1 { 
-            color: #FFFFF0; /* Ivoire */
+            color: #FFFFF0; 
             text-shadow: 3px 3px 5px rgba(0,0,0,0.8); 
             font-size: 2.8em; 
             margin-bottom: 5px; 
@@ -84,13 +84,10 @@
             text-align: center;
         }
         
-        .bouton:hover .incrustation { 
-            color: #FFFFF0; 
-        }
+        .bouton:hover .incrustation { color: #FFFFF0; }
 
-        /* Tailles des symboles de cartes */
-        .as-pique { font-size: 4em; line-height: 1; }
-        .trio-cartes { font-size: 2.6em; line-height: 1; letter-spacing: -2px; }
+        /* Taille uniforme pour les symboles de cartes */
+        .symbole-carte { font-size: 4em; line-height: 1; color: black; }
 
         .large { 
             min-width: 620px; 
@@ -133,18 +130,34 @@
             Rallonges Eastern
         </a>
 
+        <a href="Jeu6.html.html" class="bouton">
+            <div class="picto-container">
+                <svg viewBox="0 0 24 24" style="width: 80px; height: 80px; fill: black;">
+                    <path d="M2,18C2,19.1 2.9,20 4,20H20C21.1,20 22,19.1 22,18V17C22,16.45 21.55,16 21,16H3C2.45,16 2,16.45 2,17V18M12,4C9.5,4 7.2,5.5 6.3,7.8C6.1,8.2 6,8.6 6,9V15H18V9C18,8.6 17.9,8.2 17.7,7.8C16.8,5.5 14.5,4 12,4Z"/>
+                </svg>
+            </div>
+            Benjamins uniques
+        </a>
+
         <a href="Jeu3.html.html" class="bouton">
             <div class="picto-container">
-                <span class="as-pique">♠</span>
+                <span class="symbole-carte">♠</span>
             </div>
-            Tirages joker uniques
+            Tirages joker unique
         </a>
 
         <a href="Jeu4.html.html" class="bouton">
             <div class="picto-container">
-                <span class="trio-cartes">♥♦♣</span>
+                <span class="symbole-carte">♥</span>
             </div>
-            Tirages joker multiples
+            Tirages jokers multiples
+        </a>
+
+        <a href="Jeu7.html.html" class="bouton">
+            <div class="picto-container">
+                <span class="symbole-carte">♦</span>
+            </div>
+            Tirages joker avec lettres chères
         </a>
 
         <a href="Jeu5.html.html" class="bouton large">
@@ -153,16 +166,6 @@
                 <span class="incrustation" style="top:32%; font-size:0.55em; width: 75px; line-height: 1;">BUFFALO GRIL</span>
             </div>
             Plus de 50 000 tirages !
-        </a>
-
-        <a href="Jeu6.html.html" class="bouton large">
-            <div class="picto-container" style="width:180px; height:100px;">
-                <svg viewBox="0 0 24 24" style="width: 80px; height: 80px; color: #5D4037;">
-                    <path fill="currentColor" d="M2,18C2,19.1 2.9,20 4,20H20C21.1,20 22,19.1 22,18V17C22,16.45 21.55,16 21,16H3C2.45,16 2,16.45 2,17V18M12,4C9.5,4 7.2,5.5 6.3,7.8C6.1,8.2 6,8.6 6,9V15H18V9C18,8.6 17.9,8.2 17.7,7.8C16.8,5.5 14.5,4 12,4Z"/>
-                </svg>
-                
-            </div>
-            Benjamins uniques
         </a>
     </div>
 	
