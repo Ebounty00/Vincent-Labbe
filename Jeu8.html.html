@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Jeu 8 - Lettres Cachées</title>
+    <style>
+        body {
+            /* Le même fond bleu que pour les autres jeux */
+            background-color: #7ECFF4; 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #affichage {
+            /* Couleur de départ : Jaune */
+            background-color: yellow;
+            color: black;
+            border: 8px solid #000;
+            padding: 60px 40px;
+            min-width: 600px;
+            max-width: 95vw;
+            border-radius: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            font-weight: bold;
+            font-size: 4em;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s, background-color 0.3s;
+        }
+
+        #affichage:active { transform: scale(0.98); }
+
+        /* Style spécifique pour la solution en rouge */
+        .solution-texte { color: red; display: block; margin-top: 20px; }
+
+        #compteur {
+            position: absolute;
+            bottom: 30px;
+            font-size: 2em;
+            font-weight: bold;
+            color: black;
+            background: rgba(255,255,255,0.3);
+            padding: 10px 30px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="affichage" onclick="gererClic()">CLIQUEZ POUR LANCER</div>
+    <div id="compteur">RESTANTS : <span id="nb">0</span></div>
+
+    <script>
+        // =========================================================
+        // ZONE OÙ J'INSÈRE LA TOTALITÉ DE MES TIRAGES (JEU 8)
+        // =========================================================
+        const rawData = `
+        ABBATIA(?) = 2 (LT)
+(?)ABOTEUR = 4 (CJRS)
+ACCO(?)AGE = 3 (NRT)
+(?)AGNARDE = 3 (BCF)
+(?)AILLEUR = 5 (BMPRT)
+(?)ALIERE = 3 (CPS)
+(?)AMBOULA = 2 (BC)
+(?)ANDANTE = 2 (BM)
+ANDESI(?)E = 2 (NT)
+(?)ANNETTE = 4 (BCMV)
+(?)ANNEUSE = 3 (CTV)
+ANTHELI(?) = 2 (EX)
+(?)APEMENT = 3 (LST)
+(?)APOTAGE = 4 (CPTV)
+(?)ARAUDEE = 2 (MT)
+AUTOPO(?)T = 2 (NR)
+A(?)VINE = 2 (LR)
+B(?)BOLAIS = 2 (AO)
+BO(?)DELLE = 2 (NR)
+B(?)LANDRE = 2 (AE)
+BONN(?)TTE = 2 (EO)
+BOUCHOI(?) = 2 (ER)
+BOU(?)ONNE = 4 (GLRT)
+B(?)URRIER = 2 (EO)
+CA(?)ICULE = 2 (LN)
+C(?)TICULE = 2 (OU)
+CHIALEU(?) = 2 (RX)
+CH(?)LEMIE = 2 (AO)
+CO(?)FIOTE = 2 (NR)
+CON(?)ETTI = 2 (CF)
+C(?)PRIERE = 2 (IY)
+DEP(?)NDRE = 2 (EO)	
+(?)ELTISTE = 2 (CD)
+(?)EPHRITE = 2 (NT)
+EPITHE(?)E = 2 (MT)
+(?)ERVELLE = 2 (CV)
+(?)ETAIRIE = 2 (HM)
+EUPHOR(?)E = 2 (BI)
+FA(?)TOCHE = 2 (NS)
+(?)FFLUENTE = 2 (AE)
+(?)FFUSION = 2 (AE)
+FLOB(?)RT = 2 (AE)
+FRIS(?)LEE = 2 (EO)
+FRISO(?)EE = 2 (LT)
+GR(?)FFOIR = 2 (EI)
+G(?)ULETTE = 3 (AOR)
+GOUTTEU(?) = 2 (RX)
+GUI(?)OUNE = 2 (DT)
+HER(?)EUSE = 2 (BS)
+(?)ILIPINO = 2 (FP)
+(?)IPERINE = 2 (PV)
+(?)IPHOIDE = 2 (SX)
+LAR(?)ONNE = 2 (DR)
+LAVA(?)ERE = 2 (DT)
+L(?)GOPEDE = 2 (AO)
+(?)LIPPEUR = 2 (CF)
+MAN(?)ILLE = 3 (DOT)
+(?)MBRETTE = 2 (AO)
+MEME(?)ENT = 2 (MR)
+MI(?)ANDRE = 2 (LS)
+MO(?)ILLON = 3 (DRU)
+MONO(?)ENE = 2 (GX)
+(?)OCKTAIL = 2 (CM)
+(?)OIGNENT = 3 (JPS)
+(?)OISSONS = 4 (BMPS)
+(?)OLLETTE = 3 (CFM)
+(?)ONGROIS = 2 (HT)
+(?)ONICITE = 2 (CT)
+(?)OSSETTE = 3 (BCF)
+(?)OUCHOIR = 3 (BCM)
+(?)OUCOULER = 2 (CR)
+(?)OUILLON = 5 (BCDMS)
+(?)OURONNE = 2 (BC)
+(?)OUSSEAU = 3 (MRV)
+(?)OUSSOIR = 4 (HMPV)
+(?)OUTEUSE = 6 (CDFGJR)
+(?)OUVELLE = 2 (DN)
+PA(?)EMENT = 4 (IRVY)
+P(?)CHETTE = 2 (IO)
+PET(?)OLEE = 2 (IR)
+PLASM(?)DE = 2 (IO)
+POCH(?)USE = 2 (EO)
+PRE(?)ABLE = 2 (NT)
+PRE(?)ENDE = 3 (BTV)
+P(?)TASSER = 3 (EOU)
+(?)RACKEUR = 2 (CT)
+(?)RACKING = 2 (CT)
+(?)RAPPAGE = 2 (FT)
+RE(?)ERCER = 2 (PT)
+(?)RENEUSE = 3 (AGP)
+REP(?)NDRE = 3 (AEO)
+(?)RISOLEE = 2 (BF)
+R(?)PAILLE = 2 (AI)
+(?)RUNELLE = 2 (BP)
+S(?)CRANTE = 2 (AU)
+SERICI(?)E = 2 (NT)
+U(?)ERISEE = 2 (BP)
+(?)UISETTE = 3 (LNP)
+(?)UNISIEN = 2 (AT)
+VITRIO(?)E = 2 (LT)	
+(?)ACANCIER = 2 (FV)
+(?)ACHEMENT = 4 (HLMV)
+B(?)ISSIERE = 2 (AU)
+G(?)MMIFERE = 3 (EOU)
+(?)ILOSELLE = 2 (FP)
+(?)INGUETTE = 3 (GLR)
+(?)OUILLAGE = 3 (FMT)
+(?)OUILLERE = 2 (HM)
+(?)OUILLEUR = 4 (BFMT)
+(?)OUILLURE = 3 (MRS)
+(?)OULINIERE = 3 (BMP)
+ACH(?)LIE = 2 (OY)
+AC(?)REEN = 2 (CO)
+A(?)ESSIF = 2 (BD)
+AIGUA(?)E = 2 (DG)
+(?)ALLIUM = 2 (GP)
+(?)ANISSE = 2 (CP)
+A(?)ONIER = 2 (CN)
+(?)APPING = 2 (LZ)
+(?)APUCHE = 2 (CM)
+(?)AUMURE = 2 (PS)
+BAB(?)CHE = 2 (AI)
+BARRE(?)S = 3 (ELN)
+B(?)GGIES = 3 (AOU)
+BI(?)CIDE = 2 (AO)
+BIGNO(?)E = 2 (LN)
+CAR(?)ELE = 2 (NR)
+CAV(?)RNE = 2 (EU)
+COMP(?)TA = 2 (EO)
+C(?)PSAGE = 2 (AO)
+COU(?)OIR = 4 (LPSV)	
+D(?)MPER = 2 (AU)
+DOU(?)LLE = 2 (EI)
+DR(?)FTER = 2 (AI)
+(?)ENSUEL = 3 (CMS)
+FA(?)ACEE = 2 (BG)
+FORM(?)LE = 3 (OUY)
+FUS(?)INE = 2 (CT)
+GR(?)FFER = 3 (AEI)
+(?)HINITE = 2 (RT)
+(?)ILIERE = 2 (AF)
+(?)IPOLIN = 2 (CR)
+LI(?)SOIR = 2 (NS)
+(?)LOUSSE = 3 (BFG)
+(?)AMELLE = 4 (CGLM)
+MOUSS(?)T = 2 (AO)
+(?)NTHESE = 2 (AE)
+(?)OLETTE = 4 (LMSV)
+OLIVA(?)E = 3 (CDI)
+(?)OLLARD = 3 (BLM)
+(?)OOGLEE = 2 (GZ)
+(?)ORDAGE = 3 (BCT)
+(?)ORTOIR = 2 (DP)
+(?)OSETTE = 4 (DGMR)
+(?)OSSOIR = 2 (BF)
+(?)OTTEUR = 2 (BH)
+(?)OUABLE = 3 (JLR)
+(?)OUBINE = 2 (LR)
+(?)OUGEOT = 2 (RV)
+(?)OULOIR = 5 (BCFRV)
+PAILL(?)T = 3 (AEO)
+PECT(?)SE = 2 (AO)
+POIGN(?)T = 3 (AEI)
+POINT(?)L = 2 (AI)
+(?)ROCARD = 2 (BF)
+(?)ROCHEE = 3 (BCT)
+(?)ROCHET = 3 (BCT)
+(?)ROLLEE = 2 (CT)
+R(?)PPEUR = 2 (AI)
+SEXTIN(?) = 2 (EG)
+S(?)XTINE = 2 (EI)
+SPI(?)ITE = 2 (LR)
+SURBOU(?) = 2 (MT)
+SUR(?)OUT = 3 (BCT)
+T(?)CARDE = 2 (OU)
+THORI(?)E = 2 (NT)
+T(?)LOCHE = 2 (AE)
+(?)ULLOIS = 3 (BHT)
+(?)UNETTE = 3 (CDL)
+(?)URDOUE = 2 (OS)
+(?)UREUSE = 2 (CJ)
+(?)VICULE = 2 (AO)
+VIDIM(?)S = 3 (AEU)
+VO(?)ITIF = 2 (LM)
+(?)AMING = 2 (GN)
+(?)AROLO = 2 (BC)
+(?)ARRON = 4 (CLMV)
+B(?)BITE = 2 (EI)
+CH(?)FFE = 2 (EI)
+CL(?)PET = 2 (AO)
+F(?)NDUS = 3 (EOU)
+FOU(?)OU = 3 (FRT)
+GROTT(?) = 2 (EO)
+(?)HARMA = 3 (CP)
+(?)LAMEE = 3 (BCS)
+LAPTO(?) = 2 (PT)
+(?)LOCHE = 3 (CFS)
+(?)LOMBA = 2 (IP)
+M(?)RFIL = 2 (AO)
+MAST(?)R = 2 (AE)
+(?)OCHET = 3 (CHR)
+(?)OPING = 2 (CD)
+(?)OUDOU = 3 (CDK)
+(?)OUTOU = 3 (FPT)
+PI(?)TON = 3 (CES)
+(?)ROCHE = 4 (BCPT)
+(?)RVALE = 2 (AO)
+S(?)MPLE = 3 (AEI)
+TOUB(?)B = 2 (AI)
+T(?)PHUS = 2 (OY)
+(?)UIVRE = 3 (CGS)
+(?)ASHI = 2 (DN)
+B(?)MBA = 3 (AEO)
+PE(?)OT = 2 (GR)
+ST(?)MM = 2 (AE)
+(?)UMBA = 3 (RTZ)
+V(?)NDA = 2 (AE)
+(?)ATU = 2 (MV)
+PUN(?) = 5 (AIKTU)
+
+        `;
+        // =========================================================
+
+        let pile = [];
+        let indexActuel = 0;
+        let montrerSolution = false;
+        
+        // Alternance de couleurs : Jaune et Vert Pistache
+        const couleurs = ["yellow", "#befabe"]; 
+        let couleurIndex = 0;
+
+        function preparerJeu() {
+            // Nettoyage des données et mélange aléatoire
+            pile = rawData.trim().split('\n')
+                          .map(l => l.trim())
+                          .filter(l => l.length > 0 && l.includes('='));
+            
+            pile.sort(() => Math.random() - 0.5);
+            document.getElementById('nb').innerText = pile.length;
+        }
+
+        function afficherTirage() {
+            const element = document.getElementById('affichage');
+            if (indexActuel >= pile.length) {
+                element.innerHTML = "FIN DE LA SÉRIE";
+                return;
+            }
+
+            let ligne = pile[indexActuel];
+            
+            // On isole le TIRAGE (tout ce qui est avant la solution finale)
+            // On cherche la dernière parenthèse ouvrante du fichier [cite: 1]
+            let positionSolution = ligne.lastIndexOf('(');
+            let tirage = ligne.substring(0, positionSolution).trim();
+            
+            element.innerHTML = tirage;
+            
+            // Application de l'alternance de couleur au fond du cadre
+            element.style.backgroundColor = couleurs[couleurIndex % 2];
+            montrerSolution = false;
+        }
+
+        function gererClic() {
+            // Si la pile est vide (premier clic), on initialise
+            if (pile.length === 0) {
+                preparerJeu();
+                if (pile.length > 0) afficherTirage();
+                return;
+            }
+
+            const element = document.getElementById('affichage');
+            let ligne = pile[indexActuel];
+            
+            if (!montrerSolution) {
+                // ÉTAPE SOLUTION : On affiche la ligne complète
+                // Le tirage reste en noir, la solution (lettres de complément) passe en rouge
+                let positionSolution = ligne.lastIndexOf('(');
+                let tiragePartie = ligne.substring(0, positionSolution).trim();
+                let solutionPartie = ligne.substring(positionSolution);
+
+                element.innerHTML = tiragePartie + '<br><span class="solution-texte">' + solutionPartie.toUpperCase() + '</span>';
+                montrerSolution = true;
+            } else {
+                // ÉTAPE SUIVANTE : On passe au tirage suivant
+                indexActuel++;
+                couleurIndex++; // Change la couleur pour le prochain tirage
+                document.getElementById('nb').innerText = Math.max(0, pile.length - indexActuel);
+                afficherTirage();
+            }
+        }
+    </script>
+</body>
+</html>
