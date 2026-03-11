@@ -2,185 +2,602 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Jeu de Tirages - Liste 4 (Défilement Rapide)</title>
+    <title>Tirages joker unique</title>
     <style>
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #ADD8E6; /* Bleu clair */
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: flex-start; /* Aligne vers le haut */
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            font-family: 'Courier New', Courier, monospace;
+            padding-top: 100px; /* Force le titre très haut */
         }
-        #jeu-container {
-            text-align: center;
-        }
-        .cadre {
-            background-color: yellow;
-            color: black;
-            border: 3px solid #000;
-            padding: 50px;
-            cursor: pointer;
-            min-width: 350px;
-            max-width: 85vw;
-            text-align: center;
+
+        #titre-principal {
+            font-size: 3rem;
             font-weight: bold;
-            font-size: 2.2em;
+            color: #000;
+            margin-bottom: 120px; /* Espace massif entre titre et rectangle */
+        }
+
+        #zone-jeu {
+            width: 90%;
+            max-width: 1000px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 10px solid #333;
+            border-radius: 20px;
+            font-size: 4.5rem; /* Encore plus gros */
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
             user-select: none;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
-            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 15px 15px 30px rgba(0,0,0,0.2);
         }
-        .cadre:active {
-            transform: scale(0.95);
-            background-color: #ffd700;
-        }
-        .instructions {
-            margin-top: 25px;
-            color: #555;
-            font-size: 1.1em;
-            font-style: italic;
-        }
+
+        .jaune { background-color: #FFFF00; color: #000; }
+        .pistache { background-color: #93C572; color: #000; }
+        .rouge { color: #FF0000; margin: 0 15px; } /* Espace forcé autour du rouge */
     </style>
 </head>
 <body>
 
-<div id="jeu-container">
-    <div id="zone-affichage" class="cadre" onclick="chargerNouvelExemple()">
-        Chargement...
-    </div>
-    <div class="instructions">
-        Cliquez sur le texte pour passer au tirage suivant.
-    </div>
-</div>
-
-<script>
-const exemples = [
-    "EELNNOU + ? =", "EIINOTU + ? =", "AELNOOR + ? =", "AAEESTU + ? =", "AANNOTU + ? =",
-    "ANNOOSU + ? =", "AAEEORR + ? =", "EELLNTU + ? =", "AINRSUU + ? =", "ILOORTU + ? =",
-    "(A)ALLOSS + ? =", "AELNTUU + ? =", "ENNRUU + ?? =", "ELLNORS + ? =", "INUSUAL + ? =",
-    "EILNNTT + ? =", "AALRRTU + ? =", "ELOORRS + ? =", "ELLNOOT + ? =", "AELRRTT + ? =",
-    "AAELLNR + ? =", "EIINOTU + ? =", "EINOOTU + ? =", "EEIORTU + ? =", "EEIILNO + ? =",
-    "ANNSSTU + ? =", "AELLNOO + ? =", "AEOORTU + ? =", "AAOOSS + ?? =", "TAUREAU + ? =",
-    "EOORSUU + ? =", "AAAELNR + ? =", "EEIOORS + ? =", "EIRRSSS + ? =", "TUITION + ? =",
-    "EEIIRSU + ? =", "INNSTUU + ? =", "EEINOOT + ? =", "AEINNRR + ? =", "ROTOTOS + ? =",
-    "EELLNOO + ? =", "TUILEUR + ? =", "IIILLR + ?? =", "AALSTUU + ? =", "EIILORR + ? =",
-    "ALLNOO + ? =", "AILOOS + ? =", "EELNOO + ? =", "EOOSTF + ? =", "EOOSTG + ? =",
-    "EOOSTK + ? =", "EOOSTT + ? =", "EOOSTU + ? =", "EOOSTV + ? =", "RUNNER + ? =",
-    "EIIORU + ? =", "INNNR + ?? =", "INOTTU + ? =", "ILLUUT + ?? =", "AANOUS + ? =",
-    "AAENOR + ? =", "AEIRUU + ? =", "EIIORR + ? =", "AENOUU + ? =", "LRSTUU + ? =",
-    "BEENOOR + ? =", "BEIOOSU + ? =", "BEILNRU + ? =", "BEIILOR + ? =", "AABIRUU + ? =",
-    "ABILNNS + ? =", "BENSUU + ?? =", "BEELNRU + ? =", "ABEISUU + ? =", "ALBINON + ? =",
-    "ABERTUU + ? =", "BEIIOSS + ? =", "ABELOO + ?? =", "EBNOUU + ?? =", "BENOOT + ? =",
-    "ABMOOR + ? =", "ABLOOS + ? =", "ABLNOO + ? =", "BNOTUU + ? =", "ABOORU + ? =",
-    "CEENOOR + ? =", "ACOOSTU + ? =", "ACINOOR + ? =", "AACEELU + ? =", "CNRSUU + ?? =",
-    "CIINNU + ?? =", "NUCULES + ? =", "CASTRUM + ? =", "CEELUU + ? =", "AACEOS + ? =",
-    "DEENOOR + ? =", "DEILOOT + ? =", "DELOORU + ? =", "DNORTUU + ? =", "DILLSRU + ? =",
-    "ADNNOSU + ? =", "DEEIINO + ? =", "AADEENS + ? =", "ADEINOO + ? =", "DENRSUU + ? =",
-    "DILUENT + ? =", "ROLLAND + ? =", "DUREUSE + ? =", "AADELLN + ? =", "ADELLOU + ? =",
-    "ADNTUU + ?? =", "AADLORR + ? =", "DEIRSUU + ? =", "DEISTUU + ? =", "ADEOOS + ? =",
-    "DILOTU + ? =", "DELLNO + ? =", "DOORTU + ? =", "DILOST + ? =", "ADEOOU + ? =",
-    "EEFNOOR + ? =", "SOUTIFS + ? =", "FUMURES + ? =", "FILNRTU + ? =", "EEFIILU + ? =",
-    "AFINOOT + ? =", "EFINOOT + ? =", "FOORUU + ? =", "FOORUU + ?? =", "FIILLN + ?? =",
-    "FESTONS + ? =", "EFOOSTU + ? =", "AAEFIIS + ? =", "AEFOSST + ? =", "EFTTUU + ?? =",
-    "AEFNOSU + ? =", "EFNOOS + ? =", "(FouG)INOOT + ? =", "FOORTT + ? =", "EFOORU + ? =",
-    "ISOGONE + ? =", "AEGNOOR + ? =", "EEGIIRR + ? =", "AAGLLNR + ? =", "GIIILO + ?? =",
-    "EEGLLOU + ? =", "EEEGIOR + ? =", "EEGIIOR + ? =", "GIOORR + ?? =", "AEGLLOT + ? =",
-    "EGIOORS + ? =", "AGLOOTU + ? =", "EGILLNO + ? =", "AGLOORS + ? =", "GIOOSU + ? =",
-    "AAEGOL + ? =", "EGINOO + ? =", "UNGUIS + ? =", "AAEEHL + ? =", "EEGTUU + ? =",
-    "AGNNRS + ? =", "AGLOOS + ? =", "AGLOOT + ? =", "AEHNNOR + ? =", "AEEHNOR + ? =",
-    "AEEHORS + ? =", "EHNSUU + ?? =", "EEHLOOR + ? =", "HIRTTU(S) + ? =", "TUSSAHS + ? =",
-    "AEHOOST + ? =", "HUILANT + ? =", "EHILOTT + ? =", "EHNOOSS + ? =", "HOTTAIS + ? =",
-    "AAHLNOT + ? =", "AEEHLRU + ? =", "AHNNOU + ? =", "AEHNORU + ? =", "EHLORSU + ? =",
-    "HOOSTU + ? =", "EHLNOR + ? =", "HIORTU + ? =", "EEHLOS + ? =", "AEHNSU + ? =",
-    "HIINST + ? =", "HIORST + ? =", "AAHMNR + ? =", "HOORU + ?? =", "AEMSTUU + ? =",
-    "AEIILMO + ? =", "AELMOOS + ? =", "AEMOOSU + ? =", "EEMNOOT + ? =", "AEMOORT + ? =",
-    "AEIMRUU + ? =", "AEIMOOR + ? =", "ALMOORT + ? =", "AIMOOTT + ? =", "IMOSSTT + ? =",
-    "MRTTUU + ?? =", "AMMNOOS + ? =", "EILLMTU + ? =", "MOOORS + ?? =", "UMLAUTS + ? =",
-    "MARLINS + ? =", "AIMNRSS + ? =", "AMRTUU + ? =", "IILMOR + ? =", "AAMOSU + ? =",
-    "AAMOTU + ? =", "AEIMOO + ? =", "IIMSST + ? =", "MRSSUU + ? =", "MRSTTU + ? =",
-    "ALLMOO + ? =", "AAELNOP + ? =", "AEELNOP + ? =", "ALLNOPT + ? =", "EIILNPU + ? =",
-    "ELNOOPR + ? =", "OUTPUT + ?? =", "AEIPTTT + ? =", "EELPRTT + ? =", "EIOOPTU + ? =",
-    "AAELLPU + ? =", "EINOOPT + ? =", "INOPRRU + ? =", "AALLOPS + ? =", "EINPPTU + ? =",
-    "EEIILNP + ? =", "PROCTOR + ? =", "AALNOP + ? =", "EUPNEE + ? =", "NOOPPR + ? =",
-    "EELLORV + ? =", "AEOOSV + ?? =", "AAILLRV + ? =", "IILOOTV + ? =", "IINNUV + ?? =",
-    "VANUATU + ? =", "EIOORTV + ? =", "ALOORV + ?? =", "EOOSTV + ? =", "IOSTTV + ? =",
-    "AIOORV + ? =", "EOORRV + ? =", "EIOOTV + ? =", "ABBNOOS + ? =", "ABCEIIT + ? =",
-    "BCEILNU + ? =", "BCEEIIL + ? =", "BCEIITU + ? =", "BCEIILO + ? =", "BCNSUU + ? =",
-    "BCIINO + ? =", "BCEOOT + ? =", "BDOOSTU + ? =", "BDENOO + ? =",
-    "ABFLLOR + ? =", "ABEFNS + ?? =", "BEEFLS + ? =", "ABFUN + ?? =", "BEFITU + ? =",
-    "BEGIIST + ? =", "GIBBONS + ? =", "ABEGNNR + ? =", "ABEEGIL + ? =", "BGOORU + ? =",
-    "BHLOOS + ? =", "AABHIIN + ? =", "AABEEHU + ? =", "BEHIMR + ?? =", "BEHINOO + ? =",
-    "BETHUN + ?? =", "BEHOTU + ? =", "BHOTT + ?? =", "BHINOR + ? =", "BEMNOOR + ? =",
-    "AABEMNR + ? =", "ABEEOMT + ? =", "EMBRUNS + ? =", "NIMBENT + ? =", "ABEIMUU + ? =",
-    "AABIMNR + ? =", "BEEIMNT + ? =", "BENIMES + ? =", "AABMNSU + ? =", "ABIMOOS + ? =",
-    "BIMORU + ? =", "ABEEILP + ? =", "ABEENPU + ? =", "ABOPST + ? =", "BIOPRS + ? =",
-    "ABEOSUV + ? =", "BEILVR + ? =", "BENUUV + ? =", "TICTACS + ? =", "ACCTTU + ?? =",
-    "CCIOTU + ? =", "CDEMNOU + ? =", "ACDMNOU + ? =", "ICDMNOU + ? =", "CDMNOOU + ? =",
-    "CDEIOOR + ? =", "AACDIOS + ? =", "ACCDEEL + ? =", "CEIIPRT + ? =", "CDINOR + ? =",
-    "ACFOORR + ? =", "CEEFLNO + ? =", "CEEFLNS + ? =", "CEFIRSU + ? =", "CEFIRRS + ? =",
-    "ACEFRRR + ? =", "CEFFLO + ?? =", "AACFILR + ? =", "ACEFLRU + ? =", "ACFILRU + ? =",
-    "CEEFOSS + ? =", "AACFOST + ? =", "ACFLRU + ? =", "CEEGLRU + ? =", "CEEIGNU + ? =",
-    "ACGILNU + ? =", "AGACAIT + ? =", "ACGL(N,O)R + ? =", "CHANNES + ? =", "CHOMIST + ? =",
-    "EEECHTU + ? =", "CHEILNU + ? =", "CEILMOT + ? =", "AACMNRU + ? =", "AACMRTU + ? =",
-    "ACELMNU + ? =", "OCULISM + ? =", "CIMMOR + ? =", "CIMNOO + ? =", "ACILLPU + ? =",
-    "AACEPSU + ? =", "AACELPU + ? =", "AACINNP + ? =", "CIOPSTU + ? =", "ACENNPR + ? =",
-    "COOPRRS + ? =", "CNOOPRT + ? =", "COOPRS + ? =", "CIINNV + ?? =", "ACNNOV + ? =",
-    "ADDEILS + ? =", "AADDISU + ? =", "ADFNOTU + ? =", "ADFINTU + ? =", "AADFORR + ? =",
-    "DFNOUU + ?? =", "DFNOOU + ? =", "DFIORU + ? =", "ADFLON + ? =", "DEGINOO + ? =",
-    "DEGIILR + ? =", "ADGIILU + ? =", "DGIINOR + ? =", "ADGLLO + ? =", "DEGSUU + ? =",
-    "DGILNO + ? =", "DEGILR + ? =", "ADHII(S)T + ? =", "ADEHLRU + ? =", "ADEHLSU + ? =",
-    "DEEHLOR + ? =", "DEHILOR + ? =", "ADHIMTU + ? =", "ADEHION + ? =", "DEEHINO + ? =",
-    "DEHILNO + ? =", "DEEHOS + ? =", "ADEMOOS + ? =", "AADEIMU + ? =", "DEIMNNR + ? =",
-    "DIMRSUU + ? =", "DEILMT + ? =", "DIMOOR + ? =", "PIPIDES + ? =", "POUDRIN + ? =",
-    "DEELOPT + ? =", "DEILNPR + ? =", "ADIOOPR + ? =", "ADLNOPT + ? =", "ADLOPT + ? =",
-    "DPOOST + ? =", "DUPLOS + ? =", "OPPIDA + ? =", "AADLOSV + ? =", "AADORSV + ? =",
-    "DEEILUV + ? =", "ADINSUV + ? =", "AFFLRRU + ? =", "EEFFNRU + ? =", "FFINORT + ? =",
-    "DEFFRS + ? =", "AFHOST + ? =", "AAEIFMT + ? =", "EMOTIFS + ? =", "AAFIIMN + ? =",
-    "EEEFMTU + ? =", "FIIMOT + ? =", "FIILMO + ? =", "FATIMA + ? =", "AEFINPR + ? =",
-    "AEFIPU + ? =", "GGILSU + ?? =", "GRINGES + ? =", "NURAGHI + ? =", "AEGHNTU + ? =",
-    "ROUGH + ?? =", "AGHLOS + ? =", "AGMNOSU + ? =", "AGIMMT + ?? =", "EGIIMOT + ? =",
-    "AGIMNSU + ? =", "AEGIMOU + ? =", "AEEGMO + ? =", "GEIMOU + ? =", "AEGNNOP + ? =",
-    "EEEGNPU + ? =", "EEGLOPR + ? =", "GINOOP + ? =", "AGILNOV + ? =", "EEGLORV + ? =",
-    "LIVINGS + ? =", "AGIRSUV + ? =", "EEHMNOR + ? =", "AEHLMOT + ? =", "EEEHMOT + ? =",
-    "RHUMATO + ? =", "AMATHIE + ? =", "LITHAMS + ? =", "AAEHLMT + ? =", "AAHLMR + ? =",
-    "AHIMST + ? =", "AEEEHM + ? =", "AHMOSS + ? =", "AAHLOPS + ? =", "AEHLOPS + ? =",
-    "AHILOPS + ? =", "AHLNOPS + ? =", "AHINNOP + ? =", "PHALLUS + ? =", "AHLOPS + ? =",
-    "AHILPS + ? =", "PHILOS + ? =", "OPHULS + ? =", "THRIPS + ? =", "EHOOP + ?? =",
-    "EHLISV + ?? =", "EHIOSTV + ? =", "EHNTUV + ?? =", "EHLISV + ? =", "MAMOURS + ? =",
-    "EEEMMO + ? =", "IMMOTU + ? =", "EILLMOP + ? =", "AEMOOPS + ? =", "AIMOOPT + ? =",
-    "ALMNPSU + ? =", "EILMSUV + ? =", "EMINOSV + ? =", "EEIMNOV + ? =", "AEIIMV + ? =",
-    "LLPPSUU + ? =", "AILPPR + ? =", "ELIOPSV + ? =", "AEPSTUV + ? =", "PLEUVE + ? =",
-    "ABCMOOR + ? =", "AABCLOM + ? =", "ABDEEGO + ? =", "BDEEIMR + ? =", "BDEEIMT + ? =",
-    "ABGHI + ?? =", "BHIOPRU + ? =", "ACDEGII + ? =", "ACDEGNR + ? =", "AAACDH + ? =",
-    "DIRCOMS + ? =", "ACDEMOT + ? =", "CDIIPS + ? =", "CDEIOP + ? =", "CEFGLU + ?? =",
-    "ACFOPRT + ? =", "CEFPRT + ?? =", "CGEHTU + ? =", "CEGIRP + ?? =", "AACCHP + ? =",
-    "AACLMOP + ? =", "ADEFIIM + ? =", "DEFORMO + ? =", "ADEFIM + ? =", "AADGMIR + ? =",
-    "AADEGLM + ? =", "AADGRP + ? =", "DEHMOSU + ? =", "ADHMSU + ? =", "DEHNOPT + ? =",
-    "OPHULS + ? =", "AADEMNP + ? =", "ADEEEMP + ? =", "DEEEMNP + ? =", "DEEEMPT + ? =",
-    "ADMOPR + ? =", "DIMITROV + ? =", "AEGHIM + ?? =", "AAGHMI + ? =", "GEIMPOT + ? =",
-    "AHIOMPR + ? =", "MUPHTI + ?? =", "AEHLMPT + ? =", "AEHMPU + ? =", "AEHMNP + ? ="
-];
-
-const zoneAffichage = document.getElementById('zone-affichage');
-
-function chargerNouvelExemple() {
-    // Sélection aléatoire d'un index
-    const index = Math.floor(Math.random() * exemples.length);
-    // Affichage direct du texte (pas de split ici pour garder le texte complet)
-    zoneAffichage.innerText = exemples[index];
+    <div id="titre-principal">Tirages joker unique</div>
     
-    // Petite animation de feedback visuel
-    zoneAffichage.style.backgroundColor = "#fffbcc"; 
-    setTimeout(() => {
-        zoneAffichage.style.backgroundColor = "yellow";
-    }, 100);
-}
+    <div id="zone-jeu" class="jaune"></div>
 
-// Initialisation au chargement de la page
-window.onload = chargerNouvelExemple;
-</script>
+    <script>
+        /************************************************************************
+         * *
+         * ZONE DE COLLAGE : COLLE TES LIGNES CI-DESSOUS ENTRE LES BACKTICKS  *
+         * *
+         ************************************************************************/
+        const donneesTextuelles = `EELNNOU + ? = P NONUPLEE
+EIINOTU + ? = Q QUINTOIE
+AELNOOR + ? = C CORONALE
+AAEESTU + ? = R RESEAUTA
+AANNOTU + ? = M MANTOUAN
+ANNOOSU + ? = I NOUAISON
+AAEEORR + ? = G AEROGARE
+EELLNTU + ? = E UNETELLE
+AINRSUU + ? = M URANIUMS
+ILOORTU + ? = A ROULOTAI
+AALLOSS + ? = M SLALOMAS
+AELNTUU + ? = G GUEULANT
+ELLNORS + ? = B BRELLONS
+AILNSUU + ? = P NAUPLIUS
+AALRRTU + ? = I TRALUIRA
+ELOORRS + ? = A SORORALE
+ELLNOOT + ? = M MOLLETON
+AELRRTT + ? = E LETTRERA
+AAELLNR + ? = I LANLAIRE
+EINOOTU + ? = R TOURNOIE
+EEIILNO + ? = V INVIOLEE
+AELLNOO + ? = C NEOLOCAL
+AEOORTU + ? = N AOUTERON
+AAAELNR + ? = V RAVENALA
+EEIOORS + ? = D ODORISEE
+EIRRSSS + ? = U RUSSISER
+IINOTTU + ? = N TINTOUIN
+EEIIRSU + ? = N USINIERE
+INNSTUU + ? = J NINJUTSU
+EEINOOT + ? = Z ENZOOTIE
+AEINNRR + ? = C INCARNER
+ROTOTOS + ? = G OSTROGOT
+EELLNOO + ? = G LONGEOLE
+EILRTUU + ? = C UTRICULE
+AALSTUU + ? = C AUSCULTA
+EIILORR + ? = V VIROLIER
+ALLNOO + ? = P APOLLON
+ALLOSS + ? = M SLALOMS
+AILOOS + ? = C SOCIALO
+EELNOO + ? = B BOOLEEN
+EOOSTF + ? = I SOFIOTE
+EOOSTG + ? = P POGOTES
+OOSSTT + ? = E SOSOTTE
+EOOSTU + ? = L SOULOTE
+EOOSTV + ? = X EXVOTOS
+EIIORU + ? = Z OUIRIEZ
+INOTTU + ? = S SOUTINT
+AANOUS + ? = G GNAOUAS
+AAENOR + ? = G ORANGEA
+AEIRUU + ? = Q AURIQUE
+EIIORR + ? = P POIRIER
+AENOUU + ? = V NOUVEAU
+LRSTUU + ? = A SUTURAL		
+BEENOOR + ? = Y BORNOYEE
+BEILNRU + ? = Q BLINQUER
+BEIILOR + ? = M MOBILIER
+AABIRUU + ? = X BIAURAUX
+ABILNNS + ? = A BALANINS
+BEELNRU + ? = L BRUNELLE
+ABEISUU + ? = G SUBAIGUE
+ABILNNO + ? = L BILLONNA
+ABERTUU + ? = C CUBATURE
+BEIIOSS + ? = P BIOPSIES
+ABELMOO + ? = Z ZOOMABLE
+EBINOUU + ? = Q BOUQUINE
+ABMOOR + ? = O OBOMBRA
+ABLOOS + ? = R BAROLOS
+ABLNOO + ? = G BOGOLAN
+BNOTUU + ? = R BURNOUT
+ABOORU + ? = Y YOROUBA
+CEENOOR + ? = G COREGONE
+ACOOSTU + ? = R TOURACOS
+ACINOOR + ? = M ACROMION
+CENRSUU + ? = O ENCOURUS
+CIINNOO + ? = C COINCOIN 
+CEELUU + ? = M CUMULEE
+AACEOS + ? = B COBAEAS
+DEENOOR + ? = N ORDONNEE
+DEILOOT + ? = M DOLOMITE
+DELOORU + ? = C COLOURED
+DNORTUU + ? = S SURTONDU
+DILLSRU + ? = A RILLAUDS
+DEEIINO + ? = P OEDIPIEN
+AADEENS + ? = M AMANDEES
+ADEINOO + ? = R ONDOIERA
+DENRSUU + ? = V SURVENDU
+ADLLONR + ? = I ARDILLON
+DEERSUU + ? = O SURDOUEE
+AADELLN + ? = M ALLEMAND
+ADELLOU + ? = P DEPOLLUA
+ADENTUU + ? = Q EDUQUANT
+AADLORR + ? = B LABRADOR
+DEIRSUU + ? = L DILUEURS
+DEISTUU + ? = X STUDIEUX		
+ADEOOS + ? = P APODOSE
+DILOTU + ? = A TOULADI
+DELLNO + ? = B BLONDEL
+DOORTU + ? = O OUTDOOR
+DILOST + ? = A SOLDAIT
+ADEOUU + ? = V VAUDOUE
+ADNTUU + ? = Q DUQUANT
+EEFNOOR + ? = M NEOFORME
+SOUTIFS + ? = E FOUTISSE
+FUMURES + ? = R SMURFEUR	
+FILNRTU + ? = A ULTRAFIN
+EEFIILU + ? = Q LIQUEFIE
+AFINOOT + ? = R FORATION
+EFINOOT + ? = C CONFIOTE
+FOORRUU + ? = R FROUFROU
+FEIILLN + ? = T TEFILLIN
+FESTONS + ? = I OSTENSIF
+EFOOSTU + ? = E FOOTEUSE
+AAEFIIS + ? = C CASEIFIA
+AEFOSST + ? = Y FESTOYAS
+EEFTTUU + ? = F TEUFTEUF
+AEFNOSU + ? = R ENSOUFRA
+EFNOOS + ? = U SENOUFO
+FINOOT + ? = G FOOTING
+FOORTT + ? = X FOXTROT
+EFOORU + ? = W WOOFEUR
+AEGNOOR + ? = M AGRONOME
+EEGIIRR + ? = S GRISERIE
+AAGLLNR + ? = Y LARYNGAL
+GIIILOT + ? = V VITILIGO
+EEGLLOU + ? = C COLLEGUE
+EEEGIOR + ? = L GEOLIERE
+EEGIIOR + ? = N ORIGINEE
+GIOORRS + ? = N ROGNOIRS
+AEGLLOT + ? = T GLOTTALE
+EGIOORS + ? = S GROSSOIE
+AGLOOTU + ? = A AUTOGOAL
+EGILLNO + ? = B BIGNOLLE
+AGLOORS + ? = I GLORIOSA
+GIOOSU + ? = Z ZOUGOIS
+AAEGOL + ? = N AGONALE
+EGINOO + ? = O ISOGONE
+UNGUIS + ? = R GURUNSI
+AAEEHL + ? = C ACHALEE
+EEGTUU + ? = M MUGUETE
+AGNNRS + ? = Y GRANNYS
+AGLOOS + ? = G GOOGLAS
+AGLOOT + ? = G GOOGLAT
+GINOOT + ? = F FOOTING
+AEHNNOR + ? = P HARPONNE
+AEEHNOR + ? = F FOEHNERA
+AEEHORS + ? = B RHEOBASE
+EHNNSUU + ? = C NUNUCHES
+EEHLOOR + ? = D HOLOEDRE
+HIRSTTU + ? = B TURBITHS
+TUSSAHS + ? = I SHIATSUS
+AEHOOST + ? = R SHOOTERA
+HUILANT + ? = C LUNCHAIT
+EHILOTT + ? = O OTOLITHE
+EHNOOSS + ? = H SHOSHONE
+HOTTAIS + ? = O SHOOTAIS
+AAHLNOT + ? = I ANTIHALO
+AEEHLRU + ? = M HUMERALE
+AHNNOU + ? = G HOUNGAN
+HOOSTU + ? = K SOUKHOT
+EHLNOR + ? = G LEGHORN
+HIORTU + ? = M THORIUM
+AEHNSU + ? = Y HAUYNES 
+HGIINS + ? = T INSIGHT 
+HIORST + ? = C TORCHIS
+AAHMNR + ? = B BRAHMAN
+AEMSTUU + ? = G MUGUETAS
+AEIILMO + ? = G LIMOGEAI
+AELMOOS + ? = L ALLOSOME
+AEMOOSU + ? = T AUTOSOME
+EEMNOOT + ? = L ENTOLOME
+AEMOORT + ? = D MODERATO
+AEIMRUU + ? = L MIAULEUR
+AEIMOOR + ? = Z ZOOMERAI
+ALMOORT + ? = F FORMOLAT
+AIMOOTT + ? = X MOTOTAXI
+IMOSSTT + ? = A STOMISAT
+EMRTTUU + ? = A MUTATEUR
+AMMNOOS + ? = C CONSOMMA
+EILLMTU + ? = P MULTIPLE
+AIMNRSS + ? = T TRANSMIS
+MOOORS + ? = A AMOROSO
+AMRTUU + ? = E TRUMEAU
+IILMOR + ? = S SIMILOR
+AAMOSU + ? = D AMADOUS
+AAMOTU + ? = Z MAZOUTA
+AEIMOO + ? = G OOGAMIE
+IIMSST + ? = F MISFITS
+MRSSUU + ? = A SAUMURS
+MRSTTU + ? = A STRATUM
+ALLMOO + ? = R RAMOLLO
+AAELNOP + ? = J JALAPENO
+AEELNOP + ? = H ANOPHELE
+ALLNOPT + ? = U POLLUANT
+EIILNPU + ? = O OULIPIEN
+ELNOOPR + ? = G PROLONGE
+AEIPTTT + ? = P PIPETTAT
+EELPRTT + ? = O TELEPORT
+EIOOPTU + ? = L LOUPIOTE
+AAELLPU + ? = X PALLEAUX
+EINOOPT + ? = R INOTROPE
+INOPRRU + ? = P POURPRIN
+AALLOPS + ? = C COLLAPSA
+EINPPTU + ? = A APPUIENT
+EEIILNP + ? = P PIPELINE
+AALNOP + ? = I PIANOLA
+EELLORV + ? = Y VOLLEYER
+AEOORSV + ? = K KOSOVARE
+AAILLRV + ? = I VIRAILLA
+IILOOTV + ? = K KILOVOLT
+AIINNUV + ? = C INVAINCU
+Vanuatu + ? = L TUVALUAN
+EIOORTV + ? = P POIVROTE
+AELOORV + ? = C LOCAVORE
+IOSTTV + ? = M MITSVOT
+AIOORV + ? = G GROOVAI
+EOORRV + ? = G GROOVER
+EIOOTV + ? = D OVOTIDE
+ABBNOOS + ? = L BABOLONS
+ABCEIIT + ? = S BASICITE
+BCEILNU + ? = C CINECLUB
+BCEEIIL + ? = M IMBECILE
+BCEIITU + ? = S BISCUITE
+BCEIILO + ? = C LIBECCIO
+BCNSUU + ? = K NUBUCKS
+BCIINO + ? = T BITCOIN
+BDOOSTU + ? = K STUDBOOK
+BDENOO + ? = G BODEGON
+ABFLLOR + ? = T TORFBALL
+BEEFLS + ? = U ELBEUFS
+ABFLUN + ? = C FANCLUB
+BEFITU + ? = X TUBIFEX
+BEGIIST + ? = B GIBBSITE
+GIBBONS + ? = M MOBBINGS
+ABEGNNR + ? = Y GRANBYEN
+ABEEGIL + ? = N BENGALIE
+BGOORU + ? = H BOROUGH
+AABHIIN + ? = U BAUHINIA
+AABEEHU + ? = N HAUBANEE
+ABEHIMR + ? = N BRAHMINE
+BEHINOO + ? = M BONHOMIE
+BHLOOS + ? = C BOLCHOS
+BEHOTU + ? = K BEOTHUK
+ABHOTT + ? = C CHATBOT
+BHINOR + ? = G BIGHORN
+BEMNOOR + ? = T TROMBONE
+AABEMNR + ? = H BRAHMANE
+ABEEOMT + ? = L METABOLE
+EMBRUNS + ? = I BRUNIMES
+NIMBENT + ? = O BONIMENT
+ABEIMUU + ? = J BIJUMEAU
+AABMNSU + ? = D UMBANDAS
+ABIMOOS + ? = Y BOYOMAIS
+BIMORU + ? = H BOHRIUM
+ABEEILP + ? = X EXPIABLE
+ABEENPU + ? = I AUBEPINE
+ABOPST + ? = C POSTBAC
+BIOPRS + ? = C BICORPS
+ABEOSUV + ? = T BOUVETAS
+BEILVR + ? = A BALIVER
+BENUUV + ? = S SUBVENU	
+TICTACS + ? = A STACCATI
+ACCOTTU + ? = L OCCULTAT
+CCIOTU + ? = P OCCIPUT
+CDEMNOU + ? = T DOCUMENT
+ACDMNOU + ? = H MANDCHOU
+ICDMNOU + ? = I ONCIDIUM
+CDMNOOU + ? = P COMPOUND
+CDEIOOR + ? = H CHOROIDE
+AACDIOS + ? = L CALADOIS
+ACCDEEL + ? = R DECERCLA
+CDINOR + ? = O DORONIC
+ACFOORR + ? = K AFROROCK
+CEEFLNO + ? = R FLORENCE
+CEEFLNS + ? = U FLUENCES
+CEFIRSU + ? = R RECURSIF
+CEFIRRS + ? = U RECURSIF
+ACEFRRR + ? = Y CARFERRY
+CEFIILO + ? = F OFFICIEL
+AACFILR + ? = I CLARIFIA
+ACEFLRU + ? = E FECULERA	
+ACFILRU + ? = T LUCRATIF
+CEEFOSS + ? = N CONFESSE
+AACFOST + ? = P POSTFACA
+ACFLRU + ? = U FURCULA
+CEEGLRU + ? = H GRELUCHE
+CEEIGNU + ? = L GENICULE
+ACGILNU + ? = H CHLINGUA
+AGACAIT + ? = N CAATINGA
+ACGLOR + ? = N CLANGOR
+CHANNES + ? = O ECHANSON
+CHIMOST + ? = N MCINTOSH
+EEECHTU + ? = R HUMECTEE
+CHEILNU + ? = Z LUNCHIEZ		
+CEILMOT + ? = N MINCOLET
+AACMNRU + ? = U MANUCURA
+AACMRTU + ? = H MACHURAT
+ACELMNU + ? = T MACULENT
+CILMOSU + ? = T MULTISOC
+CIMMOR + ? = H MICROHM
+CIMNOO + ? = R OMICRON	
+ACILLPU + ? = A PAUILLAC
+AACEPSU + ? = N PASCUANE
+AACELPU + ? = X PLACEAUX
+AACINNP + ? = O CAPONNAI
+CIOPSTU + ? = C OCCIPUTS
+ACENNPR + ? = O CAPONNER
+COOPRRS + ? = M CORROMPS
+CNOOPRT + ? = H POCHTRON
+COOPRRT + ? = M CORROMPT
+CORPOS + ? = V PROVOCS	
+ACNNOV + ? = A AVANCON
+ADDEILS + ? = A ALIDADES
+AADDISU + ? = S DISSUADA	
+ADFNOTU + ? = H HAUTFOND
+ADFINTU + ? = E DEFUNTAI
+AADFORR + ? = W FORWARDA
+DFNOSUU + ? = R SURFONDU
+DFNOOU + ? = K FONDOUK
+DFIORU + ? = L DIFLUOR
+ADFLON + ? = P PLAFOND
+DEGINOO + ? = F FONGOIDE
+DEGIILR + ? = T TRIGLIDE
+ADGIILU + ? = W LUDWIGIA
+DGIINOR + ? = N GIRONDIN
+ADGLLO + ? = R RAGDOLL
+DEGSUU + ? = E DEGUEUS
+DGILNO + ? = H HOLDING
+DEGILR + ? = O DIERGOL	
+ADHIIST + ? = J IJTIHADS
+ADEHLRU + ? = Y HYDRAULE
+ADEHLSU + ? = I DESHUILA
+DEEHLOR + ? = O HOLOEDRE
+DEHILOR + ? = C DICHLORE
+ADHIMTU + ? = J MUJTIHAD
+ADEHION + ? = S ADHESION
+DEHILNO + ? = P DIPHENOL
+DEEHOS + ? = R HEREDOS	
+ADEMOOS + ? = Z DEZOOMAS
+AADEIMU + ? = Q ADAMIQUE
+DEIMNNR + ? = A MANDRINE
+DIMRSUU + ? = V DUUMVIRS
+DEILMT + ? = O DEMOLIT
+DIMOOR + ? = S DROMOIS
+PIPIDES + ? = O DIEPPOIS
+DINOPRU + ? = S POUDRINS
+DEELOPT + ? = Y PELODYTE
+DEILNPR + ? = A PLAINDRE
+ADIOOPR + ? = L POLAROID
+ADLNOPT + ? = R PORTLAND
+ADLOPT + ? = E PLATODE
+DPOOST + ? = C POSTDOC
+DLOPSU + ? = H HOLDUPS
+OPPIDA + ? = R DROPPAI
+AADLOSV + ? = C CALVADOS
+AADORSV + ? = Y SAVOYARD
+DEEILUV + ? = P PEDILUVE
+ADINSUV + ? = O DOUVAINS
+AFFLRRU + ? = U FURFURAL
+EEFFNRU + ? = A EFFANURE
+FFINORT + ? = B BRIFFTON
+DEFFRS + ? = I REDIFFS
+AFHOST + ? = U FOUTAHS
+AAEIFMT + ? = M MATEFAIM
+EMOTIFS + ? = U FOUTIMES
+AAFIIMN + ? = G MAGNIFIA
+EEEFMTU + ? = I TUMEFIEE
+FIIMOT + ? = V VOMITIF
+FIILMO + ? = B BIOFILM
+Fatima + ? = I MATIFIA
+AEFINPR + ? = I PANIFIER
+AEFIPU + ? = G APIFUGE
+GGILOSU + ? = N GUIGNOLS
+NURAGHI + ? = C CHURINGA
+AEGHNTU + ? = S SHUNTAGE
+GHOORU + ? = B BOROUGH
+AGHLOS + ? = U GOULASH
+AGMNOSU + ? = R ORGANUMS
+AGIIMMT + ? = R IMMIGRAT
+EGIIMOT + ? = P IMPETIGO
+AEGIMOU + ? = Q OGAMIQUE
+AEEGMO + ? = X EXOGAME
+GEIMOU + ? = R GOUMIER
+AEGNNOP + ? = I PIGEONNA
+EEEGNPU + ? = R REPUGNEE
+EEGLOPR + ? = N REPLONGE
+GINOOP + ? = L LOOPING
+AGILNOV + ? = N LAVIGNON
+EEGLORV + ? = Y LEVOGYRE
+LIVINGS + ? = O VIGILONS
+AGIRSUV + ? = L VIRGULAS
+EEHMNOR + ? = O HORMONEE
+AEHLMOT + ? = N METHANOL
+EEEHMOT + ? = R THEOREME
+AHMORSU + ? = T RHUMATOS
+AAEHIMT + ? = S AMATHIES
+AAEHLMT + ? = N METHANAL
+AAHLMR + ? = S MARSHAL
+AHIMST + ? = L LITHAMS
+AEEEHM + ? = R MEHAREE
+AHMOSS + ? = V MOSHAVS
+AAHLOPS + ? = C LAPACHOS
+AEHLOPS + ? = D PHOLADES
+AHILOPS + ? = Y HYPOLAIS
+AHLNOPS + ? = T NAPHTOLS
+AHINNOP + ? = S SIPHONNA
+PHALLUS + ? = C CHULLPAS
+AHLOPS + ? = L PHALLOS
+AHILPS + ? = T THLASPI
+PHILOS + ? = M PHLOMIS
+HLOPSU + ? = D HOLDUPS
+THRIPS + ? = E HIPSTER
+EHNOOP + ? = R ORPHEON
+EHIOSTV + ? = Y YESHIVOT
+AEHNTUV + ? = C CHAUVENT
+EHLISV + ? = P PEHLVIS
+MAMOURS + ? = N SURNOMMA 
+EEEMMO + ? = D EMMODEE
+IMMOTU + ? = P OPTIMUM
+EILLMOP + ? = A MALPOLIE
+AEMOOPS + ? = N OPSOMANE
+AIMOOPT + ? = C COMPOTAI
+ALMNPSU + ? = L PULLMANS
+EILMSUV + ? = E VLIMEUSE
+EMINOSV + ? = B OBVINMES
+EEIMNOV + ? = R VOMERIEN
+AEIIMV + ? = D VIDAMIE
+LLPPSUU + ? = H PUSHPULL
+AILPPR + ? = G GRIPPAL
+NOOPPR + ? = C POPCORN
+ELIOPSV + ? = U PLUVIOSE
+AEPSTUV + ? = R PAUVRETS
+PLEUVE + ? = N PEULVEN
+ABCMOOR + ? = K BACKROOM
+AABCLOM + ? = U CAMBOULA
+ABDEEGO + ? = D DEBOGAGE
+BDEEIMR + ? = T DETIMBRE
+BDEEIMT + ? = R DETIMBRE
+ABGHIS + ? = N BASHING
+BHIOPRU + ? = J BHOJPURI
+ACDEGII + ? = L ALGICIDE
+ACDEGNR + ? = A CAGNARDE
+AAACDH + ? = H CHAHADA
+DIRCOMS + ? = U MORDICUS
+ACDEMOT + ? = P DECOMPTA
+CDIIPS + ? = E PICIDES
+CDEIOP + ? = H PHOCIDE
+CEFGILU + ? = U LUCIFUGE
+ACFOPRT + ? = I PROACTIF
+CGEHTU + ? = I GUICHET
+CEGINRP + ? = I PIERCING
+AACCHP + ? = T CAPTCHA
+AACLMOP + ? = R PROCLAMA
+ADEFIIM + ? = T FATIMIDE
+DEFMOOR + ? = N MORFONDE
+ADEFIM + ? = F DIFFAME
+AADGMIR + ? = L MADRIGAL
+AADEGLM + ? = Y AMYGDALE
+AADGRP + ? = S GASPARD
+DEHMOSU + ? = C CHOMEDUS
+ADHMSU + ? = R DURHAMS
+DEHNOPT + ? = E PENTHODE
+AADEMNP + ? = A EMPANADA
+ADEEEMP + ? = C DECAMPEE
+DEEEMNP + ? = Y EPENDYME
+DEEEMPT + ? = R DETREMPE
+ADMOPR + ? = M POMMARD
+AAEGHIM + ? = Z AMAZIGHE
+AAGHIM + ? = Z AMAZIGH
+AHIOMPR + ? = T TRIOMPHA
+HIMPRTU + ? = L PHILTRUM
+AEHLMPT + ? = P PAMPHLET
+AEHMPU + ? = C MAPUCHE
+AEHMNP + ? = Y NYMPHEA
 
+        
+        `;
+        /************************************************************************
+         * FIN DE LA ZONE DE COLLAGE - NE RIEN TOUCHER              *
+         ************************************************************************/
+
+        // Nettoyage strict
+        let list = donneesTextuelles.trim().split('\n')
+                      .filter(l => l.includes('=') && l.trim().length > 5);
+
+        // Mélange aléatoire
+        for (let i = list.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [list[i], list[j]] = [list[j], list[i]];
+        }
+
+        let id = 0;
+        let clic = 0; 
+        const box = document.getElementById('zone-jeu');
+
+        function jouer() {
+            if (id >= list.length) {
+                box.innerHTML = "FIN";
+                return;
+            }
+
+            const brute = list[id].trim();
+            const split = brute.split('=');
+            
+            // On récupère uniquement les lettres du tirage (avant le +)
+            const tirageSeul = split[0].split('+')[0].trim();
+            
+            // On récupère lettre et solution
+            const suite = split[1].trim().split(/\s+/);
+            const lettreJoker = suite[0];
+            const motFinal = suite[1];
+
+            // Alternance couleur
+            box.className = (id % 2 === 0) ? 'jaune' : 'pistache';
+
+            if (clic === 0) {
+                // ETAPE 1 : TIRAGE + ? =
+                box.innerHTML = tirageSeul + " + ? =";
+            } 
+            else if (clic === 1) {
+                // ETAPE 2 : TIRAGE + LETTRE ROUGE = (avec espaces forcés)
+                box.innerHTML = tirageSeul + ' + <span class="rouge">' + lettreJoker + '</span> =';
+            } 
+            else {
+                // ETAPE 3 : MOT SEUL
+                box.innerHTML = motFinal;
+            }
+        }
+
+        box.addEventListener('click', () => {
+            clic++;
+            if (clic > 2) {
+                clic = 0;
+                id++;
+            }
+            jouer();
+        });
+
+        // LANCEMENT IMMEDIAT DU PREMIER TIRAGE SANS PAGE D'ACCUEIL
+        if(list.length > 0) jouer();
+        else box.innerHTML = "ERREUR : COLLE TES DONNÉES";
+
+    </script>
 </body>
-
 </html>
