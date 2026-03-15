@@ -2,25 +2,25 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Tirages joker unique</title>
+    <title>Tirages joker à solution unique</title>
     <style>
         body {
             background-color: #ADD8E6; /* Bleu clair */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Aligne vers le haut */
+            justify-content: flex-start;
             height: 100vh;
             margin: 0;
             font-family: 'Courier New', Courier, monospace;
-            padding-top: 100px; /* Force le titre très haut */
+            padding-top: 100px; /* */
         }
 
         #titre-principal {
             font-size: 3rem;
             font-weight: bold;
             color: #000;
-            margin-bottom: 120px; /* Espace massif entre titre et rectangle */
+            margin-bottom: 120px; /* */
         }
 
         #zone-jeu {
@@ -32,32 +32,33 @@
             justify-content: center;
             border: 10px solid #333;
             border-radius: 20px;
-            font-size: 4.5rem; /* Encore plus gros */
+            font-size: 4.5rem;
             font-weight: bold;
             text-align: center;
             cursor: pointer;
             user-select: none;
-            box-shadow: 15px 15px 30px rgba(0,0,0,0.2);
+            box-shadow: 15px 15px 30px rgba(0,0,0,0.2); /* */
         }
 
         .jaune { background-color: #FFFF00; color: #000; }
         .pistache { background-color: #93C572; color: #000; }
-        .rouge { color: #FF0000; margin: 0 15px; } /* Espace forcé autour du rouge */
+        .rouge { color: #FF0000; margin: 0 15px; } /* */
     </style>
 </head>
 <body>
 
-    <div id="titre-principal">Tirages joker unique</div>
+    <div id="titre-principal">Tirages joker à solution unique</div>
     
     <div id="zone-jeu" class="jaune"></div>
 
     <script>
         /************************************************************************
          * *
-         * ZONE DE COLLAGE : COLLE TES LIGNES CI-DESSOUS ENTRE LES BACKTICKS  *
+         * ZONE DE COLLAGE : COLLE TES LIGNES CI-DESSOUS ENTRE LES BACKTICKS    *
          * *
          ************************************************************************/
-        const donneesTextuelles = `EELNNOU + ? = P NONUPLEE
+        const donneesTextuelles = `
+EELNNOU + ? = P NONUPLEE
 EIINOTU + ? = Q QUINTOIE
 AELNOOR + ? = C CORONALE
 AAEESTU + ? = R RESEAUTA
@@ -531,73 +532,76 @@ AEHLMPT + ? = P PAMPHLET
 AEHMPU + ? = C MAPUCHE
 AEHMNP + ? = Y NYMPHEA
 
-        
-        `;
+`;
         /************************************************************************
-         * FIN DE LA ZONE DE COLLAGE - NE RIEN TOUCHER              *
+         * FIN DE LA ZONE DE COLLAGE - NE RIEN TOUCHER                          *
          ************************************************************************/
 
-        // Nettoyage strict
-        let list = donneesTextuelles.trim().split('\n')
+        let initialList = donneesTextuelles.trim().split('\n')
                       .filter(l => l.includes('=') && l.trim().length > 5);
 
-        // Mélange aléatoire
-        for (let i = list.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [list[i], list[j]] = [list[j], list[i]];
-        }
-
-        let id = 0;
+        let indices = [];
+        let currentIndex = 0;
         let clic = 0; 
         const box = document.getElementById('zone-jeu');
 
+        function shuffle() {
+            indices = Array.from(initialList.keys());
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+            currentIndex = 0;
+        }
+
         function jouer() {
-            if (id >= list.length) {
-                box.innerHTML = "FIN";
-                return;
+            if (currentIndex >= indices.length) {
+                shuffle();
             }
 
-            const brute = list[id].trim();
+            const realIndex = indices[currentIndex];
+            const brute = initialList[realIndex].trim();
             const split = brute.split('=');
             
-            // On récupère uniquement les lettres du tirage (avant le +)
             const tirageSeul = split[0].split('+')[0].trim();
-            
-            // On récupère lettre et solution
             const suite = split[1].trim().split(/\s+/);
             const lettreJoker = suite[0];
             const motFinal = suite[1];
 
-            // Alternance couleur
-            box.className = (id % 2 === 0) ? 'jaune' : 'pistache';
+            box.className = (currentIndex % 2 === 0) ? 'jaune' : 'pistache';
 
             if (clic === 0) {
-                // ETAPE 1 : TIRAGE + ? =
                 box.innerHTML = tirageSeul + " + ? =";
             } 
             else if (clic === 1) {
-                // ETAPE 2 : TIRAGE + LETTRE ROUGE = (avec espaces forcés)
                 box.innerHTML = tirageSeul + ' + <span class="rouge">' + lettreJoker + '</span> =';
             } 
             else {
-                // ETAPE 3 : MOT SEUL
                 box.innerHTML = motFinal;
             }
         }
 
         box.addEventListener('click', () => {
+            if (initialList.length === 0) {
+                box.innerHTML = "ERREUR : LISTE VIDE";
+                return;
+            }
+
             clic++;
             if (clic > 2) {
                 clic = 0;
-                id++;
+                currentIndex++;
             }
             jouer();
         });
 
-        // LANCEMENT IMMEDIAT DU PREMIER TIRAGE SANS PAGE D'ACCUEIL
-        if(list.length > 0) jouer();
-        else box.innerHTML = "ERREUR : COLLE TES DONNÉES";
-
+        // LANCEMENT AUTOMATIQUE AU CHARGEMENT
+        if(initialList.length > 0) {
+            shuffle();
+            jouer();
+        } else {
+            box.innerHTML = "COLLE TES TIRAGES DANS LE CODE";
+        }
     </script>
 </body>
 </html>

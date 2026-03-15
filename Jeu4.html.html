@@ -2,1665 +2,1567 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Jeu de Tirages Joker - Direct</title>
+    <title>Tirages joker à solutions multiples</title>
     <style>
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100vh; margin: 0; background-color: #7ECFF4;
-        }
-        
-        .compteur { 
-            background: white; padding: 10px 30px; border-radius: 50px; 
-            border: 3px solid #000; margin-bottom: 25px;
-            font-weight: bold; font-size: 1.2em;
+            background-color: #ADD8E6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            padding-top: 100px;
         }
 
-        .cadre {
-            background-color: yellow; color: black; border: 5px solid #000;
-            padding: 50px; cursor: pointer; min-width: 450px; max-width: 90vw;
-            text-align: center; font-weight: bold; font-size: 2.5em;
-            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        #titre-principal {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 120px;
+            white-space: nowrap;
+        }
+
+        #zone-jeu {
+            width: 95%;
+            max-width: 1100px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 10px solid #333;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
             user-select: none;
-            transition: background-color 0.1s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            padding: 10px 30px;
+            box-sizing: border-box;
+            overflow: hidden;
+            line-height: 1.2;
+        }
+
+        .jaune { background-color: #FFFF00; color: #000; }
+        .pistache { background-color: #93C572; color: #000; }
+
+        .rouge { 
+            color: #FF0000; 
+            text-transform: uppercase; 
         }
     </style>
 </head>
 <body>
 
-    <div class="compteur" id="nb-tirages">ANALYSE DU TEXTE...</div>
-
-    <div id="jeu-container">
-        <div id="zone-affichage" class="cadre" onclick="piocher()">
-            CLIQUEZ POUR COMMENCER
-        </div>
-    </div>
-
-<script>
-// =========================================================
-// COLLEZ TOUT VOTRE TEXTE CI-DESSOUS (ENTRE LES ` `)
-// =========================================================
-const texteBrut = `
-
-
-SPÉCIAL TIRAGES JOKER À SOLUTIONS MULTIPLES
-
-
-
-
-
-
-
-EENOOSS + ? = 2 (mt)
-AAENORU + ? = 2 (gm)
-EEEIIT + ?? = 2 (bf,np)
-EILOTTU + ? = 2 (rv)
-AENOORS + ? = 2 (tz)	
-AOOTTUU + ? = 2 (mr)
-
-IIRSTTU + ? = 2 (mn)
-AEEILLL + ? = 2 (dg)
-LNNOOSU + ? = 2 (de) 
-EIILNRU + ? = 2 (gs)
-INITIER + ? = 2 (af)
-EINNNOS + ? = 2 (be) 
-INOTTTU + ? = 2 (ae)
-AEEIOSS + ? = 2 (cr)
-AENOORU + ? = 2 (mt)
-AALNNOO + ? = 2 (gm)	EINOTUU + ? = 2 (fg)	EEINNNS + ? = 2 (lo)	
-AAAEILR + ? = 2 (bv)	AOSTTTU + ? = 2 (er)	ANRSTUU + ? = 2 (pt)
-EEIILTT + ? = 2 (ls)	AAEELLN + ? = 2 (gt)	INNTUU + ? = 2 (ef,js)	
-LORSTUU + ? = 2 (am)	AIRRSUU + ? = 2 (es)	AILNOOR + ? = 2 (bm)
-INUSUEL + ? = 2 (rs)	AOLTUU + ?? = 2 (mr,rs)	ALORTUU + ? = 2 (ms)
-AELOORT + ? = 2 (kz)	AALRRSU + ? = 2 (be)	EELORRS + ? = 2 (ci)
-EIINOTT + ? = 2 (cp)	Assonée + ? = 2 (pu)	AEEENTU + ? = 2 (gt)
-AALNOO + ?? = 2 (gn,mn)	ALLNOOS + ? = 2 (pu)	ACLLNOO + ? = 2 (ei)
-LUNURES + ? = 2 (ai)	ANNNOOR + ? = 2 (gr)	EILSTTT + ? = 2 (ao)
-AAELORR + ? = 2 (cu)	AAEILOS + ? = 2 (cp)	AAEILOT + ? = 2 (uv)
-AILLOO + ? = 2 (cd,cn)	AARRSST + ? = 2 (eu)	ILNRUU + ?? = 2 (es,pt)
-ILNTUU + ?? = 2 (be,rp)	EILROUU + ? = 2 (cg)	AAAILLR + ? = 2 (ps)
-EILOOSU + ? = 2 (gv)	EEEIORT + ? = 2 (nr)	NOORUU + ?? = 2 (cc,ns)
-
-NORTUU + ? = 2 (bs)		EOOONS + ? = 2 (gz)		ELSSTT + ? = 2 (hy)
-AAARTU + ? = 2 (dm)		IILNOO + ? = 2 (fp)		AEOORT + ? = 2 (bn)
-TTOROS + ? = 2 (io)		ALSTUU + ? = 2 (mr)		ENNUU + ?? = 2 (ch,es)
-EIOOSU + ? = 2 (dv)		AAEORS + ? = 2 (bg)		IILNOR + ? = 3 (cps²)
-OOORTU + ? = 2 (dp)		ELNOOT + ? = 2 (pv)		ANNOOS + ? = 2 (cx)
-AAEELN + ? = 2 (mz)
-
-AEELLLN + ? = 3 (fpy)	AEROSOL + ? = 3 (krs)	AEILLNO + ? = 3 (cmn)
-IINORTU + ? = 3 (csv)	ELORSTT + ? = 3 (ein)	AIOORRT + ? = 3 (eot)
-AOOSTTU + ? = 3 (nps)	INNEITE + ? = 3 (rs³v)	AAEILLU + ? = 3 (glm)
-STOMATO + ? = 3 (nps)	EILOORU + ? = 3 (cgk)	EIILNOT + ? = 3 (ams)
-IINNOTT + ? = 3 (asu)	EILNNOR + ? = 3 (bgp)	ELOOTUU + ? = 3 (glp)
-AEILNNU + ? = 3 (cm²z)	EIILLOS + ? = 3 (blx)	ILOORSS + ? = 3 (eis)
-ENNOOTT + ? = 3 (bir)	AAILLOS + ? = 3 (cmu)	AEOORRT + ? = 3 (dip) 
-IILNNOT + ? = 3 (ago)	AEELOTT + ? = 3 (cmu)	ROSEOLE + ? = 3 (cks)
-EILNRRT + ? = 3 (ago)	AAEERRU + ? = 3 (mpt)	AAELOT(S) + ? = 3 (nux)	
-AAENOSS + ? = 3 (mpr)	AAENOST + ? = 3 (glp)	SENNEUR + ? = 3 (aos)
-AAEISTU + ? = 3 (bmr)	NOSSTUU + ? = 3 (eqr)	AELSTUU + ? = 3 (clr)
-EIOORRT + ? = 3 (aps)	IIOORT + ?? = 3 (ap,fr,ns)
-EIIOOT + ?? = 3 (jn,ns,sp)	AEINOOR + ? = 3 (dtz)	TATIANA + ? = 3 (dmr)
-AENRSUU + ? = 3 (egl)	AAENORS + ? = 3 (gis)	AEILNNR + ? = 3 (cft)
-AALSTTU + ? = 3 (fin)	EOORRTU + ? = 3 (lnp)	EIIOSSS + ? = 3 (fmt)
-ALOORR + ?? = 3 (ce,cp,es)				AAARSTU + ? = 3 (bdm)
-AAANSST + ? = 3 (cim)	AEEIINN + ? = 3 (flm)	AAEENNS + ? = 3 (bgm)
-AEIINTU + ? = 3 (hqr)	EEEIIRS + ? = 3 (bfl)	AEENSUU + ? = 3 (grx)
-AENTTUU + ? = 3 (ioq)	AEILNRR + ? = 3 (opt)	IIORSST + ? = 3 (afn)
-ELOORTT + ? = 3 (gnu)	ILRTUU + ?? = 3 (at,ce,np)
-AEEIOST + ? = 3 (bmp)	EORTTTU + ? = 3 (ent)	AELLLU + ?? = 3 (ai,cr,eq)
-
-AOOSTT + ? = 3 (bhm)	AANNSS + ? = 3 (cei)	AAEENT + ? = 3 (chs)
-IOORRT + ? = 3 (bd²p)	AOORRS + ? = 3 (lty)	AALNOS + ? = 3 (ctv)
-EERTTT + ? = 3 (iso)	
-
-
-AIOORTS + ? = 4 (bdmp)	EEILNOU + ? = 4 (bcms)	AEIOORT + ? = 4 (bcnr)
-EEINOTU + ? = 4 (acqr)	EIINORR + ? = 4 (bgst)	AILLLO + ?? = 4 (ad,et,ev,is)
-AEEEIRS + ? = 4 (clns)	AAELORT + ? = 4 (bmpu)	EEORTUU + ? = 4 (bc²fs) =
-ALNSTTU + ? = 4 (aior)	INTELLO + ? = 4 (crs²u)	AAILRRT + ? = 4 (bepu)
-ILIENNE + ? = 4 (ac²ms)	AEEINNO + ? = 4 (crsz)	AAEINOR + ? = 4 (gstv)
-AEERSUU + ? = 4 (g²mnt)	NIAOULI + ? = 4 (cmps)	AAEENNR + ? = 4 (lnxz)
-USUELLE + ? = 4 (bkns)	EIINNRT + ? = 4 (aefo)	EIILRTT + ? = 4 (a²bhl)
-RUISSEAU + ? = 4 (glrx)	AAEIORS + ? = 4 (bcnv)	EILOORT + ? = 4 (fgms)
-EEELNTU + ? = 4 (lrtv)	AILOOST + ? = 4 (fgps)	EIINNOT + ? = 4 (chrs)
-AENOOST + ? = 4 (cdrz)	AILNOOT + ? = 4 (bcnv)	AELLORT + ? = 4 (bcir)
-EIINORR + ? = 4 (bgst)
-
-EEEITU + ? = 4 (dpxz)	ALORRS + ? = 4 (cnot)	AAORRT + ? = 4 (bgps) 
-
-REUNION + ? = 5 (cghst²)		AELNRRU + ? = 5 (bgost)
-AUNIONS = + ? = 5 (bfl²os²)		SOIERIE + ? = 5 (blmns²)
-IINRSTU + ? = 5 (aefost)		ALITAIS = + ? = 5 (cfgns)
-EEILTTU + ? = 5 (bnqst)		AAEIILS + ? = 5 (dgnr³s)
-EILRSUU + ? = 5 (dgnqr)		EEIONNN + ? = 5 (imr²st)
-EIOORRS + ? = 5 (cdnpt)		LUTEINE + ? = 5 (acrs4t)
-AEEINOS + ? = 5 (dglnv)		SUTURAL + ? = 5 (efotx)
-SAUTANT + ? = 5 (ejlrt)		EOORSTU + ? = 5 (bcgln)
-TROTTEE + ? = 5 (hnsxz)		AINNOOS + ? = 5 (cfluv)
-SONNEES + ? = 5 (bcnru)		AAILNOT + ? = 5 (bhn³pr²)
-
-
-NOUENT + ? = 5 (cgnr²s)		OLEATE + ? = 5 (fnpsu)	
-
-ENOOOS + ?? = 5 (cc,dm,gm,nt,sz)	
-EEOOSU + ?? = 5 (cp,cr,dy,ft,vy) 
-
-TOLLEE + ? = 6 (cimprt)
-
-LETTREE + ? = 6 (bcgmsv)
-
-ANOOSTT + ? = 7 (bhimpsu)
-
-AAOO + ???? = 9 (ALCOOLAT ANALOGON ANOMALON AUTOCOAT AUTOGOAL BAZOOKAS HORODATA OPOPANAX SADOMASO)
-
-
-
-
-BEEEILN + ? = 2 (ap)	BENNEES + ? = 2 (az)	ABINOOR + ? = 2 (ly)	
-ABIILNU + ? = 2 (fq)	ABILRRT + ? = 2 (ae)	BEELOOT + ? = 2 (su)
-AABLRRU + ? = 2 (es)	AABINOU + ? = 2 (ce)	EBLOSUU + ? = 2 (ce)
-BEEIILO + ? = 2 (fp)	BELRTUU + ? = 2 (cu)	ABNOORU + ? = 2 (jn)
-BEEELLO + ? = 2 (mr)	ABEIINU + ? = 2 (hz)	BOORUU + ?? = 2 (ak,gl)
-AABENOS + ? = 2 (il)	BEOORTU + ? = 2 (ls)	ABIILNO + ? = 2 (mt)	
-BEEIIOT + ? = 2 (nr)	ABEEIIL + ? = 2 (bs)	BEIILNU + ? = 4 (fgst)
-
-ABNOOR + ? = 2 (yz)		BINAIS + ? = 2 (hm)		BILOOS + ? = 2 (ns)
-ABILNU + ? = 2 (oq)		BILOSS + ? = 2 (eo)		ABNRUU + ? = 2 (ks)
-
-AAABRTU + ? = 3 (gqs)	BOOLIEN + ? = 3 (bds)	ABEESUU + ? = 3 (dgs)	
-AABENOR + ? = 3 (dn²r)	BEEELNO + ? = 3 (gvz)	ABEIINO + ? = 3 (dgm)
-ABEELNU + ? = 3 (dij)	BISSENT + ? = 3 (a³io³)	LUBERON + ? = 3 (dst) 
-BEIINNT + ? = 3 (aht)	EBIINSU + ? = 3 (g²ql)	AABENSU + ? = 3 (hit)
-BEEELOR + ? = 3 (alt)	ABELOUU + ? = 3 (dgx)	BEELOUU + ? = 3 (gsx)
-BEEOTUU + ? = 3 (fqr)	BENOORU + ? = 3 (gns)	AAABLLT + ? = 3 (bis)
-ABEINNU + ? = 3 (dtx)	ABILNOO + ? = 3 (rst)	AUBURN + ?? = 3 (er,ks,ot)
-ABISSTU + ? = 3 (ors)	
-
-ABEEES + ? = 3 (cmr)	BOSTUU + ? = 3 (aor)	BEELNO + ? = 3 (goz)	
-
-ABEIISU + ? = 4 (glrs)	BEEILNU + ? = 4 (aoqs)	BEEILNO + ? = 4 (l²nsu)
-ABLNOOS + ? = 4 (bgiu)	BEELMST + ? = 4 (ainr)	ABIILOT + ? = 4 (flnu)
-BRISTOL + ? = 4 (e²osu)	BENNOTU + ? = 4 (aios)	BBILNO + ?? = 4 (au,eo,eu,gy)
-BOULOTER + ? = 4 (a²dnt)
-
-AABEIN + ? = 4 (dknu)
-
-BOURRER + ? = 5 (a²deiu)		ABEEITU + ? = 5 (ghqrs)
-BATNEEN + ? = 5 (aors²t)		ENTUBES + ? = 5 (aei²or)
-NUBILES + ? = 5 (a³eio³q)		Bélénos + ? = 5 (giosz)
-ABOORU + ?? = 5 (ds,jn,ku,nn,sy)	
-BIORRT + ? = 5 (adeou)			
-
-
-
-ACLOOTU + ? = 2 (bk)	ALCOOLE + ? = 2 (ns)	AACOTTU + ? = 2 (or)
-CILNOTU + ? = 2 (ao)	CEIILRU + ? = 2 (dl)	CEINNNO + ? = 2 (tu)
-CEINNRU + ? = 2 (ao)	CEINNSU + ? = 2 (ae)	AACELOU + ? = 2 (dq)
-CENRTUU + ? = 2 (op)	ACEILUU + ? = 2 (nr)	ACELSUU + ? = 2 (lt)
-ACELNUU + ? = 2 (ix)	CEENRUU + ? = 2 (lo)	AACEOSS + ? = 2 (rv)
-ACELLOU + ? = 2 (hp)	AACLOTU + ? = 2 (gn)	ACILLOO + ? = 2 (dn)
-AAACLNR + ? = 2 (dv)	CCEIORU + ? = 2 (fn)	CCEOORU + ? = 2 (nu)
-ACCOTUU + ? = 2 (or)	AACEIOS + ? = 2 (lr)	ACLSTTU + ? = 2 (op)
-AACLRTU + ? = 2 (is)	ACILNUU + ? = 2 (eq)
-
-AACLRU + ? = 2 (cn)	
-
-CELLUUS + ? = 3 (act)	ACIOORR + ? = 3 (dmy)	AACCRTU + ? = 3 (hos)	
-CELOORU + ? = 3 (diu)	ACOORUU + ? = 3 (glm)	AACEOST + ? = 3 (c²mv)
-AACENOS + ? = 3 (gpu)	AACEORS + ? = 3 (ils)	ACEOORS + ? = 3 (mpt)
-CEILSTT + ? = 3 (aeh)	ACILNSS + ? = 3 (eot)	ACEEIOT + ? = 3 (nrv)
-ACEEIOS + ? = 3 (lps)	NOIRCIT + ? = 3 (ftu)	AEHIPRSU + ? = 3 (ceo)
-CEOORTU + ? = 3 (kns)	CEILNUU + ? = 3 (afq)	AAACTU + ?? = 3 (bd,de,pr)
-ACILTUU + ? = 3 (bfm)	CEILTUU + ? = 3 (cmr)
-
-AACLNO + ? = 3 (mrs)	CELLNU + ? = 3 (aei)	ACLTUU + ? = 3 (bfm)
-
-CILLORS + ? = 3 (ae²k)	ACNOORU + ? = 4 (ndtx)	AACNRSU + ? = 4 (aely)
-CANASTA + ? = 4 (g²lrs)	LICITEE + ? = 4 (afhs²)	CEIIILN + ? = 4 (dmsv)
-CEILRUU + ? = 4 (aeot)	COURSAS + ? = 4 (aei³t)	CAILLOU + ? = 4 (dfqx)
-
-AACNOU + ? = 4 (begp)	ACOTUU + ? = 4 (behr)
-
-CLONERA + ? = 5 (ae²i⁴o)	COUENNE + ? = 5 (mrstv)
-AAACRST + ? = 5 (dnsvy)		ACIEREE + ? = 5 (cflps)
-ROCOUER + ? = 5 (adiny)		CRUAUTE + ? = 5 (bhors)
-CATELLE + ? = 5 (aisux)		NACELLE + ? = 5 (cmnosy)
-AACEENN + ? = 5 (bmnot)		CAILLOT + ? = 5 (be³frs²)
-INCITEE + ? = 5 (dhrst)		ACEEINO + ? = 5 (dmnrt)
-AACELOS + ? = 7 (cfilprv)		ACISUU + ?? = 5 (es,hq,lm,mx,rr)
-
-
-
-
-DERSTUU + ? = 2 (ao)	AADSSTT + ? = 2 (er)	ADIILLU + ? = 2 (ov)
-ADEINNU + ? = 2 (bo)	DEEILLO + ? = 2 (au)	ADEOOLR + ? = 2 (cd)
-ADIINOU + ? = 2 (bt)	AADEOTU + ? = 2 (ft)	ADEOSUU + ? = 2 (lv)
-Doillon + ? = 2 (mu)	DEEELNU + ? = 2 (bp)	DOLLIES + ? = 2 (gu)
-AADEENT + ? = 2 (mp)	ADELNOU + ? = 2	(dr)	DEEILOT + ? = 2 (dn)
-ADILOOS + ? = 2 (bg)	DENRUU + ?? = 2 (lo,sv)	AADELOS + ? = 2 (mr)
-AADEOSU + ? = 2 (mv)	ADDEIIN + ? = 2 (rv)	AADILOU + ? = 2 (gs)
-ADEITUU + ? = 2 (qr)	ADEIRUU + ? = 2 (qt)	DEEOORS + ? = 2 (iv)
-ADEELNU + ? = 2 (bp)	ADEEIOT + ? = 2 (mz)	ADEINNN + ? = 2 (ei)
-DEINNNO + ? = 2 (dt)	AAADINS + ? = 2 (fn)	AADLNOR + ? = 2 (np)
-ADLNORT + ? = 2 (pu)
-	
-AADLMT + ? = 2 (ei)		ADLLRU + ? = 2 (en)		DRELIN + ? = 2 (ab)
-DEILUU + ? = 2 (qr)		AAADNS + ? = 2 (cr)		DENOOT + ? = 2 (ar)
-
-DNORSUU + ? = 3 (frt)	ADLSTRU + ? = 3 (aei)	DILLOTU + ? = 3 (ace)
-DEEEIRU + ? = 3 (npt)	DEELOOR + ? = 3 (cht)	DEIOOST + ? = 3 (mnv)
-DEILNSU + ? = 3 (aco)	DEIILOR + ? = 3 (aos)	ADIIOSS + ? = 3 (cnp)
-DOUALAS + ? = 3 (inr)	DEIINOR + ? = 3 (csz)	ADERTUU + ? = 3 (iqs)
-DEEEINU + ? = 3 (gqr)	ADULAIT + ? = 3 (cfs)	ADEIINO + ? = 3 (bft²)
-ADEEOSU + ? = 3 (bcv)	ADILORR + ? = 3 (egu)	ADNOOU + ?? = 3 (bs,cr,vz)
-DILOSTU + ? = 3 (aes)	ODONATE + ? = 3 (nrs)	DEIIORR + ? = 3 (ftz)
-
-ADNOOS + ? = 3 (lry)	DEOORT + ? = 3 (lnp)	DEIILN + ? = 3 (a3cw)	
-
-DUELLES + ? = 4 (ajox)	DEEILNO + ? = 4 (dgnt)	ADIRSSU + ? = 4 (ceo²p²)
-DEEILNN + ? = 4 (aeoy)	AADEISU + ? = 4 (cgpq)	ADIIORT + ? = 4 (ehns)
-DEIILSU + ? = 4 (fqrt)	LIEUDIT + ? = 4 (cfsv)	ADINOOR + ? = 4 (enst)
-DOUELLE + ? = 4 (ipsv)	ADEOORT + ? = 4 (hmnr)	AADNORS + ? = 4 (lipt)
-ADIRSTT + ? = 4 (eiou)	DEINOOT + ? = 4 (nrsv)	DEITUU + ?? = 4 (aq,ar,eq,sx) 
-ADEIISU + ? = 4 (gqrt)	
-
-AADOSU + ? = 4 (blmp)	DEEIINS + ? = 4 (ac³f²t²)	
-
-DEIILRU + ? = 5 (acmqs)		INDIENS + ? = 5 (agoru)
-ADEIINN + ? = 5 (clnst²)		TAUDEES + ? = 5 (ilnrs)
-ADEOUU + ?? = 5 (bl,bq,gr,ls,sv)
-
-ADEOOT + ?? = 7 (hr,mr,mz,nn,nr,ns,rr)
-
-
-	
-
-
-EFIIRTU + ? = 2 (ar)	EFIINNO + ? = 2 (ls)	EFIILOU + ? = 2 (nq)
-EFIILSU + ? = 2 (dr)	EFILRRS + ? = 2 (au)	EFOORSU + ? = 2 (lw)
-FIILSSS + ? = 2 (ae)	AAEFINU + ? = 2 (pv)	EFINTUU + ? = 2 (no)
-AFORRST + ? = 2 (in)	FLOORSU + ? = 2 (ei)	AAFIILN + ? = 2 (ps)
-EFINOUU + ? = 2 (rt)	FINOSUU + ? = 2 (gt)	EFIOORT + ? = 2 (cl)
-FLRSTUU + ? = 2 (ae)	
-
-AAFLOU + ? = 2 (fm)	AAFINN + ? = 2 (ci)	
-
-FILORSU + ? = 3 (dno)	AAEFIIT + ? = 3 (bcn)	ELFRRSU + ? = 3 (iou)
-EFILRSS + ? = 3 (aiu)	AAFILOS + ? = 3 (cfy)	FILLOO + ?? = 3 (er,es,hl)
-FIILNOR + ? = 3 (dps)	EFINRRU + ? = 3 (ego)	EEFOTUU + ? = 3 (brs)
-AFINRTU + ? = 3 (eg²l)	TIFOSIS + ? = 3 (rap)	FIINRSU + ? = 3 (aot)	
-AAEFFLS + ? = 3 (fgi)	
-
-AEFNOS + ? = 3 (fhs)
-
-FATSIAS + ? = 4 (cfnu)	AFIINOR + ? = 4 (cfgm)	EFIIORR + ? = 4 (adgh)
-SNIFANT + ? = 4 (efou)	EFIISST + ? = 4 (lnrx)	EFLOORS + ? = 4 (cmnu)
-EFISUU + ?? = 4 (er,fx,kq,ll)
-
-
-AEEFIRU + ? = 5 (ilqrv)		AFOORT + ?? = 5 (be,cn,in,lm,ns)	
-EFNOUU + ?? = 5 (ar,fo,gx,ir,it)	
-
-
-
-
-AEGLOOR + ? = 2 (cg)	AEGORUU + ? = 2 (dm)	AGINOOS + ? = 2 (lt)
-AGILOOT + ? = 2 (gs) 	AEGIOO + ?? = 2 (lp,ms)	AAGLOTU + ? = 2 (co)
-AGNNNOO + ? = 2 (fr)	AGNSTUU + ? = 2 (ei)	AOGTUU + ?? = 2 (fr,ss)
-EGLOOSU + ? = 2 (iv)	EGILOOT + ? = 2 (or)	EGLOOTU + ? = 2 (tu)
-GLOORUU + ? = 2 (be)	EGNOTUU + ? = 2 (hi)	EGILOOS + ? = 2 (gu)
-EEGORUU + ? = 2 (fm)	EGOORSS + ? = 2 (iy)	EGINOOR + ? = 2 (eh)
-EGRSSTU + ? = 2 (ai)	EGIOOSS + ? = 2 (nr)	EGIOSSU + ? = 2 (rv)
-EGLORRT + ? = 2 (ei)	EEGIOOR + ? = 2 (nu)	GIINNRT + ? = 2 (ao)
-GIILNNU + ? = 2 (ae)	GGLNOU + ?? = 2 (ac,is)	EGOORST + ? = 2 (nu)
-GILOORS + ? = 2 (an)	EGLIOTU + ? = 2 (nr)	AEGLTTU + ? = 2 (ae)
-EGNOOTT + ? = 2 (lp) 	EGIOOSU + ? = 2 (lz)	AEEGGLU + ? = 2 (nr)
-AEGGLNU + ? = 2 (ae)	AAEGLOS + ? = 2 (nu)	AEEEGRU + ? = 2 (ms)
-AGLNOOT + ? = 2 (dg)	
-
-EGOOTU + ? = 2 (rv)	GOORTU + ? = 2 (ey)	EGOORT + ? = 2 (pu)
-EEGNOO + ? = 2 (rz)	AGLNOO + ? = 2 (bd)
-
-
-GIINNOT + ? = 3 (ilr)	EEGINOO + ? = 3 (lrv)	EGINRUU + ? = 3 (asz)
-EGILOOR + ? = 3 (ltu)	GENESES + ? = 3 (aru)	EEGIOTT + ? = 3 (ghs)
-EGIIORR + ? = 3 (fmn)	OURAGAN + ? = 3 (des)	AEEEGNU + ? = 3 (cnt)
-GEILSTU + ? = 3 (a³dn²)	GILNSTU + ? = 3 (ae²h)	AEEGTUU + ? = 3 (lqs)
-EGLOOTT + ? = 4 (mnru)	EGLNOOT + ? = 3 (gr²t)	AAAGINT + ? = 3 (cmr)
-EEGILOU + ? = 3 (bpx)	EGGOONU + ? = 3 (stu)	EGISSTT + ? = 3 (ain)
-AEGINUU + ? = 3 (djr)	AEGOUU + ?? = 3 (bl,dr,mr)
-
-AGORAS + ? = 3 (ent²)	AAGILO + ? = 3 (cps)	EGIOOS + ? = 3 (bdn)
-AEGNUU + ? = 3 (jlx)	AAGEOT + ? = 3 (nop)	AAAGRR + ? = 3 (bfh)
-
-EEGINNO + ? = 4 (jprs)	GIINRST + ? = 4 (egho)	GRATTES + ? = 4 (ae²i³u)
-RIGOLER + ? = 4 (astu)	NEOGENE + ? = 4 (cdrs)	AEGNRUU + ? = 4 (ilst)
-EEGIORR + ? = 4 (cnuv)	EEGIORT + ? = 4 (lnuz)	EEGIORU + ? = 4 (dort)
-EEEGNST + ? = 4 (imr²t)	EEGNOOR + ? = 4 (cims)	EGLORUU + ? = 4 (bino)
-EEEGNOT + ? = 4 (chil)	AEGNSUU + ? = 4 (ejrt)	AGLOOR + ?? = 4 (ce,eg,is,mn)
-EGIOORU + ? = 4 (belu)	AEGNTUU + ? = 4 (jlrs)	AGLNOOS + ? = 4 (bdip)
-EGIIRTU + ? = 4 (blmn)	AAGNRRT + ? = 4 (efio)	AEGNOO + ?? = 4 (cl,dn,mm,mr)
-EGOORUU + ? = 4 (ilst)	
-
-AAAGIN + ? = 4 (kmrz)	EEGOUU + ?? = 4 (bl,fr,mr,st)
-
-AGILOOS + ? = 5 (dg²nrt)		EEGLNOO + ? = 5 (dilm²p)
-GEIILRT + ? = 5 (deosu)  		EGIILNU + ? = 5 (abfnr)
-AEEGISU + ? = 5 (bimru)		AGINOTU + ? = 5 (cepst)
-GINOSTU + ? = 5 (acnor)		SONGEES + ? = 5 (bi³ruz)	
-SLOGANS + ? = 5 (einpt²)		AEEGOSU + ? = 5 (bclnr)
-EGIINRU + ? = 5 (fgltz)		EGILNOU + ? = 5 (bfhs²t)
-AAGILNO + ? = 5 (ekmns)		
-
-GOUROU + ?? = 6 (ac,bl,ei,el,hi,is)
-
-
-
-
-AEEHNRR + ? = 2 (ac)	EEHLOTT + ? = 2 (nu)	AEEHNRU + ? = 2 (mt)
-AEEEHRS + ? = 2 (mp)	EHIIMMS + ? = 2 (cs)	AEEHITU + ? = 2 (bl)
-EHIILRT + ? = 2 (at)	AEHIINU + ? = 2 (bt)	
-AAHINNS + ? = 2 (go)	EEEHNU + ?? = 2 (aq,mr)	EHNNUU + ?? = 2 (cs,iq)
-EEHIIST + ? = 2 (cg)	AAHRSST + ? = 2 (an)	EHIIRSU + ? = 2 (ls)
-AEHLNTU + ? = 2 (cr)	HIORSST + ? = ? (ae)	HLLOOST + ? = 2 (ei)
-EEHIINT + ? = 2 (cl)	EEEHRTT + ? = 2 (bn)	EHILOOS + ? = 2 (dt)
-EHIOOST + ? = 2 (mz)	HONOREE + ? = 2 (ms)
-
-EHOTTU + ? = 2 (lr) 	AEHTTU + ? = 2 (cr)	AEHNNO + ? = 2 (im)
-EHISSU + ? = 2 (kt)	AEEEHT + ? = 2 (c²n)	AEHIOS + ? = 2 (rt)
-AHINO + ? = 2 (fz)	
-
-EEHIINR + ? = 3 (bcg)	AEHLNRS + ? = 3 (cop)	EHINSTU + ? = 3 (ctz)
-HOTTEES + ? = 3 (adu)	EHORSTU + ? = 3 (cnt)	EEHIOST + ? = 3 (lr²y)
-EEHLOST + ? = 3 (cio)	HINOORT + ? = 3 (aco)	AHORSTU + ? = 3 (ckm)
-EHIRSTT + ? = 3 (aeo)	EEHINOT + ? = 3 (cfr)	AHILOST + ? = 3 (egi)
-AEHILOS + ? = 3 (cut)	HIINSRT + ? = 3 (ego)	THONINE + ? = 3 (cis²)
-AHIINST + ? = 3 (ceu)	HEROINE + ? = 3 (dst)	AEHIILS + ? = 3 (rtw)
-HONNETE + ? = 3 (afs)	LESOTHO + ? = 3 (eil)	AAHIOSU + ? = 3 (crt)
-AAHIOST + ? = 3 (cgu)	AAEHITU + ? = 3 (nrv)	AHIIORT + ? = 3 (cds)
-AHILNOT + ? = 3 (abp)
-
-HELENT + ? = 3 (cew)	humoir + ? = 3 (bdt)	AAHLRS + ? = 3 (ekm)
-AEHINO + ? = 3 (fnp)	AHLSSS + ? = 3 (cep)	
-
-HOUARIS + ? = 4 (acde)	AEHINOT + ? = 4 (frtu)  HOUATES + ? = 4 (ciqx)
-HOONSS + ?? = 4 (eh,gu,ot,su)
-
-EHIINST + ? = 5 (aclrt)		AEHIOSU + ? = 5 (c²lrst)		
-AEHNNOT + ? = 5 (cefnp)		AETHUSE + ? = 5 (cmprs²)
-HUTIAS + ? = 5 (bcn²os)
-
-EHORSST + ? = 6 (eilo²py)		
-
-
-
-
-AEMNOOR + ? = 2 (gu)	ALMOORS + ? = 2 (fl)	EIILMNN + ? = 2 (et)
-ALMNNOO + ? = 2 (ap)	AIMOORS + ? = 2 (nt)	AAMNOTT + ? = 2 (cs)
-AEMOORS + ? = 2 (cz)	AEMOOSS + ? = 2 (tz)	AEMTTUU + ? = 2 (gr)
-AMNOORT + ? = 2 (hi)	AMNOOTU + ? = 2 (en)	IIMNNST + ? = 2 (ao)
-AAMOSSU + ? = 2 (ks)	EILMOOT + ? = 2 (dr)	AALMOSU + ? = 2 (bf)
-EEMOORT + ? = 2 (dp)	IMOOSTU + ? = 2 (qr)	AELLMOU + ? = 2 (bi)
-ELMNOOR + ? = 2 (gs)	AEMNRUU + ? = 2 (cx)	SURMOIS = + ? = 2 (e²o)
-ALMSTTU + ? = 2 (ei)	EILMORR + ? = 2 (fp)	AEIIMTU + ? = 2 (fx)
-IIMNOOT + ? = 2 (mn)	ILMNOOR + ? = 2 (al)	EILLLM + ?? = 2 (ai,fu)
-AAMNUU + ?? = 2 (cr,dl)	AEMNUU + ?? = 2 (cr,rx)	
-AMORTUU + ? = 2 (lx)	AALMNOU + ? = 2 (rt)	AALMNRU + ? = 2 (eo)
-AILMOOR + ? = 2 (fn)	AILMOOS + ? = 2 (nv)	AAIMOSU + ? = 2 (qr)
-AEMORUU + ? = 2 (gx)	ELMNUU + ?? = 2 (ct,ix)
-AELMOOT + ? = 2 (gp)	EMOORSS + ? = 2 (pu)	OOMRSSU + ? = 2 (ei)
-EEIMNNOU + ? = 2 (pr)
-
-MOROTE + ? = 2 (lp)
-
-AEMNOOU + ? = 3 (prt)	EMNNOOT + ? = 3 (iou)	EMNOORU + ? = 3 (aop)
-ELMNOOT + ? = 3 (els)	AAMOTTU + ? = 3 (erz)	IILMNOR + ? = 3 (aet)
-AEMNOOS + ? = 3 (bpz)	EIIMRTU + ? = 3 (gln)	ALMNOOR + ? = 3 (ghi)
-AEMOOST + ? = 3 (suz)	EEMNTTU + ? = 3 (agr)	EEEMSUU + ? = 3 (clr)
-EEEMNNO + ? = 3 (il²y)	ELLMNOS + ? = 3 (aio)	MASALAS + ? = 3 (ers)
-AAMOSTT + ? = 3 (ins)	AILMNOO + ? = 3 (prs)	ILMNOOU + ? = 3 (lps)
-AIMRSUU + ? = 3 (amn)	AAELMNU + ? = 3 (irs)	EEELMTU + ? = 3 (prt)
-AAMNOTU + ? = 3 (lnq)	AALMOST + ? = 3 (c²il)	LMNTUU + ?? = 3 (ca,ce,gr)
-AIILMOT + ? = 3 (cmn)	EIILMRU + ? = 3 (dht)	MNOOOR + ?? = 3 (dt,eu,xy)
-ALMORST + ? = 3 (emu)	EIMNUU + ?? = 3 (lx,oq,rt)
-EIIMORR + ? = 3 (agt)	EIILMNR + ? = 3 (ceo)	AAAELMR + ? = 3 (brx)
-AILMMU + ?? = 3 (be,ce,pe)
-
-AALMNU + ? = 3 (dit)	AIMOOS + ? = 3 (fgz)	
-
-AAMNORU + ? = 4 (eilx)	AIMNSST + ? = 4 (e³oru)	EEEMSST + ? = 4 (i²npr)
-AEMNOOT + ? = 4 (cptu)	AILMNOR + ? = 4 (ceio)	EEILMNN + ? = 4 (a²oiu)
-EEMNOOR + ? = 4 (fghm) 	ILMOSTU + ? = 4 (cenp)	AMOOTU + ?? = 4 (en,es,nn,tu)
-AAEIMNU + ? = 4 (lsvq)	AAIMORU + ? = 4 (nsxy)	EEIIMOR + + ? = 4 (nstz)
-LIMITES + ? = 4 (ae²no)	AMEOTTU + ? = 4 (abfq)	EMNTUU + ?? = 4 (cl,ir,ox,qs)
-AAMORTU + ? = 4 (bdty)	ALLMOO + ?? = 4 (es,bt,ls,rs)
-AELMOO + ?? = 4 (bz,gt,ls,pt)
-EEILMRTT + ? = 4 (aios)
-AELLMO + ? = 4 (cirs)
-
-AALMORT + ? = 5 (defry)		IMOORSU + ? = 5 (bnrst)
-OSMOSEE + ? = 5 (gnstx)		AIMNOOR + ? = 5 (chlst)
-SAMOSAS + ? = 5 (kmntu)		AUNAMES + ? = 5 (ilstx)	
-RAMONAI + ? = 5 (c³ns²t²u)		AALMSTU + ? = 5 (bhnrs)
-AEMOUU + ?? = 6 (bq,cj,gr,pt,rx,ss)	
-EMSSUU + ? = 5 (abmoq)		ELMOOR + ? = 5 (bfipt)
-AALMNO + ? = 5 (acemr)		IIMNSU + ? = 5 (bdmpt)
-
-		
-
-
-
-ENOOPTU + ? = 2 (su)	ANOOPTU + ? = 2 (tu)	AAEINPU + ? = 2 (fs)	
-EELNNOP + ? = 2 (iu)	AENNPUR + ? = 2 (hl)	EIIOOPS + ? = 2 (dt)	
-PUTTEES + ? = 2 (ij)	AILOOPT + ? = 2 (cs)	AEEIILP + ? = 2 (fr)
-ALOPTTU + ? = 2 (cs)	EIIPRRU + ? = 2 (af)	EOPRRUU + ? = 2 (gv)
-EEELNPU + ? = 2 (dr)	AAAENPS + ? = 2 (gh)	ATROPOS + ? = 2 (ip)
-EIOOPRR + ? = 2 (st)	ELOOPUU + ? = 2 (pt)	APOLLOS + ? = 2 (en)
-EINNNOP + ? = 2 (pt)	ELNNPRU + ? = 2 (ao)	EILLPRT + ? = 2 (eo)
-IIPRSST + ? = 2 (ae)	EEEILPT + ? = 2 (ao)	EEEPSUU + ? = 2 (gr)
-AOPTUU + ?? = 2 (er,no)	EEIILPS + ? = 2 (mx)	EEINNPR + ? = 2 (ae)
-PLANTON + toutes les voyelles sauf O.		
-
-
-AAALNP + ? = 2 (tu)	ELOOPR + ? = 2 (ms)	IOPPRT + ? = 2 (be)
-
-AALNNOP + ? = 3 (cft)	EILNNP(S) + ? = 3 (iou)		EEILNPU + ? = 3 (crv)
-EEINOPU + ? = 3 (ahs)	AOOPSTT + ? = 3 (mnu)		AAAILPT + ? = 3 (glr)
-AAELOPS + ? = 3 (cir)	AAENOPS + ? = 3 (cst)		EILLOPS + ? = 3 (nuy)
-ELOOPTU + ? = 3 (itu)	AOOPTTU + ? = 3 (nrs)		IIOPRST + ? = 3 (aln)
-EPOUTIT + ? = 3 (a²s³q)	EELPSUU + ? = 3 (mpt) 		ENOPPRT + ? = 3 (adi)
-EILOPTU + ? = 3 (clo)	PUTTERS + ? = 3 (afu)		AAEPTTT + ? = 3 (mnw)
-
-AINNP + ? = 3 (iot)	
-
-LAPONNE + ? = 4 (soft)	EILOOPS + ? = 4 (bmnt)	EEEIINP + ? = 4 (grtx)
-AENOPRU + ? = 4 (gist)	PARTOUT + ? = 4 (ae²no)	ENPRTUU + ? = 4 (acls)
-PUISOIR + ? = 4 (agqs)	PUROTIN + ? = 5 (ae⁴mns)	EEPRRRU + ? = 4 (dios)
-ELNOPRU + ? = 4 (gins)	ILOOPST + ? = 4 (aenu²)	ILOPRST + ? = 4 (aein)
-
-ELPSUU + ? = 4 (cqrt)	
-
-EELNPRU + ? = 5 (deilt)			POELENT + ? = 5 (c²irtu)
-EPOINTA + ? = 5 (ecmu²z²)		EPINAIE + ? = 5 (fpr³st)
-REPOLIR + ? = 5 (a²fmsu)		EILNPRU + ? = 5 (aceov²)
-EEILNOP + ? = 5 (cnpst)			EILPRUT + ? = 5 (aeirs)
-ALOOPR + ?? = 5 (ce,cr,ct,di,np)	EIILNOP + ? = 5 (lmrsu)
-SNIPERS + ? = 5 (giot²u²)		panotée + ? = 5 (g²imnrs)
-PAROIRS + ? = 6 (ei²lmtu)		AIOOPST + ? = 5 (cglpr)
-TAPOTAS + ? = 6 (dei³nrs²)		ELOPPRS + ? = 5 (adeuy)
-	
-
-
-
-AELNSUV + ? = 2 (mo)	AALORTV + ? = 2 (py)	AILNNOV + ? = 2 (gl)
-INORTUV + ? = 2 (is)	AAEINNV + ? = 2 (nr)	AOORTV + ? = 2 (gn)
-ANOORTV + ? = 2 (gs)	AILSTUV + ? = 2 (ac)	AEILNUV + ? = 3 (cpv)
-AELOOV + ?? = 2 (cr,di)
-
-EIOSUV + ? = 2 (oq)
-
-VANNAIS + ? = 3 (gor²)	ALVEOLE + ? = 3 (ces)	AAAENTV + ? = 3 (dgl)
-EINNSUV + ? = 3 (ade)	EIIORRV + ? = 3 (ilp)
-
-IORSTV + ? = 3 (aen)
-
-IORSSUV + ? = 4 (aeno)	Vistule + ? = 4 (clrv)	VENTURI + ? = 4 (cils²)
-SOLIVES + ? = 4 (a³cdk)	EOSSUUV + ? = 4 (alnr)	EIIORTV + ? = 4 (cilt)
-AAILTOV + ? = 4 (cegs)
-
-EIINUV + ? = 4 (dqst)	
-
-MISSIVE + ? = 5 (acesu²)		VIRTUEL + ? = 5 (acens)
-VISAMES + ? = 5 (afils²)		VICIENT + ? = 5 (a³dino²)
-INNOVEE + ? = 5 (bdjs²t)		VIRETON + ? = 5 (a³cglp²)
-AEISSUV + ? = 7 (abeoqrt)
-
-
-
-
-BBEILNO + ? = 2 (ou)	ABBEEIL + ? = 2 (in)	butable + ? = 2 (e+ti)
-
-BIBITES + ? = 3 (glt)	BBEILST + ? = 3 (aio)	BBELOU + ?? = 3 (en,in,ou)
-AABBIRS + ? = 3 (elo)
-
-ABBLOU + ?? = 4 (am,as,in,ou)	
-
-
-
-
-BCEINOU + ? = 2 (qr)	BCEILLO + ? = 2 (ay)	BCELSTU + ? = 2 (iu)
-BBCERSU + ? = 2 (lr)	BCILSTU + ? = 2 (eo)	ABCEILU + ? = 2 (lt)
-BBCELRS + ? = 2 (au)	BCIOSTU + ? = 2 (hl)	ABCEIIL + ? = 2 (rv)	
-AABCNRR + ? = 2 (do)	AABCORU + ? = 2 (nt)
-
-AABCEI + ? = 2 (dr)	COBOLS + ? = 2 (eh)	BECOOR + ? = 2 (ht)
-
-BINOCLE + ? = 3 (ahs)	AABCELO + ? = 3 (grt)	AABCNRS + ? = 3 (hik)
-ABCEIIS + ? = 3 (dnt)	BCINORU + ? = 3 (des)	ABCELNO + ? = 3 (iut)
-BCEEINR + ? = 3 (alo)	BCEOOST + ? = 3 (nrt)	BCCEOU + ?? = 3 (as,ih,ms)
-BCCEIL + ?? = 3 (io,nu,sy)
-
-CIBOULE + ? = 4 (rstz)	BECAUSE + ? = 4 (ahl³x)	BANCOUL + ? = 4 (ehst)
-AABCNOR + ? = 4 (nrtu)	BCEEEE + ?? = 4 (an,dt,hr,lr)
-
-ABCEELTU + ? = 4 (aeor)
-
-BCIORS + ? = 4 (enps)	AABCSU + ? = 4 (l²mru)	BCELRU + ? = 4 (a³bmo²)
-
-BACILLE + ? = 5 (osuvy)		ABCERTU + ? = 5 (ehio³u)
-
-BECIOU + ? = 5 (adlpq)			
-	
-
-
-
-
-AABDDEI + ? = 2 (bg)	ABBDINO + ? = 2 (er)	ABDISSU + ? = 2 (ei)
-BDEEII + ? = 2 (pr)	AABDDI + ? = 2 (ag)	ABDLORR + ? = 2 (au)
-
-ABDEILT + ? = 3 (eio)	BRIDAIT + ? = 2 (el)
-
-ABDEIIO + ? = 4 (mnst)	BDEIRRU + ? = 4 (agot)
-
-BDILUS + ? = 4 (aeop)	AABDNU + ? = 4 (elmt)
-
-DIABLES + ? = 5 (aersu)		AABDLNS + ? = 5 (de³iou)
-
-
-
-
-BEFILSS + ? = 2 (iu)	BEFIILU + ? = 2 (nr)	BEFIILR + ? = 2 (lu)
-
-ABEFOTU + ? = 3 (nrs)	ABEFORT + ? = 3 (aou)	ABFIIOT + ? = 3 (cln)
-BFIORT + ? = 3 (anu)	ABEFLOR + ? = 3 (isu)	
-
-FAUBERS + ? = 5 (eio²rt)	
-
-BFIILO + ? = 2 (em)	
-
-
-
-BEEGILL + ? = 2 (ir)	GOURBIS + ? = 2 (en)	BGLORUU + ? = 2 (eo)
-BIGLENT + ? = 2 (ao)	BEGILLR + ? = 2 (ei)	AABEGLL + ? = 2 (er)
-ABEEGLO + ? = 2 (lr)	BBGINU + ?? = 2 (as,cl)
-BGILLNO + ? = 2 (eu)
-
-ABGLOO + ? = 2 (mn)		ABGGIT + ? = 2 (iu)		BGLLOU + ? = 2 (de)
-
-BGLNOSU + ? = 3 (aeo)	BEGILOO + ? = 3 (cim)	BEGIINO + ? = 3 (aet)
-BEGILNU + ? = 3 (a²io)	GOBIONS + ? = 3 (lu²y)	BGIORR + ?? = 3 (au,en,fu)
-BEGORSS + ? = 3 (acu)	BEGIRTU + ? = 3 (ain)	ABGNOO + ?? = 3 (gt,ls,nu)
-
-BEUGNER + ? = 4 (aimz)	GOBEUSE + ? = 4 (adrs)	BIOGENE + ? = 4 (irsz)
-BASTING + ? = 4 (ades)	ABEGNST + ? = 4 (ioru)	BEGUINE + ? = 4 (jrsz)
-BOUGNER + ? = 4 (dios)	BGOORU + ?? = 4 (ei,en,hs,lu)
-BEGIIL + ? = 4 (afnz)
-
-
-GABELLE + ? = 5 (alor²s)			
-	
-
-
-
-BHOOSTU + ? = 2 (ac)	BHIOSTU + ? = 2 (ac)	ABHOSTU + ? = 2 (io)
-ABEHLNR + ? = 2 (ei)	ABHINSS + ? = 2 (eg)	BENTHOS + ? = 2 (er)
-ABEHIOT + ? = 2 (cl)
-
-BEEHOS + ? = 2 (cm)	BHIIRS + ? = 2 (at)	BHOOR + ?? = 2 (ce,gu)
-
-ABHNSU + ? = 2 (am)	BEHMSU + ? = 2 (ln)
-
-BEEHORS + ? = 3 (act)	BHINORS + ? = 3 (ceg)	ABHOOS + ?? = 3 (ci, il, tu)
-ABEHILN + ? = 3 (cir)	ABEHORU + ? = 3 (c³ei)	HUBRIS + ?? = 3 (gn,mo,tt)
-
-AABHLN + ? = 3 (irt)	ABEHRU + ? = 3 (clt)	BHISTU + ? = 3 (amz)
-
-ABEHIIN + ? = 4 (lr³tu)	BHIORU + ?? = 4 (ae,co,jp,ms)
-ABHINS + ? = 4 (cegi)
-
-
-
-
-AABMOSU + ? = 2 (lm)	ABEMOOR + ? = 2 (hj)	BEEELMO + ? = 2 (hl)
-BEILMNU + ? = 2 (ao)	ABEELMO + ? = 2 (pt)	BEIMNOU + ? = 2 (ls)
-AABEELM + ? = 2 (cn)	BEEMNST + ? = 2 (lo)	
-
-AABMOS + ? = 2 (cl)	BEMRUU + ? = 2 (ox)	BMROUU + ? = 2 (es)
-BLMOOO + ? = 2 (ct)	
-
-BIMORSU + ? = 3 (cho)	BEIMNRU + ? = 3 (ers)	ABEELMT + ? = 3 (ost)
-BEMNOOS + ? = 3 (alu)	AABLMSU + ? = 3 (ort)	BIMNOOR + ? = 3 (dns)
-AABELMN + ? = 3 (dei)	BIMOORS + ? = 3 (enu)	BABALLE + ? = 3 (ms²t)	
-BRIMENT + ? = 3 (aot)	AABLMOU + ? = 3 (bcs)	BBELMO + ?? = 3 (ac,it,sy)
-AABLMNU + ? = 3 (dgt)	BEMRSUU + ? = 3 (eos)	ABEEILM + ? = 3 (kru)
-BEEMRTU + ? = 3 (noz)
-
-BOOMER + ? = 3 (bls)	ABBILO + ? + 3 (aet)	AAABMR + ? = 3 (bcl)
-BELMOO + ? = 3 (cnr)
-
-BOOMERS + ? = 4 (bilr)	SALAMBO + ? = 4 (mpsu)	NIMBAIS + ? = 4 (epor)
-ABEEOMR + ? = 4 (gjsu)	BEIMRRU + ? = 4 (anst)	AABMRSU + ? = 4 (ilst)
-
-AMIBIEN + ? = 5 (enors)		
-	
-
-
-
-BEENIPU + ? = 2 (an)	BEEILPR + ? = 2 (ou)	AABLLPR + ? = 2 (et)
-
-ABEINP + ? = 2 (lm)	BEPRTU + ? = 2 (ae)
-ABSSP + ? = 2 (iy)
-
-PUBERES + ? = 3 (ast²)	BIPOLES + ? = 3 (eos)	BILOOP + ?? = 3 (es,fk,mr)
-ABIPRST + ? = 3 (eiu)
-
-ABOPT + ?? = 4 (cs,el,lm,nr)	
-
-BIPALES + ? = 5 (clins)
-
-
-
-RUBLEV + ?? = 2 (ao,ep)
-BEERTUV + ? = 2 (io)	ABEELNV + ? = 2 (di)	BEEEIRV + ? = 2 (tu)
-ABEORRV + ? = 2 (lu)	BELIRUV + ?? = 2 (op,ou)
-
-ABEILOV + ? = 3 (lmt)
-
-OBVENUS + ? = 4 (eimr)	
-
-		
-
-
-
-CCEIOOR + ? = 2 (rt)	ACCELUU + ? = 2 (hm)	CCEEEIR + ? = 2 (ax)
-CCELORT + ? = 2 (eu)	CCISSU + ? = 2 (en)	
-
-CCIINOT + ? = 3 (aeh)	COTICES + ? = 3 (e²hr)	CCEILNU + ? = 3 (abo)
-CONCILE + ? = 3 (i²su)	AACCELL + ? = 3 (ino)	ECCRINE + ? = 3 (ios)
-ACCELLR + ? = 3 (iou²)	
-
-CCEISS + ? = 3 (aou)	
-
-CACOLET + ? = 4 (hlns)	CCEELOT + ? = 4 (hlru)	CCEILOU + ? = 4 (nstz)
-SCIENCE + ? = 4 (lors)	
-
-CICLEES + ? = 5 (ahiny)		
-
-
-
-ACCEDIU + ? = 2 (st)	ACDEEOS + ? = 2 (tu)	CDILLOU + ? = 2 (at)
-CDIINOU + ? = 2 (am)	CCDEEER + ? = 2 (ln)	AACDLOS + ? = 2 (iv)
-ACDIIOT + ? = 2 (ef)	CCDEILU + ? = 2 (iu)	CDEEIIL + ? = 2 (fh)
-ACDRUU + ?? = 2 (lm,ot)
-ACDLOT + ? = 2 (iy)	
-
-ACDLOOR + ? = 3 (ent)	ACCDELO + ? = 3 (ahy)	CDIRSSU + ? = 3 (aeo)
-CDEEOTU + ? = 3 (nrt)	AACDIOL + ? = 3 (nsz)	CSARDAS + ? = 3 (e³lt)
-ACDLOTU + ? = 3 (ce²r)	AACDISS + ? = 3 (ehn)	CDORSTU + ? = 3 (eiu)
-
-ACDNOOR + ? = 4 (clnu)	AACDEIU + ? = 4 (hlns)	INDICEE + ? = 4 (hns³t)
-CDEOORU + ? = 4 (lrvy)	CLANDES + ? = 4 (a²e²i²o⁴)
-
-CDENOSU + ? = 5 (ai⁴o²rv)		ACDEENN + ? = 5 (iolrt²)
-ACDEELU = 5 (bipqr)
-ACDEIIL + ? = 6 (aglnpu)
-
-
-
-
-
-
-CEEFIRR + ? = 2 (eo)	CEFILSU + ? = 2 (ax)	CEFILUU + ? = 2 (gn)
-CCFILOS + ? = 2 (nu)	AACEFLN + ? = 2 (mt)	AACEFII + ? = 2 (st)
-CCEFIRU + ? = 2 (io)	CEFLORS + ? = 2 (ou)	ACEFORU + ? = 2 (hi)
-CFOSTU + ?? = 2 (er,in)
-
-FROLIC + ? = 2 (as)	
-
-ACEFIRU + ? = 3 (otx)	CEEFIIS + ? = 3 (adp)	ACCFIST + ? = 3 (eio)
-ACCEFIL + ? = 3 (dis)	
-
-ACFILR + ? = 3 (deo)	CEFLO(S) + ? = 3 (ahu)	
-
-CEFINTU + ?? = 3 (co,et,or)
-
-LOCATIF + ? = 4 (fhls)	CEFLOSU + ? = 4 (eln²r)	AACFIO + ?? = 4 (cc,ip,ls,nn)
-AACFIUS + ? = 4 (ehrt)	ACEEFO + ?? = 4 (bk,il,lm,nn)	
-
-AACFIST + ? = 5 (elnsu)	ACEFITU + ? = 6 (dglrx)
-	
-
-
-
-CEEEGOT + ? = 2 (ns) CLERGES + ? = 2 (ai)	CEEEGIR + ? = 2 (ns)
-ACEGRTT + ? = 2 (ae)	AACGLRTU + ? = 2 (it)	CEEGLLS + ? = 2 (ao)
-AACGIN + ? = 2 (eh)	ACEGGI + ? = 2 (hr,ln)
-
-CALIGUA + ? = 3 (eox)	ACGINNS + ? = 3 (dko)	AACEGIU + ? = 3 (lnr)
-ACCGINO + ? = 3 (eht)	
-
-AACGOU + ? = 4 (ghln)	
-
-REGENCE + ? = 5 (aiosv)		
-
-
-
-EECHOON + ? = 2 (lo)	CHISSTT + ? = 2 (op)	CEHIOOR + ? = 2 (ds)
-CEHIOOS + ? = 2 (nr)	ACHILNR + ? = 2 (bu)	CEEHNOO + ? = 2 (lo)
-CEHLLOU + ? = 2 (ai)	CEEEHLN + ? = 2 (cl)	CEHILNU + ? = 2 (gz)
-ACHLTTU + ? = 2 (ao)
-
-CHINOO + ? = 2 (kr)	
-
-ACHLLOU + ? = 3 (emn)	ACHHIRS + ? = 3 (e²io)	CHILIEN + ? = 3 (fst)
-CEHTOUU + ? = 3 (aqr)	NICHOIR + ? = 3 (bps)	
-
-ACEEHOS + ? = 4 (cmpt)	ACHLOTT + ? = 4 (aipu)	CEHOORS + ? = 4 (ilnt)
-TCHATES + ? = 4 (a³e³iu²)
-
-SCHISME + ? = 6 (a²eiors)		ACEEHIL + ? = 5 (lmprs)
-CEEHIILN + ? = 5 (fmnpt)
-
-LOUCHER + ? = 6 (aitru²x)		chaline + ? = 6 (abcgtv)
-louchie + ? = 7 (lmpqrsz)
-
-
-
-LEUCOME + ? = 2 (ls)	CEEEMNO + ? = 2 (su)	CIIMOU + ?? = 2 (br,dn)
-ACIMOOR + ? = 2 (nr)	AACLMOU + ? = 2 (bf)	RECTUMS + ? = 2 (ko)
-CEEMOOT + ? = 2 (py)	ACMNOOT + ? = 2 (es)	CEIIMNU + ? = 2 (ps)
-AACLMOR + ? = 2 (ip)	OMICRON + ? = 2 (ae)	ACMORTU + ? = 2 (np)
-CEIILMS + ? = 2 (ab)	CLMOOU + ?? = 2 (bs,ev)	CEEEILM + ? = 2 (au)
-CEEEMTU + ? = 2 (hy)	CEEILMN + ? = 2 (ay)	CEIILMO + ? = 2 (dl)	
-SITCOMS + ? = 2 (ae)
-ACCIMS + ? = 2	(em)	CLMOOO + ? = 2 (bn)		CIIMNO + ? = 2 (at)
-ACIMMS + ? = 2 (ci)	
-
-CALUMET + ? = 3 (nos)	CEELMRU + ? = 3 (hst)	CIMOSTU + ? = 3 (ael)
-CEEMOSS + ? = 3 (knt)	AACEEMN + ? = 3 (hnr)	CIMNOST + ? = 3 (ehi)
-AAACILM + ? = 3 (bcn)	ACEIMNN + ? = 3 (lot)	CEILMOR + ? = 3 (ahp)
-CEEILMO + ? = 3 (hpv)
-ACMNTU + ? = 3 (ehj)	
-
-CUMULES + ? = 4 (dept)	MOISSAC + ? = 4 (npst)	AAACIMN + ? = 4 (bhls)
-CIMOSS + ? = 4 (atuy)	
-
-ACMNOTU + ? = 5 (hmrsx)	CEEMNSU + ? = 5 (ilort)
-ACCIMS + ?? = 5 (ee,el,eo,ho,lu)	
-
-ACIMOSU + ? = 6 (behmnt)
-
-	
-
-
-PROCESS + ? = 2 (io)	CEEILPR + ? = 2 (as)	CEEPPRS + ? = 2 (tu)
-CEILPTU + ? = 2 (ao)	CENOOPR + ? = 2 (in)	CILPPSU + ? = 2 (eo)
-AACELOP + ? = 2 (rs)	CCEOPRS + ? = 2 (eo)	CINOPTU + ? = 2 (ah)
-CEIINPU + ? = 2 (cm)	AACNPTU + ? = 2 (iq)	AACINPR + ? = 2 (de)
-ACCENPR + ? = 2 (ai)	CCEINPR + ? = 2 (ao)	ACIINPU + ? = 2 (cl)
-CIILNPS + ? = 2 (ao)	
-
-CEOOPU + ? = 2 (lx)	CNOOPR + ? = 2 (pu)
-
-AACENOP + ? = 3 (stu)	ACEIILP + ? = 3 (dls)	CEEINPU + ? = 3 (lrs)
-CILOPPS + ? = 3 (anu)	CAPELLA + ? = 3 (bpr)	CAPRICE + ? = 3 (nst)
-CEEEPSS + ? = 3 (aht)	CIINPST + ? = 3 (iou)	
-
-AACILPU + ? = 4 (hlst)	COOPTES + ? = 4 (em²io) POUCETS + ? = 4 (a²l²nr)
-CEEOPSS + ? = 4 (aitu)	CEOOPSU + ? = 4 (ehlu)	
-CEINPRT + ? = 4 (aeos)	CLIPART + ? = 4 (eosu)	PRECUIT + ? = 4 (a²eps²)
-CAPULET + ? = 4 (eins⁵)	ACOPRUU + ? = 4 (ersx)	CEOOPRR + ? = 4 (delm)
-
-PINCURE + ? = 5 (aelos²)		CEELNOP + ? = 5 (ist²uy)
-AACENPR + ? = 5 (chist²)		ACEPRRU + ? = 5 (eiost)
-CUPESSE + ? = 6 (alorst)		AACEELP + ? = 6 (dgh²mrt)		
-
-
-
-ACLNOTV + ? = 2 (eo)	CCEEIRV + ? = 2 (ot)	AAACSOV + ? = 2 (ns)
-CEIIRUV + ?? = 2 (dz)	CEIISUV + ?? = 2 (eq)	ACCEIOV + ? = 2 (lt)
-AACCERV + ? = 2 (hi)
-
-ACVNRU + ? = 2 (ei)	CEIIUV + ? = 2 (qx)
-
-CEEILTV + ? = 3 (eou)	CEIILNV + ? = 3 (aio²)	ACIIOTV + ? = 3 (an²r)
-ACELNOV + ? = 3 (cst)	ACILOTV + ? = 3 (aem)	ACIINUV + ? = 3 (nrx)
-ACCEILV + ? = 3 (onr)	AACIILV + ? = 3 (lor)	AACEOSV + ? = 3 (lst)
-
-ACIIRTV + ? = 4 (aeou)	ACNOSUV + ? = 4 (ehi²l)	ACEELOV + ? = 4 (bi²ls)	
-
-CENTAVO + ? = 5 (ilnrs)		CUIVRES + ? = 5 (ae²nos²)
-CLIVEES + ? = 5 (adhlu)		
-
-
-
-ADDEILU + ? = 3 (abc)
-
-DDEELMO + ? = 2 (ou)	DDENOUU + ? = 2 (mn)	ADDEELN + ? = 2 (ei)
-
-
-ADDIST + ? = 2 (cu)	
-
-
-
-DEFIINU + ? = 2 (gt)	ADEFLNS + ? = 2 (er)	DEEFOT + ?? = (rn)²
-DEEFINN + ? = 2 (eo)	DEFINOU + ? = 2 (bs)	ADFLORT + ? = 2 (et)
-DEFIITU + ? = 2 (ln)	AADEFO + ?? = 2 (ij,tu)
-ADEEFTU + ? = 2 (qr)	
-DEEFOT + ? = rien	ADFIRU + ? = 2 (at)	DEEEFU + ? = 2 (qr)
-
-ADEFITU + ? = 3 (cnr)
-
-DEFIIST + ? = 4 (cegr)	ADEEFLS + ? = 4 (nor²t)	ADEFRTU + ? = 4 (efin)
-DFINOU + ?? = 4 (ar,be,br,es)	 DFNOOU + ?? = 4 (cn,hx,ks,mr)
-ADFNOU + ?? = 6 (br,er,ht,ir,pr,rs)
-
-
-
-DEEGLOO + ? = 2 (np)	ADGLORS + ? = 2 (il)	ADGILSU + ? = 2 (ae)
-DEGOUU + ?? = 2 (ar,in)	AADGILR + ? = 2 (lm)	DEGINUU + ? = 2 (ao)
-
-DEEGII+ ? = 2 (rt)	DGILOR + ? = 2 (ae)
-
-LIGANDS + ? = 3 (aer)	ADEGNNO + ? = 3 (ors)	ADEGRUU + ? = 3 (lor)
-AADGILS + ? = 3 (inu)	NEGONDO + ? = 3 (ars)	DEGRSTU + ? = 3 (eio)
-AADGILO + ? = 3 (lnu)	GRONDIN + ? = 3 (ais)	DGIIOU + ? = 3 (bs,ns,tu)
-DROGMAN + ? = 3 (asu)	Diogène + ? = 3 (c²lr)	AADEGO + ?? = 3 (br,lp,rt)
-
-ADGILO + ? = 3 (hlr)	DEGNOO + ? = 3 (bln)	ADDGI + ?? = 3 (ab,es,np) 
-
-GOURDES + ? = 4 (ae²it)	DEGIUU + ?? = 4 (an,ax,lv,no)	
-
-ADGILOS + ? = 5 (ehlor)		GLANDUE + ? = 5 (ilrst)
-
-
-
-
-DHINOOR + ? = 2 (ls)	ADEHSSU + ? = 2 (or)	AAADHNR + ? = 2 (ms)
-ADEHNN + ?? = 2 (ee,gi)			DHIOOS + ?? = 2 (dr,el,nr)
-DEHION + ? = 2 (ru)	ADDHIS + ? = 2 (jk)
-
-ADEEHIR + ? = 3 (nrz)	DEHIION + ? = 3 (mnp)	DEEHLRU + ?? = 3 (io,is,us)
-DEHIOS + ? = 3 (cry)		
-DHIO + ? = 3 (bst)	
-
-ADEHIST + ? = 4 (cemy)	ADHNOTU + ? = 4 (cflr)	
-
-ADEHINS + ? = 5 (ckorp)		DHOLES + ?? = 5 (an,ap,ee,io,ry)
-
-
-
-DEIILMU + ? = 2 (gr)	ADIIMSU + ? = 2 (np)	AAADEMN + ? = 2 (ip)
-ADDIMOS + ? = 2 (eo)	DILMOSU + ? = 2 (ai)	DEIMRTU + ? = 2 (an)
-DEEMNOU + ? = 2 (rs)	DURUM(S) + ?? = 2 (ep,iv)
-AADMORU + ? = 2 (et)
-
-AADMSTU + ? = 3 (eir)	ADIMOOS + ? = 3 (dns)	DIMNOU + ?? = 3 (al,ax,ci)
-DEIIMNO + ? = 3 (hs²z)	DEMSUU + ?? = 3 (aq,cl,pr)
-DEMUNIT + ? = 3 (npr)	MULARDE + ? = 3 (eos²)	DEIMOOR + ? = 3 (lns)	
-AADMNU + ? = 3 (bil)	AADMOR + ? = 3 (ilt)
-
-ADDEIM + ? = 4 (eior)	ADMIMES + ? = 4 (ahou)	DEEIMOT + ? = 4 (ahsv)
-ADEINPU + ? = 4 (hl²tv)	
-
-DOMISME + ? = 5 (acnr²s)		
-DEEMOU + ? = 5 (bl²rsz)			
-
-
-
-ADIIPSU + ? = 2 (mt)	ADILPPU + ? = 2 (ae)	LAPIDUS + ? = 2 (cd)
-ADILPSS + ? = 2 (ey)	DEIINOP + ? = 2 (eh)	DELOPST + ? = 2 (au)
-DELOPSU + ? = 2 (ot)	AADEIPU + ? = 2 (st)	DELPRRU + ? = 2 (ae)
-DEPLIENT + ? = 2 (o3u)	DEIIOPP + ? = 2 (ls)	AAADNPS + ? = 2 (ar)
-DILOOPR + ? = 2 (au)	DILOPRU + ? = 2 (eo)
-
-ISOPODE + ? = 3 (irs)	ADOPRRS + ? = 3 (ace)	ADDPRU + ?? = 3 (el,eo,hs)
-DEIOOPR + ? = 3 (stu)	DEILMRU + ? = 3 (cei)	ADELNPR + ? = 3 (eio²)
-LIPOIDE + ? = 3 (dps)	DEEINOP + ? = 3 (ipt)	AADEPSU + ? = 3 (irt)
-DEEIIPS + ? = 3 (brs)
-
-PARADOS + ? = 4 (i²lnr)	DEOOPRS + ? = 4 (intu)	PANDOUR + ? = 4 (fpst)
-DOPEURS + ? = 4 (ein⁴o)	AADNOPS + ? = 4 (irtu)	Pandora + ? = 4 (lnps)
-
-DEIIPOS + ? = 5 (hlopr)		
-
-
-
-DEIIRVU + ? = 2 (cs)	ADEINUV + ? = 2 (px)	DEIORRV + ? = 2 (ce)
-DEOVUU + ?? = 2 (as,pr)	DNOOTV + ?? = 2 (ei,ru)
-
-DEEINUV + ? = 3 (inr)	INDUVIE + ? = 3 (els)
-
-AADEINV + ? = 4 (cgrt)	
-
-
-AAFFNOR + ? = 2 (nt)	
-
-AFFIIOR + ? = 4 (lnrt)	EFFINSU + ? = 4 (lort)
-
-
-
-EFGIIOR + ? = 2 (lr)	EFGNNOT + ? = 2 (al)	EFGILUU + ? = 2 (cl)
-EFGRSTU + ? = 2 (ai)	GUELFES + ? = 2 (ao)	AAEFGNU + ? = 2 (lr)
-AAFGOR + ? = 2 (gr)	
-
-EFGINOU + ? = 3 (lpq)	FGIILNO + ? = 3 (ams)	EEFGIIN + ? = 3 (lrz)
-
-EFGILOU + ? = 4 (noqs)	EEFGITU + ? = 4 (anst)	
-FGINOT + ? = 4 (alor)	
-
-EFGIINR + ? = 5 (abelu)		EFGIINU + ? = 4 (dglr)
-EEFGINR + ? = 5 (aiotu)
-
-EFGIOR + ? = 5 (almnz)		
-
-
-
-EFHINOT + ? = 2 (ae)	
-
-
-
-EEFIMNN + ? = 2 (it)	AAFLMNO + ? = 2 (ct)	FIMRSTU + ? = 2 (an)
-AAEFILM + ? = 2 (mr)	EEFIMRT + ? = 2 (su)	EFILLMT + ? = 2 (ei)
-
-AFLMRU + ? = 2 (os)	AAFLMO + ? = 2 (ru)	FILMSU + ? = 2 (eo)
-FIIMSS + ? = 2 (et)	
-
-FOUIMES + ? = 3 (rst)	AEFIIMU + ? = 3 (gst)	
-
-AFIMNSU + ? = 4 (ehlo)	AFMNORS + ? = 4 (eiot)	EFMNOOR + ? = 4 (cdet)
-EEFMORT + ? = 4 (anru)
-
-
-
-AFIOPRN + ? = 2 (an)	EEFILPT + ? = 2 (rx)	AEFLNOP + ? = 2 (nu)
-EEFPRRU + ? = 2 (as)	FIILNOP + ? = 2 (ir)	AFILNPT + ? = 2 (ip)	
-
-EFIPRSU + ? = 5 (ailnt)		EEFILPR + ? = 5 (aio²st)
-
-
-
-
-EFIORUV + ? = 2 (mo)	AEEFIVR + ? = 2 (nu)
-
-
-
-AEGGLNU + ? = 2 (ae)	EGGNOOU + ? = 2 (su)	EGGIINR + ? = 2 (uz)
-
-AAGGINR + ? = 3 (e³fm)	grignée + ? = 3 (aol)	AAEGGIO + ? = 3 (npt)	
-GGENORU + ? = 3 (ars)	GRUGEOIR + ? = 3 (est)	AGGIIST + ? = 3 (beo)
-
-GGENOOT + ? = 4 (lnru)	GLAGEON + ? = 4 (fijs)	GGILNO + ?? = 4 (ae,an,bg,su)	
-
-
-
-AGHIINT + ? = 2 (cf)	GHILNOU + ? = 2 (ae)	AEEGHLN + ? = 2 (co)
-GHNOTUU + ? = 2 (de)	EGHILNU + ? = 2 (co)	AAEEGHL + ? = 2 (dt)
-GHINOOS + ? = 2 (rt)	GEHILNR + ? = 2 (ahe)	AEEGHON + ? = 2 (lx)
-EEEGHON + ? = 2 (tx)	EEGHOON + ? = 2 (mp)	GEEHILR + ? = 2 (an)
-GHIRSU + ?? = 2 (bn,ce)
-
-GEHILS + ? = 2 (dn)	GHLOSU + ? = 2 (ai)	AGHILO + ? = 2 (dt)	
-AGHINO + ? = 2 (rs)	GHILOS + ? = 2 (bu)	GHINOS + ? = 2 (an)
-EEGHIN + ? = 2 (oy)	EEGHNO + ? = 2 (ir)	EEGHNR + ? = 2 (eo)	
-
-
-AEGHILN + ? = 3 (cnr)	AEGHILR + ? = 3 (ent)	AGHINSS + ? = 3 (bov)
-EEGHILN + ? = 3 (erw)	EEGHINR + ? = 3 (cil)	EEGHNOS + ? = 3 (ipr)
-AEGHINN + ? = 3 (cdl)
-AEGHLT + ?? = 3 (ae,ir,sw)	GHOORU + ?? = 3 (bs,iu,ty)
-EGHINS + ? = 3 (clp)
-
-GHINORS + ? = 4 (abco)
-AGHINS + ? = 4 (bcov)	EEGHO + ?? = 4 (cr,in,nr,py)
-
-GHIOS + ?? = 5 (an,be,bl,lu,nn)
-
-EEGHON + ?? = 9 (al,ax,et,ex,is,mo,op,ps,rs)
-
-
-GRANUMS + ? = 2 (eo)	EGILMOO + ? = 2 (by)	AEGMOOS + ? = 2 (ei)
-GLMNOOR + ? = 2 (ae)	EEGILMR + ? = 2 (lu)	AAEGIMU + ? = 2 (rs)
-GELMOSS + ? = 2 (ae)
-
-AGIMOOS + ? = 3 (egs)	AEGLMOT + ? = 3 (ieo)	GERMOIR + ? = 3 (ais)
-EGIMRTU + ? = 3 (ain)	AGIMOST + ? = 3 (enr)	EGIIMOS + ? = 3 (adn)
-GOEMONS + ? = 3 (l²ot)	AEEGMNO + ? = 3 (d²rt)	AEEGIMU + ? = 3 (jps)
-AGMNSRT + ? = 3 (aio)	AAEGLMU + ? = 3 (cls)	EGIINMO + ? = 3 (svz)
-MEGOTER + ? = 3 (aeu)	GOLMOTE + ? = 3 (ast)	EEGIMRU + ? = 4 (dlns)
-
-ORGANUM + ? = 4 (dist)	AEEGMOR + 4 = (bfnt)	MORGUEE + ? = 4 (bs²tu)
-EEEGMRU + ? = 4 (alnp)	EEGIMSU + ? = 4 (afpr)	GILMNU + ?? = (bt,ch,ee,no)
-
-EEGMNOR + ? = 5 (aimos)		
-
-
-
-EGIPRSS + ? = 2 (ny)	AAAGNPS + ? = 2 (ei)	EEEGOPT + ? = 2 (ar)
-AGINPST + ? = 2 (er)	EEGNOOP + ? = 2 (hl)
-GEINPU + ? = 2 (rt)	
-
-EEEGILP + ? = 3 (nos)	EEGILOP + ? = 3 (ehu)	GINOPPS + ? = 3 (hrt)
-GUIPEES + ? = 3 (emr²)	
-
-AEEGLPU + ? = 4 (acnr)	
-
-PLANAGE + ? = 5 (h²irst)		
-
-
-
-
-AGILNRV + ? = 2 (ei)	GRAVOIR + ? = 2 (es)	EGIOSUV + ? = 2 (cs)
-
-EGOOUV + ? = 2 (lt)	AGLNOV + ? = 2 (ae)	AGILTV + ? = 2 (io)	
-
-AGINSSV + ? = 3 (ehy)	AEGRROV + ? = 3 (iou)	AAGINNV + ? = 3 (ist)
-EGIORSV + ? = 3 (in²t)	AGIILNV + ? = 3 (grt)	AGLNOV + ?? = 3 (as,es,in)
-
-EGIINRV + ? = 4 (aio²)	EEEGINV + ? = 4 (anrt)	EEGNORV + ? = 4 (cgnu)
-
-VAGINS + ? = 5 (e³hory)
-
-
-
-
-AHILMTU + ? = 2 (il)	AEHMNTT + ? = 2 (ac)	MENTHES + ? = 2 (ai²)	
-EHIMNSS + ? = 2 (ao)	AAEHMTT + ? = 2 (nr)	
-
-AAAHMNTT + ? = 2 (nr)	LITHAMS + ?? = 2 (eo,lu)
-	
-AAHMNO + ? = 2 (ci)	HILMTU + ? = 2 (iu)	Herman + ? = 2 (ou)
-HMORTU + ? = 2 (ai)	
-
-EEHMORT + ? = 3 (aem)	EHIIMUT + ? = 3 (del)	AEHMNOR + ? = 3 (cis)	
-AEHLMNO + ? = 3 (cdt)	EEHLMOS + ? = 3 (i²py)	EHIIMSS + ? = 3 (ckm)
-AAEEHMN + ? = 3 (bct)	AHMNORT + ? = 3 (aco)	AAHIMRS + ? = 3 (c²ot)
-ASTHMES + ? = 3 (nrt)	AEEHLMR + ? = 3 (btu)	EHIMOO + ?? = 3 (bn,lr,st)
-AAHIMOS + ? = 3 (c²nr)	EHMORSU + ? = 3 (cmn)	
-
-HIMORU + ? = 3 (bdt)	AMISHS + ? = 3 (aiu)	AAEHMT + ? = 3 (irs)
-
-AAHIMNS + ? = 4 (copu)	EHIMNST + ? = 4 (ae²oy)	AAEHMNT + ? = 4 (elst)
-AEEHMOT + ? = 4 (mpsr)	AAHIMST + ? = 4 (cers)		
-
-THOMISE + ? = 5 (mnost)		
-SHILOM + ? = 5 (cekps)		
-OHNISME + ? = 6 (ceinst)		
-
-
-
-
-EEHIPPT + ? = 2 (ay)	EHINPRS + ? = 2 (ac)	EEHINPR + ? = 2 (at)	
-SPAHIS + ? = 2 (ar)		AEHINPR + ? = 2 (es)	AEHNPU + ?? = 2 (di,nr)
-PHILOS + ?? = 2 (ay,et)	EHLOOPT + ? = 2 (iy)
-
-EHIPSST + ? = 3 (ior)	EHINOPR + ? = 3 (clm)	AEHNOPR + ? = 3 (acn)
-EEHNOPT + ? = 3 (dry)	hopeles + ? = 3 (clm)	AEHIOPS + ? = 3 (nrs)
-EHOOPRS + ? = 3 (emn)	PHLEOLE + ? = 3 (ces)	EEHOOP + ?? = 3 (ah,gn,rs)
-AEHOPSS + ? = 3 (c²it)	EEEHIPS + ? = 3 (bcn)	AEHILPR + ? = 3 (ace)
-
-
-EEHINOPT + ? = 3 (his)	AEHNIPST + ? = 3 (aio)	
-
-EHNOPR + ? = 3 (noy)	AAHNPR + ? = 3 (iot)	
-
-HOPLITE + = 4 (cors)	PHARAON + ? = 4 (egns)	EEHIPTT + ? = 4 (acer)
-EHIOPRT + ? = 4 (aclm)	EHOPSST + ? = 4 (airy)	AAAHPS + ?? = 4 (cn,en,lt,pr)
-PHORUS + ?? = 4 (cm,dj,ei,iz)
-
-EHIOPSS + ? = 5 (acmty)		HARPAIS + ? = 5 (elnst)
-EPHORES + ? = 5 (fi²not²)
-
-SOPHRO + ?? = 8 (ad,as,bt,ci,ee,em,en,kw)
-
-
-
-
-AAEHNRV + ? = 2 (ci)	EEHIUV + ?? = 2 (cl,mq)
-
-
-
-AAEMMNN + ? = 2 (ei)	ELMOOO + ?? = 2 (bc,np)
-
-AIMMRSU + ? = 3 (aeu)	AAEIMMT + ? = 3 (dfs)	TRIMMER + ? = 3 (asu)
-EMMNOTU + ? = 3 (cmn)	MORMONE + ? = 3 (eis)	MONOMES + ? = 3 (cdr)
-MOUSMES + ? = 3 (ein)	NOMMAIT + ? = 3 (elr)	
-
-EEMMOT + ? = 3 (npt)	EELMMU + ? = 3 (agp)	
-ELMMU + ? = 3 (akr)	
-
-EELMMOR + ? = 4 (gipu)	
-EIMMRU + ? = 4 (afps)	
-
-
-
-
-AMNOOPU + ? = 2 (el)	EIIMPOT + ? = 2 (gs)	LMNOOPU + ? = 2 (ai)
-AEEMOPU + ? = 2 (ly)	EEMPOSU + ? = 2 (ip)	ILMNOOP + ? = 2 (au)
-IMNOPTU + ? = 2 (rs)	AEMNPRU + ? = 2 (st)	IIIMPRT + ? = 2 (fn)
-
-ALLMPU + ? = 2 (in)	
-
-ALMNOOP + ? = 3 (inu)	EILMPTU + ? = 3 (lsy)	ALMOOPT + ? = 3 (ceh)
-IILMPSU + ? = 3 (afh)	EEIMNOP + ? = 3 (gpy)	EMOPSTU + ? = 3 (hir)
-
-AEMNOOP + ? = 4 (istu)	IMPOSTU + ? = 4 (elmn)	PAUMENT = 4 (irs²t)
-EIMOPRU + ? = 4 (m²suv)	
-
-EMOOPR + ? = 4 (glst)	IMPUNIE + ? = 4 (cjst)	EMMPRSU + ? = 4 (aiou)
-
-
-
-
-EEMORSV + ? = 2 (nu) = AAIMNUV + ? = 2 (de) EELMOV + ?? = 2 (is, ru)
-AELMRUV + ? = 2 (io) = AEIMNRV + ? = 2 (lt)
-AAMOV + ?? = 2 (bc,rs)	
-
-EIMOORV + ? = 3 (fnu)	AEIMSTV + ? = 3 (aer)	EEIMNUV + ? = 3 (aex)
-EEIMRTV + ? = 3 (eno)	AEEMRTV + ? = 3 (brs)
-
-EEMORUV + ? = 4 (lpsz)	AEIMRTV + ? = 4 (bno²s)	EEILMSV + ? = 4 (aoru)
-AEILMRV + ? = 4 (lnsu)
-
-
-
-
-EELOPPT + ? = 2 (is)	AEEIPPU + ? = 2 (rt) ILLPP(S)U + ? = 2 (eo)
-PEOPLES + ? = 2 (rt)	AILOPP + ? = 2 (cs)	
-
-ELOPPUU + ? = 3 (mox)	EELNOPP + ? = 3 (eiy)
-AGINPP + ? = 3 (lrz)	
-
-AEILNPP + ? = 4 (eors)	PAPOOSE + ? = 4 (crst)	POPOTES + ? = 4 (ains)
-
-EINOPP + ? = 4 (ensu)
-
-
-
-ELOPRUV + ? = 2 (il)	AELOPTV + ? = 2 (ru)	PENSIVE + ? = 2 (lr)
-EIIOPSV + ? = 2 (nt)	EELPOV + ?? = 2 (ar,tu)
-AEOOPRTV + ? = 2 (mt)
-
-EELPRUV + ? = 3 (abe)	
-
-AEEIPSV + ? = 4 (orst)	
-
-
-
-AEINUVV + ? = 2 (al)	AEILUVV + ? = 2 (nr)	EEINRVV + ? = 2 (et)
-
-EIIOTVV + ? = 3 (lmz)
-
-
-
-BCDNORU + ? = 2 (ei)	
-BCEDIORU + ? = 2 (ln)
-ABCDELU + ? = 4 (aeor)	
-
-ABCDEI + ? = 2 (ai)	
-BCDEO + ?? = 4 (ar,hi,ii,iu)	
-
-
-
-
-BECFIN + ?? = 2(ao,ee)	
-
-
-
-
-
-
-ABCEHNU + ? = 2 (or)	
-
-BCHINOR + ? = 3 (ais)	BCEHIOU + ? = 3 (coz)
-AAABCH + ? = 3 (lrt)		
-
-ABCHNOU + ? = 5 (aeilt)				
-
-
-
-
-ABCIMSU = + ? = 2 (mo)	CBIMORU + ? = 2 (is)	BCEIILM + ? = 2 (es)	
-
-ABCIILMO + ? = 2 (lt)		
-
-COLOMBO + ? = 3 (ens)	ABCMOOR + ?? = 3 (dl,el,ks)
-BCLMNOO + ? = 3 (ios)
-
-AABCMU + ? = 3 (ems)
-
-
-
-ABECOPU + ? = 2 (lu)
-
-BICEPS + ?? = 2 (al,ou)	BCEIOP + ?? = 2 (al,us)
-
-BCPORS + ? = 2 (ei)
-
-
-
-ABCEEOV + ? = 2 (hl)	ABCEILV + ? = 2 (il)
-AABCOV + ? = 2 (hm)
-
-
-
-BDFNORU + ? = 2 (ai)	ABDFNO + ?? = 2 (ru,ss)	ABDEEF + ?? = 2 (ck,ir)
-ABDEFFRU + ? = 2 (eo)	BDILNOOR + ? = 2 (af)
-
-
-
-ABDGENR + ? = 2 (ai)	AABDDEG + ? = 2 (ei)
-
-ABDGIT + ? = 2 (an)	
-
-AABDGI + ? = 3 (det)
-
-ABDEGIT + ? = 4 (aeru)	BEDEGAR + ? = 4 (dsuz)	BDEGORU + ? = 4 (aein)
-
-
-
-
-AABDLMN + ? = 2 (eu)	BDIMNU + ?? = 2 (be,su)	AABDMSU + ? = 2 (en)
-
-ABDLMO + ? = 2 (ir)
-
-
-ABEFLMO + ? = 3 (iry)	
-
-
-BGHINRS + ? = 2 (ou)
-
-BOGHEIS + ?? = 2 (bl,nn)	
-
-BGHIO + ?? = 3 (es,ls,nr)	
-
-
-
-BGIMNOS + ? = 2 (ab)	BGMNTU + ?? = 2	(ae,il)	
-
-BGLMOU + ?? = 3 (ap,as,em)	
-
-BEEGMRS + ? = 4 (abiu)	
-
-
-ABEGRUV + ? = 2 (er)	
-
-
-
-BEHIMNO + ? = 2 (eo)	BHMORSU + ? = 2 (it)	
-
-AABHLM + ? = 2 (ek)	
-
-
-
-BEEHIPS + ? = 2 (ae)	BEHILP + ?? = 2 (et,gi)
-
-BEHINOPS + ? = 2 (lo)	
-
-
-
-
-BEIMPRU + ? = 2 (es)	BEEMOPR + ? = 2 (ln)	BEEIMP + ?? = 2 (ch,ru)	
-
-
-
-
-ABIMRSTV + ? = 2 (ae)	
-
-
-
-ACDFOR + ? = 2 (er)	ACDFOU + ? = 2 (eh)	
-
-ACDEFIR + ? = 4 (ahlo)	CDEEFRR + ? = 2 (io)
-
-
-
-CDEEGIR + ? = 2 (io)	CDEGIIR + ? = 2 (eo)	CDEGIIO + ? = 2 (dr)
-
-CAGADE + ? = 4 (ilrs)	
-
-
-
-ACDEHLN + ? = 2 (ae)	CDEHMSU + ? = 2 (eo)	ACDEHIM + ? = 2 (ns)
-ACCDHRU + ? = 2 (ei)	ACDHIRU + ? = 2 (ce)	CDEHNOT + ? = 2 (ou)
-
-ACDHNU + ? = 2 (ei)
-
-CDEEHIL + ? = 3 (fio)	ACDHINR + ? = 3 (aep) CDEHIM + ?? = 3 (an,as,io)
-ACDHOT + ? = 3 (eru)	
-
-ACDHIST + ? = 4 (aenr)	DRACHER + ? = 4 (aeio)	AACDHMR + ? = 4 (benu) 
-
-Avec CDM :
-
-CDEIMRS + ? = 2 (au)	CDEIMOT + ? = 2 (im)	AACDILM + ? = 2 (eu)
-CDEIMRU + ? = 2 (ls)	ACDIMOT + ? = 2 (nr)
-CDEMOR + ? = 2 (eu)	
-
-CDEIIOM + ? = 3 (hlt)
-
-DECIMER + ? = 4 (a²orv)	MEDICAL + ? = 4 (ae³o²s)	
-
-COSMIDE + ? = 5 (emnsu)
-
-
-
-CDEENPU + ? = 2 (ar)	CDEIILP + ? = 2 (as)	PICIDES + ? = 2 (lr)
-CEDIOPS + ? = 2 (ah)
-
-AACDINP + ? = 3 (hrs)	
-
-ACDOPRS + ? = 4 (ehir)	
-
-
-Avec CDV :
-
-ACDOVT + ?? = 2 (aa, ir)	CDEIITV + ? = 2 (nr)	CDEITUV + ? = 2 (ao)
-
-ACDEEILV + ? = 3 (lnr)
-
-ACDEVIR + ? = 5 (aeilu)
-
-
-
-CFGINO + ?? = 2 (it,rs)
-
-
-
-FICHTRE + ? = 2 (ao)	
-
-
-
-ACFIMNR + ? = 2 (ou)	ACFIRMS + ? = 2 (eo)	ACFLMNO + ? = 2 (ae)
-AACFLMO + ? = 2 (nu)	ACEEFLM + ? = 2 (io)	
-
-ACEEIFM + ? = 3 (lns)
-
-
-
-CEEFPRT + ? = 2 (io)	ACFIPRT + ? = 2 (eo)	
-
-
-
-
-CGHIOUN + ? = 2 (ae)	CEEGHLO + ? = 2 (am)	
-
-ACEGHNO + ? = 3 (cmr)	CGEHNOR + ? = 3 (asu)	lichage + ? = 3 (acn)
-galuche + ? = 3 (aos)	CCGHNO + ?? = 3 (ae,ai,is)
-
-ACGHNIO + ? = 4 (cpsu)
-
-
-
-ACEGLMU + ? = 3 (aio)	
-
-
-
-
-
-
-
-ACHLMOS + ? = 2 (ae)	CEEHLMO + ? = 2 (gi)	CHIMORU + ? = 2 (eo)
-CHEMRTUU + ? = 2 (ce)	CEEHLMORU + ? = 2 (bo)	FICHAMES + ? = 2 (il)
-
-CHIMMR + ?? = 2 (os,tu)	CHIMOR + ? = 2 (am)	
-
-CHLMO + ? = 2 (io)		
-
-CHMOSTU + ? = 3 (aez)	AAACHMR + ? = 3 (nrw)	ACHLMN + ?? = 3 (aa,ai,eo)
-Michèle + ? = 3 (aot)
-
-Meilhac + ? = 4 (efis)	ACEHMTT + ? = 4 (enou)
-CHAIRMAN + ? = 4 (eior)	ACHIMNOR + ? = 4 (aeos²)
-
-MIOCHES + ? = 5 (anrsu)		MOHICAN = + ? = 5 (beps⁴u)	
-MANCHOU + ? = 5 (de²is²t)		
-AMOCHER + ? = 6 (bgnprs³)		
-
-
-
-ACHLOPT + ? = 2 (at)	CHNOPTU + ? = 2 (ai)	CEHOOP + ?? = 2 (ht,su)
-ACHNOPU + ? = 2 (ct)	
-
-CHOPSS + ? = 2 (uy)	
-
-CEEEHPT + ? = 3 (iot)	CEEHIPT + ? = 4 (eost)	ACHEIPP + ? = 3 (aow)
-LAPACHO + ? = 3 (stu)
-
-CHOPSU + ? = 3 (ais)	
-
-
-
-CEHISTV + ? = 2 (ey)	CEEHNRV + ? = 2 (ay)	
-
-CCEHISV + ? = 3 (aeo)
-
-ACEHORV + ? = 4 (bgtu)	
-
-
-
-
-CELMPSU + ? = 2 (ou)	CMOPRSU + ? = 2 (ah)	
-
-ACIMPRT + ? = 3 (aeo)	CMNIPU + ?? = 3 (as,hk,ie)
-ACIMNP + ? = 3 (glu)	
-
-CLAMPEE + ? = 4 (dars²)	
-
-
-
-CEEIMV + ?? = 2 (dr, lo)	CELMOV + ?? = 2 (ei,ou)
-CEELMV + ?? = 2 (aa,io)		ACEILMOV + ? = 2 (s,t)
-
-
-
-CEIOPRSV + ? = 6 (aeilnr)
-
-
-
-
-DEFGINO + ? = 2 (or)	
-DEFGIN + ?? = 4 (et,iu,oo,or)
-
-
-
-ADFIIMT + ? = 2 (eo)	DFIIMOR + ? = 2 (et)	
-
-
-
-DEFNOPR + ? = 2 (ao)	DFPNORU + ? = 2 (ae)	
-
-
-
-
-
-
-
-ADEGHOR + ? = 2 (iu)	ADGHIO + ?? = 2 (er,ls)
-DEGHORUY + ? = 2 (fn)
-
-ADEGHO + ?? = 3 (bs,ir,ru)
-
-
-
-	
-ADEGIMNT + ? = 2 (ou)	
-
-ADEGIMR + ? = 6 (ei²mnst)
-
-
-ADEGLOP + ? = 2 (ae)	
-
-ADEEGOP + ? = 3 (lmt)	DEEGIPR + ? = 3 (epu)	
-
-ADGNIP + ? = 3 (ade)	
-
-
-
-
-ADEHLMO + ? = 2 (an)	ADHIMSS + ? = 2 (ir)
-DEHIMOST + ? = 2 (ei)	DIRHEM + ?? = 3 (ee,ey,op)
-
-ADHMRS + ? = 4 (ai²ou)	
-	
-
-
-
-ADEHILP + ? = 2 (ao)	DEHILOP + ? = 2 (an)	DEHILNP = 2 (eo)
-EDHOOPRT + ? = 2 (ey)	
-
-DEHLOP + ?? = 4 (ai,as,in,ly)
-
-
-
-DEEHIV + ?? = 3 (as,cr,ks)
-
-
-
-AADEIMP + ? = 2 (cz)	DEELMPS + ? = 2 (iu)		
-
-DIIMPS + ? = + ?? = 4 (au,el,hs,ir)
-
-
-
-DEIMNTV + ? = 2 (ei)	
-
-VIDAMIE + ? = 3 (prs)	
-
-
-
-
-
-
-
-AEFGIMN + ? = 2 (iu)	
-
-
-AEFMOP + ?? = 2 (rr)²	
-
-
-EFIMORV + ? = 2 (ou)	AEFIMV + ? = + ?? = 2 (ss,su)
-
-
-
-AEGHMN + ?? = 2 (co,su, sz)
-AEEGHIMT + ? = 2 (lr)
-
-
-Avec GHP :
-
-GEHOOP + ?? = 2 (az,en)	
-
-
-
-AEGHINRV + ? = 2 (er)
-
-
-
-AGILMPS + ? = 2 (en)	
-
-AGIMNPS + ? = 4 (celm) 
-
-
-
-AEGIMSUV + ? = 2 (ru)
-
-
-
-AEGOPV + ?? = 2 (at,ir)
-	 
-
-
-AEHMPU + ?? = 2	(cs,im)	HILMPU + ?? = 2 (is,rt)
-HIMOPSS + ? = 2 (ei)	AEHLMP + ?? = 2 (ny,pt)
-AHILMOPT + ? = 2 (er)
-
-EEHIMPT + ? = 3 (aem)	HIMNOPR + ? = 3 (ego)
-
-EHIMOPR = 4 (dnst)		HIIMPS + ? = + ?? = 4 (ds,ep,lu,os)
-EEIMPRV + ? = 2 (su)	EMOPRUV + ? = 2 (ei)
-CDEFGNO + ?? = 2 (ae,io)	ACDGHE + ?? = 2 (er,iu)	ACGHOPS + ? = 2 (ae)
-CGHILNTU + ? = 2 (ab)	ACDMOOPR + ? = 2 (er)	
-DEHIMOP + ? = 2 (gr)	
-AEGHIILM + ? = 2 (ep) AEEGHLMP + ? = 2 (io)AEEGHMNP + ? = 2 (io) 
-GHIMONPS + ? = 2 (ar)		
-BCDEEHR + ? = 3 (aou)	ACDEEGP + ? = 3 (aei)	ACDEFHOS + ? = 3 (lnr)
-CGHILNU + ? = 3 (aem)	ADHOPRS + ? = 3 (ceo)
-ACEHMP + ? = 4 (eoru)	CHOMAGE + ? = 4 (nrsu)
-
-
-`;
-// =========================================================
-
-let pile = [];
-let compteurCouleur = 0;
-const zoneAffichage = document.getElementById('zone-affichage');
-
-function extraire() {
-    // Éclate les colonnes et les lignes
-    let propre = texteBrut.replace(/\t/g, '\n').replace(/[ ]{2,}/g, '\n');
-    let lignesRaw = propre.split('\n');
-    
-    pile = lignesRaw
-        .map(l => l.trim())
-        .filter(l => l.length > 5 && (l.includes('?') || l.includes('=')));
-    
-    document.getElementById('nb-tirages').innerText = pile.length.toLocaleString() + " TIRAGES JOKER DISPONIBLES";
-}
-
-function piocher() {
-    if (pile.length === 0) extraire();
-    if (pile.length === 0) return;
-
-    const hasard = Math.floor(Math.random() * pile.length);
-    const tirageComplet = pile[hasard];
-    
-    // Affichage immédiat du texte complet (plus de cache jaune)
-    zoneAffichage.innerText = tirageComplet;
-    
-    // Alternance des couleurs Jaune / Vert
-    if (compteurCouleur % 2 === 0) {
-        zoneAffichage.style.backgroundColor = "yellow";
-    } else {
-        zoneAffichage.style.backgroundColor = "#90EE90"; // Vert
-    }
-    compteurCouleur++;
-}
-
-window.onload = extraire;
-</script>
+    <div id="titre-principal">Tirages joker à solutions multiples</div>
+
+    <div id="zone-jeu" class="jaune"></div>
+
+    <script>
+        /************************************************************************
+         * ZONE DE SAISIE DES MOTS
+         ************************************************************************/
+        const listRaw = `
+EENOOSS + ? = 2 (mt) NOSEMOSE/ENOSTOSE
+AAENORU + ? = 2 (gm) ORGANEAU/ENAMOURA
+EILOTTU + ? = 2 (rv) TUTORIEL/VITOULET
+AOOTTUU + ? = 2 (mr) MATOUTOU/AUTOTOUR
+IIRSTTU + ? = 2 (mn) TRITIUMS/INSTRUIT
+AEEILLL + ? = 2 (dg) DIALLELE/ILLEGALE
+EIILNRU + ? = 2 (gs) LIGURIEN/SILURIEN
+EINNNOS + ? = 2 (be) BENNIONS/SENONIEN
+INOTTTU + ? = 2 (ae) ANTITOUT/TUTOIENT
+AEEIOSS + ? = 2 (cr) ASSOCIEE/OSERAIES
+AENOORU + ? = 2 (mt) ANOMOURE/AOUTERON
+AALNNOO + ? = 2 (gm) ANALOGON/ANOMALON
+EINOTUU + ? = 2 (fg) INFOUTUE/GUITOUNE
+EEINNNS + ? = 2 (lo) LINNEENS/SENONIEN
+AAAEILR + ? = 2 (bv) BALAIERA/AVALERAI
+AOSTTTU + ? = 2 (er) AUTOTEST/TUTORATS
+ANRSTUU + ? = 2 (pt) USURPANT/SUTURANT
+EEIILTT + ? = 2 (ls) TITILLEE/ELITISTE
+AAEELLN + ? = 2 (gt) ENALLAGE/ATELLANE
+LORSTUU + ? = 2 (am) SURLOUAT/SURMULOT
+AILNOOR + ? = 2 (bm) ALIBORON/MONORAIL
+EILNSUU + ? = 2 (rs) URSULINE/INUSUELS
+ALORTUU + ? = 2 (ms) MOULURAT/SURLOUAT
+AELOORT + ? = 2 (kz) RELOOKAT/ZOOLATRE
+AALRRSU + ? = 2 (be) SABURRAL/LASURERA
+EELORRS + ? = 2 (ci) CORRELES/ROSELIER
+EIINOTT + ? = 2 (cp) TONICITE/PETITION
+AEENOSS + ? = 2 (pu) PANOSSEE/ENOUASSE
+AEEENTU + ? = 2 (gt) EUGENATE/ATTENUEE
+ALLNOOS + ? = 2 (pu) APOLLONS/ALLOUONS
+ACLLNOO + ? = 2 (ei) NEOLOCAL/COLONIAL
+LUNURES + ? = 2 (ai) NEURULAS/URSULINE
+ENNNOOR + ? = 2 (gr) ROGNONNE/RONRONNE
+EILSTTT + ? = 2 (ao) TILTATES/STILETTO
+AAELORR + ? = 2 (cu) RACOLERA/AURORALE
+AAEILOS + ? = 2 (cp) ASOCIALE/PALAOISE
+AAEILOT + ? = 2 (uv) ALAOUITE/TAVAIOLE
+AARRSST + ? = 2 (eu) TERRASSA/RASSURAT
+EILROUU + ? = 2 (cg) COURLIEU/GUEULOIR
+AAAILLR + ? = 2 (ps) RAPAILLA/SALARIAL
+EILOOSU + ? = 2 (gv) ISOLOGUE/LOUVOIES
+EEEIORT + ? = 2 (ns) ORIENTEE/EROTISEE 
+AENOOR + ? = 2 (tz) RONEOTA/OZONERA	
+NORTUU + ? = 2 (bs) BURNOUT/TOURNUS
+EOOONS + ? = 2 (gz) OOGONES/ZOONOSE
+ELSSTT + ? = 2 (hy) SHTETLS/STYLETS
+IILNOO + ? = 2 (fp) INFOLIO/OPILION
+ALSTUU + ? = 2 (mr) UMLAUTS/SUTURAL
+EIOOSU + ? = 2 (dv) SOUDOIE/VOUSOIE
+AAEORS + ? = 2 (bg) AROBASE/AGAROSE
+OOORTU + ? = 2 (dp) OUTDOOR/POTOROU
+ELNOOT + ? = 2 (pv) PELOTON/VOLONTE
+ANNOOS + ? = 2 (cx) CONSONA/XOANONS
+AAEELN + ? = 2 (mz) MELAENA/ALEZANE
+AEELLLN + ? = 3 (fpy) FLANELLE/PLANELLE/ALLYLENE
+AELOORS + ? = 3 (krs) RELOOKAS/SORORALE/AEROSOLS
+AEILLNO + ? = 3 (cmn) ENCOLLAI/MANOILLE/LANOLINE
+IINORTU + ? = 3 (csv) TRICOUNI/TURINOIS/VOITURIN
+ELORSTT + ? = 3 (ein) LORETTES/TRIOLERS/LETTRONS
+AIOORRT + ? = 3 (eot) ORATOIRE/ORATORIO/TORTORAI
+AIRRSUU + ? = 3 (ces) SURCUIRA/USURAIRE/SUSURRAI
+AOOSTTU + ? = 3 (nps) TATOUONS/AUTOSTOP/TOUSSOTA
+AAARSTU + ? = 3 (bdm) ARABUSTA/TARAUDAS/TAMARAUS
+AAEILLU + ? = 3 (glm) ALLEGUAI/ALLELUIA/AUMAILLE
+EILOORU + ? = 3 (cgk) COULOIRE/UROLOGIE/KILOEURO
+IINNOTT + ? = 3 (asu) TONTINAI/TINTIONS/TINTOUIN
+EILNNOR + ? = 3 (bgp) ENNOBLIR/LONGRINE/PILONNER
+ELOOTUU + ? = 3 (glp) TELOUGOU/LOULOUTE/TOULOUPE
+EIILLOS + ? = 3 (blx) LOISIBLE/LILLOISE/IXELLOIS
+ILOORSS + ? = 3 (eis) SORELOIS/ISOLOIRS/ROSSOLIS
+ENNOOTT + ? = 3 (bir) BONNOTTE/OTTONIEN/NOTERONT
+AAILLOS + ? = 3 (cmu) LOCALISA/SLALOMAI/ALLOUAIS
+AEOORRT + ? = 3 (dip) TOREADOR/ORATOIRE/AEROPORT
+IILNNOT + ? = 3 (ago) LOINTAIN/LINGOTIN/NOLITION
+AEELOTT + ? = 3 (cmu) CALOTTEE/MATELOTE/ALOUETTE
+EELOORS + ? = 3 (cks) COLOREES/RELOOKES/ROSEOLES
+EILNRRT + ? = 3 (ago) RALENTIR/TRINGLER/RELIRONT
+AAEERRU + ? = 3 (mpt) RAMEREAU/APEURERA/AERATEUR
+AAENOSS + ? = 3 (mpr) SAMOANES/SAPONASE/ASSONERA
+AAENOST + ? = 3 (glp) NAGEOTAS/ATONALES/ANTEPOSA
+AAEISTU + ? = 3 (bmr) BISEAUTA/AMEUTAIS/SAUTERAI
+NOSSTUU + ? = 3 (eqr) SOUTENUS/STUQUONS/SUTURONS
+AELSTUU + ? = 3 (clr) AUSCULTE/ULULATES/SUTURALE
+EIOORRT + ? = 3 (aps) ORATOIRE/POIROTER/SORORITE
+AEINOOR + ? = 3 (dtz) ONDOIERA/RONEOTAI/OZONERAI
+AAAINTT + ? = 3 (dmr) ANTIDATA/AIMANTAT/RATATINA
+AENRSUU + ? = 3 (egl) URANEUSE/SUAGRENU/NEURULAS
+AAENORS + ? = 3 (gis) ORANGEAS/ORANAISE/ASSONERA
+AEILNNR + ? = 3 (cft) LANCINER/INFERNAL/TRIENNAL
+AALSTTU + ? = 3 (fin) SULFATAT/TALUTAIS/SULTANAT
+EOORRTU + ? = 3 (lnp) ROULOTER/ROUERONT/PROTOURE
+EIIOSSS + ? = 3 (fmt) OSSIFIES/MOISISSE/ISOSISTE
+AAANSST + ? = 3 (cim) CANASTAS/ASTANAIS/AMASSANT
+AEEIINN + ? = 3 (flm) NANIFIEE/INALIENE/INANIMEE
+AAEENNS + ? = 3 (bgm) BANANEES/ANAGENES/ANAMNESE
+AEIINTU + ? = 3 (hqr) HUITAINE/INQUIETA/UNITAIRE
+EEEIIRS + ? = 3 (bfl) RIBESIEE/REIFIEES/RESILIEE
+AEENSUU + ? = 3 (grx) NUAGEUSE/URANEUSE/NAUSEEUX
+AENTTUU + ? = 3 (ioq) AUTUNITE/AUTOTUNE/QUEUTANT
+AEILNRR + ? = 3 (opt) LORRAINE/PRALINER/RALENTIR
+IIORSST + ? = 3 (afn) SIROTAIS/FRISOTIS/STRIIONS
+ELOORTT + ? = 3 (gnu) GLOTTORE/TOLERONT/ROULOTTE
+AEEIOST + ? = 3 (bmp) BAISOTEE/ATOMISEE/PATOISEE
+EORTTTU + ? = 3 (ent) TOURETTE/TUTORENT/TROTTEUR
+AAELOT + ? = 3 (nux) ATONALE/ALOUATE/OXALATE
+AOOSTT + ? = 3 (bhm) BOOSTAT/SHOOTAT/STOMATO
+AANNSS + ? = 3 (cei) SCANNAS/SAANENS/NANISAS
+AAEENT + ? = 3 (chs) ACATENE/ATHANE/SATANEE
+AOORRS + ? = 3 (lty) SORORAL/SORORAT/ARROYOS
+AALNOS + ? = 3 (ctv) CANOLAS/ATONALS/AVALONS
+AMOOTT + ? = 3 (nps) OTTOMAN/POTAMOT/STOMATO
+EERTTT + ? = 3 (iso) TIRETTE/STRETTE/TROTTEE
+TTOROS + ? = 3 (gio) GROTTOS/RISOTTO/ROTOTOS
+AIOORST + ? = 4 (bdmp) ROBOTISA/ODORISAT/MOTORISA/POIROTAS
+EIILNOT + ? = 4 (amps) ENTOILAI/LIMONITE/PILOTINE/INSOLITE
+EEILNOU + ? = 4 (bcms) UNILOBEE/INOCULEE/MOULINEE/SEOULIEN
+EEINOTU + ? = 4 (acqr) OUATINEE/INECOUTE/NOETIQUE/ROUTINEE
+EIINORR + ? = 4 (bgst) ROBINIER/ORIGINER/IRONISER/INTERROI
+AAELORT + ? = 4 (bmpu) ELABORAT/ARMATOLE/PALOTERA/AUREOLAT
+ALNSTTU + ? = 4 (aior) SULTANAT/INSULTAT/TALUTONS/LUSTRANT
+AAILRRT + ? = 4 (bepu) ARBITRAL/RALERAIT/RAPLATIR/TRALUIRA
+AEEINNO + ? = 4 (crsz) OCEANIEN/ENNOIERA/OASIENNE/NEONAZIE
+AAEINOR + ? = 4 (gstv) ORANGEAI/ORANAISE/AERATION/AVOINERA
+EELLSUU + ? = 4 (bkns) BULLEUSE/UKULELES/LUNULEES/USUELLES
+AAEIORS + ? = 4 (bcnv) ABOIERAS/ACARIOSE/ORANAISE/AVOIERAS
+EILOORT + ? = 4 (fgms) FOLIOTER/RIGOLOTE/MOLETOIR/OESTRIOL
+EEELNTU + ? = 4 (lrtv) UNETELLE/ELUERENT/LUNETTEE/EVENTUEL
+AILOOST + ? = 4 (fgps) FOLIOTAS/TOGOLAIS/SALOPIOT/ALOSTOIS
+AENOOST + ? = 4 (cdrz) TACONEOS/ODONATES/RONEOTAS/OZONATES
+AILNOOT + ? = 4 (bcnv) OBLATION/LOCATION/LOTIONNA/VIOLONAT
+AELLORT + ? = 4 (bcir) BALLOTER/RECOLLAT/TORAILLE/TROLLERA
+EENNRSU + ? = 4 (aosu) SURANNEE/NEURONES/SENNEURS/RUNNEUSE
+EEEITU + ? = 4 (dpxz) ETUDIEE/PIEUTEE/EUTEXIE/ZIEUTEE
+ALORRS + ? = 4 (cnot) CORRALS/LARRONS/SORORAL/ROSTRAL
+AAORRT + ? = 4 (bgps) ARBORAT/GARROTA/PRORATA/ARROSAT
+BEEEILN + ? = 2 (ap) BALEINEE/PLEBEIEN
+BENNEES + ? = 2 (az) SABEENNE/BENZENES
+ABINOOR + ? = 2 (ly) ALIBORON/BORNOYAI
+ABIILNU + ? = 2 (fq) INFIBULA/BLINQUAI
+ABILRRT + ? = 2 (ae) ARBITRAL/RETABLIR
+BEELOOT + ? = 2 (su) OBSOLETE/BOULOTEE
+AABLRRU + ? = 2 (es) BARULERA/SABURRAL
+AABINOU + ? = 2 (ce) BOUCANAI/OUABAINE
+EBLOSUU + ? = 2 (ce) BOUSCULE/BOULEUSE
+BEEIILO + ? = 2 (fp) BIFOLIEE/EPIBOLIE
+BELRTUU + ? = 2 (cu) CULBUTER/TUBULURE
+ABNOORU + ? = 2 (jn) BOUJARON/BOURONNA
+BEEELLO + ? = 2 (mr) OMBELLEE/ELLEBORE
+ABEIINU + ? = 2 (hz) BAUHINIE/AUBINIEZ
+AABENOS + ? = 2 (il) ANABIOSE/ABALONES
+BEOORTU + ? = 2 (ls) BOULOTER/BOOSTEUR
+ABIILNO + ? = 2 (mt) BINOMIAL/LIBATION	
+BEEIIOT + ? = 2 (nr) EBIONITE/BOITERIE
+ABEEIIL + ? = 2 (bs) BILABIEE/EBISELAI
+ABNOOR + ? = 2 (yz) BORNOYA/BORAZON
+BILOOS + ? = 2 (ns) LOBIONS/OLISBOS
+ABILNU + ? = 2 (oq) NOBLIAU/BLINQUA
+BILOSS + ? = 2 (eo) BLESOIS/OLISBOS
+ABNRUU + ? = 2 (ks) BUNRAKU/AUBURNS
+AAABRTU + ? = 3 (gqs) RUTABAGA/BARAQUAT/ARABUSTA
+BEILNOO + ? = 3 (bds) NEBBIOLO/BLONDOIE/BOOLIENS
+ABEESUU + ? = 3 (dgs) DAUBEUSE/BAGUEUSE/ABUSEUSE
+BEEELNO + ? = 3 (gvz) ENGLOBEE/BENEVOLE/BENZOLEE
+ABEIINO + ? = 3 (dgm) ANOBIIDE/IBOGAINE/BIOAMINE
+ABEELNU + ? = 3 (dij) DENEBULA/BANLIEUE/BLUEJEAN
+BELNORU + ? = 3 (dst) BLONDEUR/LUBERONS/ROUBLENT
+BEIINNT + ? = 3 (aht) BINAIENT/INHIBENT/TINTEBIN
+AABENSU + ? = 3 (hit) HAUBANES/AUBAINES/ANTABUSE
+BEEELOR + ? = 3 (alt) ELABOREE/ELLEBORE/REBELOTE
+ABELOUU + ? = 3 (dgx) DOUBLEAU/BOULEGUA/BOULEAUX
+BEELOUU + ? = 3 (gsx) BOULEGUE/BOULEUSE/EBOULEUX
+BEEOTUU + ? = 3 (fqr) BOUTEFEU/BOUQUETE/BOUTUREE
+BENOORU + ? = 3 (gns) BOURGEON/BOURONNE/EBROUONS
+AAABLLT + ? = 3 (bis) BLABLATA/BATAILLA/BALLASTA
+ABEINNU + ? = 3 (dtx) DANUBIEN/AUBINENT/BIENNAUX
+ABILNOO + ? = 3 (rst) ALIBORON/BOLONAIS/OBLATION
+ABEEES + ? = 3 (cmr) SEBACEE/AMEBEES/EBRASEE
+BOSTUU + ? = 3 (aor) AUTOBUS/TOUBOUS/SURBOUT
+BEELNO + ? = 3 (goz) ENGLOBE/BOOLEEN/BENZOLE
+ABEIISU + ? = 4 (glrs) BISAIGUE/BISAIEUL/UBERISAI/BUISSAIE
+BEEILNU + ? = 4 (aoqs) BANLIEUE/UNILOBEE/BLINQUEE/NEBULISE
+ABLNOOS + ? = 4 (bgiu) BABOLONS/BOGOLANS/BOLONAIS/ABOULONS
+BEELMST + ? = 4 (ainr) BLASTEME/BLEMITE/SEMBLENT/TREMBLES
+ABIILOT + ? = 4 (flnu) ABOLITIF/BOITILLA/LIBATION/OUBLIAIT
+BENNOTU + ? = 4 (aios) NANOTUBE/BOUINENT/BOUTONNE/ENTUBONS
+AABEIN + ? = 4 (dknu) BADIANE/IKEBANA/ANNABIE/AUBAINE
+ACLOOTU + ? = 2 (bk) CABOULOT/LOCKOUTA
+ACELLOO + ? = 2 (ns) NEOLOCAL/ALCOOLES
+AACOTTU + ? = 2 (or) AUTOCOAT/COURATAT
+CILNOTU + ? = 2 (ao) INOCULAT/LOCUTION
+CEIILRU + ? = 2 (dl) RIDICULE/CUEILLIR
+CEINNNO + ? = 2 (tu) INNOCENT/INCONNUE
+CEINNRU + ? = 2 (ao) NUANCIER/UNICORNE
+CEINNSU + ? = 2 (ae) NUISANCE/UNCINEES
+AACELOU + ? = 2 (dq) AULACODE/AQUACOLE
+CENRTUU + ? = 2 (op) ENCOURUT/PUNCTURE
+ACEILUU + ? = 2 (nr) UNICAULE/AURICULE
+ACELSUU + ? = 2 (lt) CLAUSULE/AUSCULTE
+ACELNUU + ? = 2 (ix) UNICAULE/LACUNEUX
+AACEOSS + ? = 2 (rv) COASSERA/AVOCASSE
+ACELLOU + ? = 2 (hp) ALLOUCHE/COUPELLA
+AACLOTU + ? = 2 (gn) COAGULAT/CANTALOU
+ACILLOO + ? = 2 (dn) DIALCOOL/COLONIAL
+AAACLNR + ? = 2 (dv) CALANDRA/CARNAVAL
+CCEIORU + ? = 2 (fn) COCUFIER/COINCEUR
+CCEOORU + ? = 2 (nu) CONCOURE/COUCOUER
+ACCOTUU + ? = 2 (or) COUCOUAT/ACCOURUT
+AACEIOS + ? = 2 (lr) ASOCIALE/ACARIOSE
+ACLSTTU + ? = 2 (op) CULOTTAS/SCULPTAT
+AACLRTU + ? = 2 (is) ARTICULA/CLAUSTRA
+ACILNUU + ? = 2 (eq) UNICAULE/INCULQUA
+AACLRU + ? = 2 (cn) CARACUL/CANULAR
+CELLUUS + ? = 3 (act) CLAUSULE/CUCULLES/CULTUELS
+ACIOORR + ? = 3 (dmy) CORRODAI/AMORCOIR/CORROYAI
+AACCRTU + ? = 3 (hos) CHARCUTA/ACCOUTRA/RACCUSAT
+CELOORU + ? = 3 (diu) COLOURED/COULOIRE/ROUCOULE
+ACOORUU + ? = 3 (glm) COUGOUAR/ROUCOULA/COUMAROU
+AACENOS + ? = 3 (gpu) ACONAGES/SAPONACE/CAOUANES
+AACEORS + ? = 3 (ils) ACARIOSE/ACEROLAS/COASSERA
+ACEOORS + ? = 3 (mpt) ACROSOME/SOOPERAS/CREOSOTA
+CEILSTT + ? = 3 (aeh) TACTILES/CELTISTE/SCHLITTE
+ACILNSS + ? = 3 (eot) SANICLES/CALISSON/CLISSANT
+ACEEIOT + ? = 3 (nrv) OCEANITE/ECOTERAI/OCTAVIEE
+ACEEIOS + ? = 3 (lps) COALISEE/OPIACEES/ASSOCIEE
+CEILNUU + ? = 3 (afq) UNICAULE/FUNICULE/INCULQUE
+ACILTUU + ? = 3 (bfm) CULBUTAI/FLUCTUAI/CUMULAIT
+CEILTUU + ? = 3 (cmr) CUTICULE/LUTECIUM/UTRICULE
+AACLNO + ? = 3 (mrs) MONACAL/ALCORAN/CANOLAS
+CELLNU + ? = 3 (aei) CALLUNE/NUCELLE/LINCEUL
+AACNRSU + ? = 4 (aely) ARAUCANS/ANACRUSE/CANULARS/CYANURAS
+CEIIILN + ? = 4 (dmsv) INDICIEL/MILICIEN/SICILIEN/INCIVILE
+CEILRUU + ? = 4 (aeot) AURICULE/ECUREUIL/COURLIEU/UTRICULE
+ACILLOU + ? = 4 (dfqx) CAUDILLO/FLOCULAI/COQUILLA/CAILLOUX
+NOIRCIT + ? = 4 (fstu) FRICTION/CROSTINI/TRICOTIN/TRICOUNI
+AACNOU + ? = 4 (begp) BOUCANA/CAOUANE/GUANACO/CAPOUAN
+ACOTUU + ? = 4 (behr) BOUCAUT/COUTEAU/TOUCHAU/COUTURA
+DERSTUU + ? = 2 (ao) RUSTAUDE/DOUTEURS
+ADIILLU + ? = 2 (ov) DOUILLAI/DILUVIAL
+ADEINNU + ? = 2 (bo) DANUBIEN/AUDONIEN
+DEEILLO + ? = 2 (au) OEILLADE/DOUILLEE
+ADEOOLR + ? = 2 (cd) DECOLORA/ELDORADO
+AADEOTU + ? = 2 (ft) AUTODAFE/DETATOUA
+ADEOSUU + ? = 2 (lv) SOULAUDE/VAUDOUES
+DILLNOO + ? = 2 (mu) MODILLON/DOUILLON
+DEEELNU + ? = 2 (bp) DENEBULE/PENDULEE
+DOLLIES + ? = 2 (gu) GODILLES/DOUILLES
+AADEENT + ? = 2 (mp) MANDATEE/TAPENADE
+ADELNOU + ? = 2 (dr) DUODENAL/ONDULERA
+DEEILOT + ? = 2 (dn) DELTOIDE/DELETION
+ADILOOS + ? = 2 (bg) DIABOLOS/SOLIDAGO
+AADELOS + ? = 2 (mr) AMODALES/SALADERO
+AADEOSU + ? = 2 (mv) AMADOUES/DESAVOUA
+ADDEIIN + ? = 2 (rv) DIANDRIE/DAVIDIEN
+AADILOU + ? = 2 (gs) DIALOGUA/DOUALAIS
+ADEIRUU + ? = 2 (qt) DUQUERAI/AUDITEUR
+DEEOORS + ? = 2 (iv) ODORISEE/OVERDOSE
+ADEELNU + ? = 2 (bp) DENEBULA/PALUDEEN
+ADEEIOT + ? = 2 (mz) DIATOMEE/DIAZOTEE
+ADEINNN + ? = 2 (ei) DANIENNE/NANDINIE
+DEINNNO + ? = 2 (dt) DINDONNE/INONDENT
+AAADINS + ? = 2 (fn) FAISANDA/ANDAINAS
+ADLNORT + ? = 2 (pu) PORTLAND/LOURDANT
+AADLMT + ? = 2 (ei) DALMATE/LAMIDAT
+DRELIN + ? = 2 (ab) LANDIER/BLINDER
+DEILUU + ? = 2 (qr) LUDIQUE/DILUEUR
+AAADNS + ? = 2 (cr) CANADAS/DARSANA
+DENOOT + ? = 2 (ar) ODONATE/ROTONDE
+AADSSTT + ? = 3 (eor) DETASSAT/TOSTADAS/ADSTRATS
+ADIINOU + ? = 3 (bct) BOUDINAI/DOUCINAI/AUDITION
+AADLNOR + ? = 3 (nps) LARDONNA/PARLANDO/SALONARD
+DNORSUU + ? = 3 (frt) SURFONDU/SURROUND/SURTONDU
+ADLSTRU + ? = 3 (aei) TAULARDS/DELUSTRA/STRIDULA
+DILLOTU + ? = 3 (ace) DOUILLAT/DULCITOL/DOUILLET
+DEEEIRU + ? = 3 (npt) UREDINEE/REPUDIEE/REETUDIE
+DEELOOR + ? = 3 (cht) DECOLORE/HOLOEDRE/DORLOTEE
+DEIOOST + ? = 3 (mnv) SODOMITE/NODOSITE/OVOTIDES
+DEILNSU + ? = 3 (aco) LAUDIENS/NUCLIDES/ELUDIONS
+DEIILOR + ? = 3 (aos) IODLERAI/ORIOLIDE/LORISIDE
+ADIIOSS + ? = 3 (cnp) DISSOCIA/DISSONAI/DISPOSAI
+DOUALAS + ? = 3 (inr) DOUALAIS/ANDALOUS/SAOULARD
+DEIINOR + ? = 3 (csz) CRINOIDE/DERISION/OINDRIEZ
+ADERTUU + ? = 3 (iqs) AUDITEUR/QUEUTARD/RUSTAUDE
+DEEEINU + ? = 3 (gqr) ENDIGUEE/EDENIQUE/UREDINEE
+ADULAIT + ? = 3 (cfs) ACIDULAT/LAUDATIF/DUALISAT
+ADEEOSU + ? = 3 (bcv) ADOUBEES/ESCOUADE/DESAVOUE
+ADILORR + ? = 3 (egu) LARDOIRE/RIGOLARD/ALOURDIR
+DILOSTU + ? = 3 (aes) TOULADIS/SOLITUDE/DISSOLUT
+ADENOOT + ? = 3 (nrs) ANODONTE/ODORANTE/ODONATES
+DEIIORR + ? = 3 (ftz) REFROIDI/DROITIER/ROIDIREZ
+ADLLRU + ? = 3 (ein) DALLEUR/RILLAUD/NULLARD
+ADNOOS + ? = 3 (lry) ANDOSOL/ADORONS/ONDOYAS
+DEOORT + ? = 3 (lnp) DORLOTE/ROTONDE/TORPEDO
+DUELLES + ? = 4 (ajox) DALLEUSE/JUDELLES/DOUELLES/DUXELLES
+DEEILNO + ? = 4 (dgnt) DODELINE/GLENOIDE/LEDONIEN/DELETION
+DEEILNN + ? = 4 (aeoy) ANNELIDE/DELIENNE/LEDONIEN/LYDIENNE
+AADEISU + ? = 4 (cgpq) DECAUSAI/AIGUADES/DIAPAUSE/DESAQUAI
+ADIIORT + ? = 4 (ehns) IODERAIT/RHODIAIT/OINDRAIT/DROITISA
+DEIILSU + ? = 4 (fqrt) FLUIDISE/LIQUIDES/SILURIDE/LIEUDITS
+DEIILTU + ? = 4 (cfsv) LUCIDITE/FLUIDITE/LIEUDITS/DILUTIVE
+ADINOOR + ? = 4 (enst) ONDOIERA/ORDONNAI/ADORIONS/TANDOORI
+DEELOPU + ? = 4 (cilr) DECOUPLE/EUPLOIDE/DEPOLLUE/DRUPEOLE 
+ADEOORT + ? = 4 (hmnr) HORODATE/MODERATO/ODORANTE/TOREADOR
+AADNORS + ? = 4 (lipt) SALONARD/ADORNAIS/PARADONS/ONDATRAS
+ADIRSTT + ? = 4 (eiou) DATTIERS/DISTRAIT/STRADIOT/TRADUITS
+DEINOOT + ? = 4 (nrsv) ONDOIENT/IODERONT/NODOSITE/DEVOTION
+EFIIRTU + ? = 2 (ar) FUITERAI/FRUITIER
+EFIINNO + ? = 2 (ls) FILONIEN/FINNOISE
+EFIILOU + ? = 2 (nq) UNIFOLIE/FILIOQUE
+EFIILSU + ? = 2 (dr) FLUIDISE/FUSILIER
+EFILRRS + ? = 2 (au) RIFLERAS/SURFILER
+EFOORSU + ? = 2 (lw) FLUOROSE/WOOFEURS
+FIILSSS + ? = 2 (ae) SALSIFIS/FISSILES
+AAEFINU + ? = 2 (pv) PEAUFINA/AVIFAUNE
+EFINTUU + ? = 2 (no) FUTUNIEN/INFOUTUE
+AFORRST + ? = 2 (in) RAIFORTS/FORTRANS
+FLOORSU + ? = 2 (ei) FLUOROSE/FOULOIRS
+AAFIILN + ? = 2 (ps) PLANIFIA/FINALISA
+EFINOUU + ? = 2 (rt) FOUINEUR/INFOUTUE
+EFIOORT + ? = 2 (cl) CORFIOTE/FOLIOTER
+FLRSTUU + ? = 2 (ae) SULFURAT/FRUSTULE
+AAFLOU + ? = 2 (fm) AFFLOUA/MAALOUF
+AAFINN + ? = 2 (ci) FINANCA/NANIFIA	
+AAEFIIT + ? = 3 (bcn) BEATIFIA/ACETIFIA/ENFAITAI
+ELFRRSU + ? = 3 (iou) SURFILER/FROLEURS/SULFURER
+EFILRSS + ? = 3 (aiu) RIFLASSE/FRISELIS/SURFILES
+AAFILOS + ? = 3 (cfy) FOCALISA/AFFOLAIS/FOYALAIS
+FIILNOR + ? = 3 (dps) FRIDOLIN/FIPRONIL/RIFLIONS
+EFINRRU + ? = 3 (ego) FREINEUR/FRINGUER/FOURNIER
+EEFOTUU + ? = 3 (brs) BOUTEFEU/REFOUTUE/FOUTEUSE
+TIFOSIS + ? = 3 (apr) OSSIFIAT/POSITIFS/FRISOTIS
+FIINRSU + ? = 3 (aot)	SURFINIA/FUIRIONS/INTRUSIF
+AAEFLLS + ? = 3 (fgi) FALAFELS/FELLAGAS/FASEILLA
+AEFNOS + ? = 3 (fhs) OFFENSA/FOEHNAS/FOSSANE
+FILORU + ? = 3 (dno) DIFLUOR/FOURNIL/FOULOIR
+FATSIAS + ? = 4 (cfnu) FASCISAT/STAFFAIS/FINASSAT/FAUSSAIT
+AFIINOR + ? = 4 (cfgm) CONFIRAI/AFFINOIR/GOINFRAI/INFORMAI
+EFIIORR + ? = 4 (adgh) FOIRERAI/REFROIDI/FRIGORIE/HORRIFIE
+SNIFANT + ? = 4 (efou) INFANTES/SNIFFANT/FONTINAS/INFUSANT
+EFIISST + ? = 4 (lnrx) SIFILETS/SENSITIF/RESISTIF/FIXISTES
+EFLOORS + ? = 4 (cmnu) FORCLOSE/FORMOLES/LOFERONS/FLUOROSE
+AEGLOOR + ? = 2 (cg) COLORAGE/GOOGLERA
+AEGORUU + ? = 2 (dm) ROUGEAUD/ROUMEGUA
+AGINOOS + ? = 2 (lt) ISOGONAL/AGIOTONS
+AGILOOT + ? = 2 (gs) GOOGLAIT/TOGOLAIS
+AAGLOTU + ? = 2 (co) COAGULAT/AUTOGOAL
+AGNNNOO + ? = 2 (fr) GONFANON/ROGNONNA
+AGNSTUU + ? = 2 (ei) GUEUSANT/AUGUSTIN
+EGLOOSU + ? = 2 (iv) ISOLOGUE/VOGOULES
+EGILOOT + ? = 2 (or) OTOLOGIE/RIGOLOTE
+EGLOOTU + ? = 2 (tu) GOULOTTE/TELOUGOU
+GLOORUU + ? = 2 (be) BOULGOUR/UROLOGUE
+EGNOTUU + ? = 2 (hi) HUGUENOT/GUITOUNE
+EGILOOS + ? = 2 (gu) GOOGLISE/ISOLOGUE
+EEGORUU + ? = 2 (fm) FOURGUEE/ROUMEGUE
+EGOORSS + ? = 2 (iy) GROSSOIE/GROSSOYE
+EGINOOR + ? = 2 (eh) OROGENIE/HONGROIE
+EGRSSTU + ? = 2 (ai) GRUTASSE/SURGITES
+EGIOOSS + ? = 2 (nr) ISOGONES/GROSSOIE
+EGIOSSU + ? = 2 (rv) ROUGISSE/VIGOUSSE
+EGLORRT + ? = 2 (ei) GRELOTER/TRIERGOL
+EEGIOOR + ? = 2 (nu) OROGENIE/ROUGEOIE
+GIINNRT + ? = 2 (ao) TRAINING/IGNITRON
+GIILNNU + ? = 2 (ae) INGUINAL/LINGUINE
+EGOORST + ? = 2 (nu) ERGOTONS/ROUGEOTS
+GILOORS + ? = 2 (an) GLORIOSA/RIGOLONS
+EGLIOTU + ? = 2 (nr) ENGLOUTI/TRILOGUE
+AEGLTTU + ? = 2 (ae) TALUTAGE/GAULETTE
+EGNOOTT + ? = 2 (lp) LONGOTTE/POGOTENT
+EGIOOSU + ? = 2 (lz) ISOLOGUE/ZOUGOISE
+AEEGGLU + ? = 2 (nr) ENGLUAGE/REGULAGE
+AEGGLNU + ? = 2 (ae) LAGUNAGE/ENGLUAGE
+AAEGLOS + ? = 2 (nu) AGONALES/SOULAGEA
+AEEEGRU + ? = 2 (ms) MAUGREEE/AGREEUSE
+AGLNOOT + ? = 2 (dg)	GONDOLAT/GOOGLANT
+EGOOTU + ? = 2 (rv) ROUGEOT/VOUGEOT
+GOORTU + ? = 2 (ey) ROUGEOT/YOGOURT
+EGOORT + ? = 2 (pu) POGOTER/ROUGEOT
+EEGNOO + ? = 2 (rz) OROGENE/ZOOGENE
+AGLNOO + ? = 2 (bd) BOGOLAN/GONDOLA
+GIINNOT + ? = 3 (ilr) IGNITION/LINGOTIN/IGNITRON
+EEGINOO + ? = 3 (lrv) NEOLOGIE/OROGENIE/OVOGENIE
+EGINRUU + ? = 3 (asz) INAUGURE/GURUNSIE/ZINGUEUR
+EGILOOR + ? = 3 (ltu) GLORIOLE/RIGOLOTE/UROLOGIE
+EEGIOTT + ? = 3 (ghs) GIGOTTEE/GOETHITE/EGOTISTE
+EGIIORR + ? = 3 (fmn) FRIGORIE/GRIMOIRE/ORIGINER
+AAGNORU + ? = 3 (des) GANDOURA/ORGANEAU/OURAGANS
+AEEEGNU + ? = 3 (cnt) ECANGUEE/ENNUAGEE/EUGENATE
+AEEGTUU + ? = 3 (lqs) EGUEULAT/QUEUTAGE/TAGUEUSE
+AAAGINT + ? = 3 (cmr) CAATINGA/MAGANAIT/AGRAINAT
+EEGILOU + ? = 3 (bpx) GIBOULEE/EPILOGUE/ELOGIEUX
+EGGOONU + ? = 3 (stu) GOUGEONS/GOGUENOT/GOUGOUNE
+EGISSTT + ? = 3 (ain) SAGITTES/TIGISTES/TESTINGS
+AEGINUU + ? = 3 (djr) GUINDEAU/ENJUGAI/INAUGURE
+AAGILO + ? = 3 (cps) GAIACOL/GALOPAI/LAOGAIS
+EGIOOS + ? = 3 (bdn) BOOGIES/GOODIES/ISOGONE
+AEGNUU + ? = 3 (jlx) ENJUGUA/UNGUEAL/NUAGEUX
+AAGEOT + ? = 3 (npu) NAGEOTA/OUATAGE/PAGEOTA
+AAAGRR + ? = 3 (bfh) BAGARRA/RAGRAFA/HARRAGE
+EEGINNO + ? = 4 (jprs) ENJOIGNE/PIGEONNE/GIRONNEE/SONEGIEN
+GIINRST + ? = 4 (egho) INGRISTE/RINGGITS/SHIRTING/TIGRIONS
+EEEGNNO + ? = 4 (cdrs) ENGONCEE/ENDOGENE/GOREENNE/NEOGENES 
+AEGNRUU + ? = 4 (ilst) INAUGURE/LANGUEUR/SAUGRENU/AUGURENT
+EEGIORR + ? = 4 (cnuv) CORRIGEE/ERIGERON/GUERROIE/REVIGORE
+EEGIORT + ? = 4 (lnuz) REGOLITE/ERGOTINE/EGOUTIER/ERGOTIEZ
+EEGIORU + ? = 4 (dort) DEROUGIE/ROUGEOIE/GUERROIE/EGOUTIER
+EEGNOOR + ? = 4 (cims) COREGONE/OROGENIE/ERGONOME/OROGENES
+EEEGNOT + ? = 4 (chil) CETOGENE/GOETHEEN/NEIGEOTE/TELOGENE
+AEGNSUU + ? = 4 (ejrt) NUAGEUSE/ENJUGUAS/SAUGRENU/GUEUSANT
+EGIOORU + ? = 4 (belu) BOUGEOIR/ROUGEOIE/UROLOGIE/OUIGOURE
+AGLNOOS + ? = 4 (bdip) BOGOLANS/GONDOLAS/ISOGONAL/GALOPONS
+EGIIRTU + ? = 4 (blmn) BITURIGE/LITURGIE/MITIGEUR/INTRIGUE
+AAGNRRT + ? = 4 (efio) RAGREANT/FRAGRANT/GARANTIR/ARROGANT
+EGLOOTT + ? = 3 (mnru) GOLMOTTE/LONGOTTE/GLOTTORE/GOULOTTE
+EGOORUU + ? = 4 (ilst) OUIGOURE/UROLOGUE/GOUROUES/GOUROUTE
+AAAGIN + ? = 4 (kmrz) NAGAIKA/MAGANAI/AGRAINA/GAZANIA
+AEEHNRR + ? = 2 (ac) HARAREEN/ECHARNER
+EEHLOTT + ? = 2 (nu) TELETHON/HOULETTE
+AEEHNRU + ? = 2 (mt) HENAURME/URETHANE
+AEEEHRS + ? = 2 (mp) MEHAREES/APHERESE
+EHIIMMS + ? = 2 (cs) CHIMISME/SHIMMIES
+AEEHITU + ? = 2 (bl) HABITUEE/HALIEUTE
+EHIILRT + ? = 2 (at) HILARITE/TRILITHE
+AEHIINU + ? = 2 (bt) BAUHINIE/HUITAINE
+AAHINNS + ? = 2 (go) ANHINGAS/AHANIONS
+EEHIIST + ? = 2 (cg) HECTISIE/EIGHTIES
+AAHRSST + ? = 2 (an) HARASSAT/HANSARTS
+EHIIRSU + ? = 2 (ls) HUILIERS/HUISSIER
+AEHLNTU + ? = 2 (cr) CHAULENT/HURLANTE
+HIORSST + ? = ? (ae) SARTHOIS/SHORTIES
+HLLOOST + ? = 2 (ei) OTHELLOS/LITHOSOL
+EEHIINT + ? = 2 (cl) ETHICIEN/LITHINEE
+EEEHRTT + ? = 2 (bn) HERBETTE/ETHERNET
+EHILOOS + ? = 2 (dt) HOLOSIDE/OOLITHES
+EHOTTU + ? = 2 (lr) HULOTTE/HOTTEUR
+AEHTTU + ? = 2 (cr) CAHUTTE/HEURTAT
+AEHNNO + ? = 2 (im) HANOIEN/MAHONNE
+EHISSU + ? = 2 (kt) HUSKIES/HUSSITE
+AEHIOS + ? = 2 (rt) HEROISA/ATHOISE
+EEHIINR + ? = 3 (bcg) HIBERNIE/ENRICHIE/HEGIRIEN
+AEHLNRS + ? = 3 (cop) CHARNELS/HALERONS/SHRAPNEL
+EHINSTU + ? = 3 (ctz) CHUINTES/HUTINERS/SHUNTIEZ
+HOTTEES + ? = 3 (adu) ATHETOSE/DEHTTES/HOTTEUSE
+EHORSTU + ? = 3 (cnt) TOUCHERS/HEURTONS/HOTTEURS
+EEHLOST + ? = 3 (cio) TELOCHES/EOLITHES/HOLOSTEE
+HINOORT + ? = 3 (aco) HONORAIT/CHOIRONT/OTORHINO
+AHORSTU + ? = 3 (ckm) CASHROUT/KASHROUT/RHUMATOS
+EHIRSTT + ? = 3 (aeo) TRAHITES/TEESHIRT/THORITES
+EEHINOT + ? = 3 (cfr) ECHOIENT/THIOFENE/THONIERE
+AHILOST + ? = 3 (egi) HALITOSE/GOLIATHS/HALIOTIS
+AEHILOS + ? = 3 (cut) ACHOLIES/SOUAHELI/HALITOSE
+HIINSRT + ? = 3 (ego) RHINITES/SHIRTING/HISTRION
+TAHINIS + ? = 3 (ceu) CHIANTIS/HAITIENS/HUITAINS
+AEHIILS + ? = 3 (rtw) HILAIRES/LITHIASE/SWAHILIE
+EEHNNOT + ? = 3 (afs) OENANTHE/FOEHNENT/HONNETES
+Lesotho + ? = 3 (eil) HOLOSTEE/OOLITHES/OTHELLOS 
+AAHIOSU + ? = 3 (crt) CHAOUIAS/SAHRAOUI/SOUHAITA
+AAHIOST + ? = 3 (cgu) CAHOTAIS/AGATHOIS/SOUHAITA
+EHIOOST + ? = 2 (lmz) OOLITHES/SMOOTHIE/SHOOTIEZ
+AAEHITU + ? = 3 (nrv) HAUTAINE/AHEURTAI/HATIVEAU
+AHIIORT + ? = 3 (cds) CHOIRAIT/RHODIAIT/HISTORIA
+AHILNOT + ? = 3 (abp) ANTIHALO/BIATHLON/OLIPHANT
+HELENT + ? = 3 (cew) LECHENT/LETHEEN/WEHNELT
+HIOMRU + ? = 3 (bdt) BOHRIUM/RHODIUM/THORIUM
+AAHLRS + ? = 3 (ekm) HALERAS/HAKARLS/MARSHAL
+AEHINO + ? = 3 (fnp) FOEHNAI/HANOIEN/APHONIE
+AHLSSS + ? = 3 (cep) SCHLASS/SLASHES/SPLASHS
+HOUARIS + ? = 4 (acde) SAHRAOUI/CHOURAIS/HOURDAIS/HOUERAIS
+AEHINOT + ? = 4 (frtu) FOEHNAIT/THONAIRE/THIONATE/HOUAIENT
+HOUATES + ? = 4 (ciqx) SOUTACHE/SOUHAITE/HOQUETAS/HOSTEAUX
+AEMNOOR + ? = 2 (gu) AGRONOME/ANOMOURE
+EIILMNN + ? = 2 (et) LIMENIEN/LINIMENT
+ALMNNOO + ? = 2 (ap) ANOMALON/MONOPLAN
+AIMOORS + ? = 2 (nt) MORONAIS/MOTORISA
+AAMNOTT + ? = 2 (cs) COMATANT/MANOSTAT
+AEMOORS + ? = 2 (cz) ACROSOME/ZOOMERAS
+AEMOOSS + ? = 2 (tz) MAESTOSO/ZOOMASSE
+AEMTTUU + ? = 2 (gr) MUGUETAT/MUTATEUR
+AMNOORT + ? = 2 (hi) HORMONAT/MONITORA
+AMNOOTU + ? = 2 (en) AUTONOME/MOUTONNA
+IIMNNST + ? = 2 (ao) MAINTINS/INTIMONS
+AAMOSSU + ? = 2 (ks) MOUSSAKA/SAMOUSSA
+EILMOOT + ? = 2 (dr) DOLOMITE/MOLETOIR
+AALMOSU + ? = 2 (bf) SOUMBALA/MAALOUFS
+EEMOORT + ? = 2 (dp) ODOMETRE/PROTEOME
+IMOOSTU + ? = 2 (qr) MOSQUITO/SUMOTORI
+AELLMOU + ? = 2 (bi) MOULABLE/AMOUILLE
+ELMNOOR + ? = 2 (gs) MONERGOL/SOMNOLER
+AEMNRUU + ? = 2 (cx) MANUCURE/NUMERAUX
+ALMSTTU + ? = 2 (ei) LUTTAMES/STIMULAT
+EILMORR + ? = 2 (fp) MORFILER/IMPLORER
+AEIIMTU + ? = 2 (fx) TUMEFIAI/AMITIEUX
+IIMNOOT + ? = 2 (mn) MINIMOTO/MONITION
+ILMNOOR + ? = 2 (al) MONORAIL/MORILLON
+AMORTUU + ? = 2 (lx) MOULURAT/TUMORAUX
+AALMNOU + ? = 2 (rt) MONAURAL/AUTOMNAL
+AALMNRU + ? = 2 (eo) LAMANEUR/MONAURAL
+AILMOOR + ? = 2 (fn) FORMOLAI/MONORAIL
+AILMOOS + ? = 2 (nv) SOMNOLAI/MOVIOLAS
+AAIMOSU + ? = 2 (qr) MOSAIQUA/SAMOURAI
+AEMORUU + ? = 2 (gx) ROUMEGUA/AMOUREUX
+AELMOOT + ? = 2 (gp) LOGATOME/OMOPLATE
+EMOORSS + ? = 2 (pu) PROSOMES/OSMOSEUR
+OOMRSSU + ? = 2 (ei) OSMOSEUR/MOUSSOIR
+ALMOOR + ? = 2 (fl) FORMOLA/RAMOLLO
+EMOORT + ? = 2 (lp) TREMOLO/PROTOME
+AEMNOOU + ? = 3 (prt) EPOUMONA/ANOMOURE/AUTONOME
+EMNNOOT + ? = 3 (iou) MOTIONNE/MONOTONE/MOUTONNE
+EMNOORU + ? = 3 (aop) ANOMOURE/MONOROUE/NEOPROMU
+ELMNOOT + ? = 3 (els) ENTOLOME/MOLLETON/MOLETONS
+AAMOTTU + ? = 3 (erz) AUTOMATE/TRAUMATO/MAZOUTAT
+IILMNOR + ? = 3 (aet) LAMINOIR/LIMONIER/MIRLITON
+AEMNOOS + ? = 3 (bpz) MONOBASE/OPSOMANE/OZONAMES
+EIIMRTU + ? = 3 (gln) MITIGEUR/LIMITEUR/MINUTIER
+ALMNOOR + ? = 3 (ghi) ROMAGNOL/HORMONAL/MONORAIL
+EEMNTTU + ? = 3 (agr) AMEUTENT/MUTERENT/TEGUMENT
+EEEMSUU + ? = 3 (clr) ECUMEUSE/MEULEUSE/REMUEUSE
+ELLMNOS + ? = 3 (aio) MOSELLAN/SEMILLON/MOELLONS
+MASALAS + ? = 3 (ers) ASSAMELA/MARSALAS/MASSALAS
+AAMOSTT + ? = 3 (ins) ATOMISAT/MANOSTAT/MATOSSAT
+AILMNOO + ? = 3 (prs) PALOMINO/MONORAIL/SOMNOLAI
+ILMNOOU + ? = 3 (lps) MOUILLON/POLONIUM/MOULIONS
+AIMRSUU + ? = 3 (amn) SAUMURAI/MASURIUM/URANIUMS
+AAELMNU + ? = 3 (irs) MILANEAU/LAMANEUR/ALUNAMES
+EEELMTU + ? = 3 (prt) PLUMETEE/TREMULEE/MEULETTE
+AAMNOTU + ? = 3 (lnq) AUTOMNAL/MANTOUAN/MANOQUAT
+AIILMOT + ? = 3 (cmn) COMITIAL/IMMOLAIT/LIMONAIT
+EIILMRU + ? = 3 (dht) DELIRIUM/HUMILIER/LIMITEUR
+ALMORST + ? = 3 (emu) AMERLOTS/MALSTROM/MALOTRUS
+EIIMORR + ? = 3 (agt) MOIRERAI/GRIMOIRE/MIROITER
+EIILMNR + ? = 3 (ceo) CRIMINEL/ELIMINER/LIMONIER
+AAAELMR + ? = 3 (brx) MALABARE/ALARMERA/MALAXERA
+AALMNU + ? = 3 (dit) LADANUM/ALUMINA/ALUMNAT
+AIMOOS + ? = 3 (fgz) MAFIOSO/GOMASIO/ZOOMAIS
+AAMNORU + ? = 4 (eilx) ENAMOURA/AROUMAIN/MONAURAL/ANORMAUX
+AEMNOOT + ? = 4 (cptu) ECONOMAT/POTOMANE/OTTOMANE/AUTONOME
+AEMOOST + ? = 4 (bsuz) BOOTAMES/MAESTOSO/AUTOSOME/ZOOMATES
+AILMNOR + ? = 4 (ceio) CROMALIN/LIMONERA/LAMINOIR/MONORAIL
+EEMNOOR + ? = 4 (fghm) NEOFORME/ERGONOME/HORMONEE/MONOMERE
+ILMOSTU + ? = 4 (cenp) MULTISOC/MOULISTE/MUTILONS/PSILOTUM
+AAEIMNU + ? = 4 (lqsv) MILANEAU/MANIAQUE/AMENUISA/MANIVEAU
+AAIMORU + ? = 4 (nsxy) AROUMAIN/SAMOURAI/MAIORAUX/ROYAUMAI
+EEIIMOR + ? = 4 (nstz) MOINERIE/ISOMERIE/MIROITEE/MOIERIEZ
+AMEOTTU + ? = 4 (abfq) ATUTOMATE/EMBOUTAT/MOUFETAT/MOQUETTA
+AAMORTU + ? = 4 (bdty) MARABOUT/MOUTARDA/TRAUMATO/ROYAUMAT
+AELLMO + ? = 4 (cist) CALOMEL/AMOLLIE/SLALOME/METALLO
+ENOOPTU + ? = 2 (su) ETOUPONS/POUTOUNE
+ANOOPTU + ? = 2 (tu) AUTOPONT/POUTOUNA
+AAEINPU + ? = 2 (fs) PEAUFINA/SAPINEAU
+EELNNOP + ? = 2 (iu) PILONNEE/NONUPLEE
+AENNPUR + ? = 2 (hl) NENUPHAR/PLANNEUR
+EIIOOPS + ? = 2 (dt) OPIOIDES/ISOTOPIE
+PUTTEES + ? = 2 (ij) PUISETTE/JUPETTES
+AILOOPT + ? = 2 (cs) COPILOTA/SALOPIOT
+AEEIILP + ? = 2 (fr) PALIFIEE/EPILERAI
+ALOPTTU + ? = 2 (cs) OCTUPLAT/POSTULAT
+EIIPRRU + ? = 2 (af) RIPUAIRE/PURIFIER
+EOPRRUU + ? = 2 (gv) GROUPEUR/REPOURVU
+EEELNPU + ? = 2 (dr) PENDULEE/PRUNELEE
+AAAENPS + ? = 2 (gh) APANAGES/ANAPHASE
+ATROPOS + ? = 2 (ip) POIROTAS/PROPOSAT
+EIOOPRR + ? = 2 (st) REPOSOIR/POIROTER
+ELOOPUU + ? = 2 (pt) POUPOULE/TOULOUPE
+APOLLOS + ? = 2 (en) PALEOSOL/APOLLONS
+EINNNOP + ? = 2 (pt) NIPPONNE/PIONNENT
+ELNNPRU + ? = 2 (ao) PLANNEUR/NONUPLER
+EILLPRT + ? = 2 (eo) PETILLER/TORPILLE
+IIPRSST + ? = 2 (ae) SAPRISTI/SPIRITES
+EEEILPT + ? = 2 (ao) TELEPAIE/PETIOLEE
+EEEPSUU + ? = 2 (gr) PEGUEUSE/PEUREUSE
+EEIILPS + ? = 2 (mx) LIPEMIES/PIXELISE
+EEINNPR + ? = 2 (ae) PRAIENNE/NEPERIEN
+AAALNP + ? = 2 (tu) APLANAT/PALAUAN
+ELOOPR + ? = 2 (ms) POMEROL/SPOOLER
+IOPPRT + ? = 2 (be) BRITPOP/PIPOTER
+EILNNP + ? = 3 (iou) PLINIEN/PILONNE/PINNULE
+AALNNOP + ? = 3 (cft) PALANCON/PLAFONNA/PANTALON
+EEILNPU + ? = 3 (crv) INCULPEE/RUPELIEN/PLEUVINE
+EEINOPU + ? = 3 (ahs) EPANOUIE/EUPHONIE/EUPENOIS
+AOOPSTT + ? = 3 (mnu) POTAMOTS/TAPOTONS/AUTOSTOP
+AAAILPT + ? = 3 (glr) GALAPIAT/PALATIAL/APLATIRA
+AAELOPS + ? = 3 (cir) ESCALOPA/PALAOISE/SALOPERA
+AAENOPS + ? = 3 (cst) SAPONACE/SAPONASE/ANTEPOSA
+EILLOPS + ? = 3 (nuy) PELLIONS/POUILLES/LIPOLYSE
+ELOOPTU + ? = 3 (itu) LOUPIOTE/POULOTTE/TOULOUPE
+AOOPTTU + ? = 3 (nrs) AUTOPONT/AUTOPORT/AUTOSTOP
+IIOPRST + ? = 3 (aln) RIPOSTAI/TRIPOLIS/TRIPIONS
+EELPSUU + ? = 3 (mpt) PLUMEUSE/PULPEUSE/PUSTULEE
+ENOPPRT + ? = 3 (adi) APPONTER/DROPPENT/PIPERONT
+EILOPTU + ? = 3 (clo) PICOULET/TOUPILLE/LOUPIOTE
+AAEPTTT + ? = 3 (mnw) EMPATTAT/PATENTAT/PETAWATT
+AELNNOP + ? = 4 (fost) PLAFONNE/NAPOLEON/LAPONNES/PENTANOL
+EILOOPS + ? = 4 (bmnt) BIOPOLES/LIPOSOME/POELIONS/POLOISTE
+EEEIINP + ? = 4 (grtx) EPIGENIE/EPINIERE/PIETINEE/INEXPIEE
+AENOPRU + ? = 4 (gist) POUGNERA/EPANOUIR/APEURONS/PORTUANE
+ENPRTUU + ? = 4 (acls) PUANTEUR/PUNCTURE/PURULENT/USURPENT
+IIOPRSU + ? = 4 (agqs) SOUPIRAI/GUIPOIRS/PIQUOIRS/PUISOIRS
+EEPRRRU + ? = 4 (dios) REPERDUE/PIERRURE/PEROREUR/PRESURER
+ELNOPRU + ? = 4 (gins) PLONGEUR/POULINER/NONUPLER/PLEURONS
+ILOPRST + ? = 4 (aein) PORTAILS/PISTOLER/TRIPOLIS/TRIPLONS
+AELNSUV + ? = 2 (mo) MALVENUS/EVALUONS
+AALORTV + ? = 2 (py) VARLOPAT/LAVATORY
+AILNNOV + ? = 2 (gl) LAVIGNON/VANILLON
+INORTUV + ? = 2 (is) VOITURIN/SUIVRONT
+AAEINNV + ? = 2 (nr) ANAVENIN/VANNERAI
+AOORTV + ? = 2 (gn) GROOVAT/AVORTON
+AILSTUV + ? = 2 (ac) TUVALAIS/CULTIVAS
+EIOSUV + ? = 2 (oq) VOUSOIE/VIOQUES
+AAAENTV + ? = 3 (dgl) VANADATE/AVANTAGE/AVALANTE
+AEILNUV + ? = 3 (cpv) NAVICULE/PLEUVINA/UNIVALVE
+EINNSUV + ? = 3 (ade) NEUVAINS/INVENDUS/VENUSIEN
+EIIORRV + ? = 3 (ilp) IVOIRIER/VIROLIER/POIVRIER
+IORSTV + ? = 3 (aen) TRAVOIS/ORTIVES/VITRONS
+IORSSUV + ? = 4 (aeno) ASSOUVIR/OUVRISSE/SUIVRONS/VOUSSOIR
+Vistule + ? = 4 (clrv) CULTIVES/VITELLUS/VIRTUELS/VULVITES
+EOSSUUV + ? = 4 (alnr) VOUSSEAU/VOULUSSE/SOUVENUS/VOUSSURE
+EIIORTV + ? = 4 (cilt) VICTOIRE/IVOIRITE/VITRIOLE/VITRIOTE
+AAILTOV + ? = 4 (cegs) VIOLACAT/TAVAIOLE/GLAVIOTA/OVALISAT
+EIINUV + ? = 4 (dqst) INDUVIE/VINIQUE/ENSUIVI/UNITIVE
+BBEILNO + ? = 2 (ou) NEBBIOLO/OBNUBILE
+ABBEEIL + ? = 2 (in) BILABIEE/BABELIEN
+ABBELTU + ? = 2 (ei) BABELUTE/BALBUTIE
+BIBITES + ? = 3 (glt) GIBBSITE/BIBLISTE/BIBITTES
+BBEILST + ? = 3 (aio) BISTABLE/BIBLISTE/BIBELOTS
+AABBIRS + ? = 3 (elo) EBARBAIS/BARIBALS/ABSORBAI
+BCEINOU + ? = 2 (qr) COQUEBIN/COURBINE
+BCEILLO + ? = 2 (ay) BILOCALE/COLLYBIE
+BCELSTU + ? = 2 (iu) CLUBISTE/CULBUTES
+BBCERSU + ? = 2 (lr) CLUBBERS/SCRUBBER
+BCILSTU + ? = 2 (eo) CLUBISTE/CUBILOTS
+ABCEILU + ? = 2 (lt) BUCAILLE/CUBITALE
+BBCELRS + ? = 2 (au) SCRABBLE/CLUBBERS
+BCIOSTU + ? = 2 (hl) CHIBOUST/CUBILOTS
+ABCEIIL + ? = 2 (rv) CIBLERAI/VICIABLE
+AABCNRR + ? = 2 (do) BRANCARD/BARRANCO
+AABCORU + ? = 2 (nt) BOURACAN/ARCBOUTA
+AABCEI + ? = 2 (dr) ABCEDAI/CARAIBE
+BECOOR + ? = 2 (ht) COHOBER/OCTOBRE
+BCELINO + ? = 3 (ahs) ECOBILAN/BOLINCHE/BINOCLES
+AABCELO + ? = 3 (grt) ABLOCAGE/ALBACORE/TABACOLE
+AABCNRS + ? = 3 (hik) BRANCHAS/CARABINS/SNACKBAR
+ABCEIIS + ? = 3 (dnt) BIACIDES/BISCAIEN/BASICITE
+BCINORU + ? = 3 (des) RUBICOND/COURBINE/BISCORNU
+ABCELNO + ? = 3 (iut) ECOBILAN/ENCOUBLA/BELCANTO
+BCEEINR + ? = 3 (alo) CARIBEEN/BERNICLE/NECROBIE
+BCEOOST + ? = 3 (nrt) BECOTONS/OCTOBRES/BOSCOTTE
+BCEILOU + ? = 4 (rstz) BOUCLIER/CIBOULES/TUBICOLE/BOUCLIEZ
+ABCLNOU + ? = 4 (ehst) ENCOUBLA/BALUCHON/BANCOULS/BOUCLANT
+AABCNOR + ? = 4 (nrtu) BRACONNA/BARRANCO/BROCANTA/BOURACAN
+BCIORS + ? = 4 (enps) COBIERS/CORBINS/BICORPS/BICROSS
+AABDDEI + ? = 4 (bgnr) ABBADIDE/BAGDADIE/DEBANDAI/DEBARDAI
+ABBDINO + ? = 2 (er) BOBINARD/DEBOBINA
+ABDISSU + ? = 2 (ei) ESBAUDIS/SUBSIDIA
+BDEEII + ? = 2 (pr) BIPEDIE/IBERIDE
+AABDDI + ? = 2 (ag) BADADIA/BAGDADI
+ABDLORR + ? = 2 (au) LABRADOR/ROUBLARD
+ABDEILT + ? = 3 (eio) EDITABLE/DEBILITA/TABLOIDE
+ABDEIIO + ? = 4 (mnst) AMIBOIDE/ANOBIIDE/DEBOISAI/DEBOITAI
+BDILSU + ? = 4 (aeop) BLIAUDS/BIDULES/DOUBLIS/LIPDUBS
+AABDNU + ? = 4 (elmt) BANDEAU/DANABLU/UMBANDA/DAUBANT
+BEFILSS + ? = 2 (iu) FISSIBLE/FUSIBLES
+BEFIILU + ? = 2 (nr) INFIBULE/LUBRIFIE
+BEFIILR + ? = 2 (lu) FIBRILL/LUBRIFIE
+ABEFOTU + ? = 3 (nrs) BAFOUENT/BEAUFORT/BOUTEFAS
+ABEFORT + ? = 3 (aou) AFROBEAT/BAREFOOT/BEAUFORT
+ABFIIOT + ? = 3 (cln) BIOACTIF/ABOLITIF/BONIFIAT
+ABEFLOR + ? = 4 (imsu) FARIBOLE/FORMABLE/FORABLES/BAROUFLE
+BFIORT + ? = 3 (anu) ABORTIF/BRIFTON/FOURBIT
+BFIILO + ? = 2 (em) BIFOLIE/BIOFILM
+BEEGILL + ? = 2 (ir) ELIGIBLE/GERBILLE
+BEGIILL + ? = 2 (er) ELIGIBLE/BRIGILLE
+GOURBIS + ? = 2 (en) BRUGEOIS/BRIGUONS
+BGLORUU + ? = 2 (eo) BLOGUEUR/BOULGOUR
+BIGLENT + ? = 2 (ao) TANGIBLE/OBLIGENT
+BEGILLR + ? = 2 (ei) GERBILLE/BIGRILLE
+AABEGLL + ? = 2 (er) EGALABLE/LARGABLE
+ABEEGLO + ? = 2 (lr) LOGEABLE/ROBELAGE
+BGILLNO + ? = 2 (eu) BIGNOLLE/GLOBULIN
+ABGLOO + ? = 2 (mn) LOMBAGO/BOGOLAN
+ABGGIT + ? = 2 (iu) GIGABIT/BUGGAIT
+BGLLOU + ? = 2 (de) BULLDOG/GLOBULE
+BEGILOO + ? = 3 (cim) COOBLIGE/BIOLOGIE/BOGOMILE
+BEGIINO + ? = 3 (aet) IBOGAINE/BIOGENIE/GIBOIENT
+BEGINST + ? = 3 (aet) ESBIGNAT BEIGNETS BETTINGS
+BEGORSS + ? = 3 (acu) BROSSAGE/GROSBECS/SUBROGES
+BEGIRTU + ? = 3 (ain) BRUITAGE/BITURIGE/BRIGUENT
+BEUGNER + ? = 4 (aimz) BEUGNERA/BRINGUEE/EMBUGNER/BUGNEREZ
+BOUGEES + ? = 4 (adrs) EBOUAGES/DEBOGUES/SUBROGEE/GOBEUSES
+BEEGINO + ? = 4 (irsz) BIOGENIE/BIGORNEE/BIOGENES/ENGOBIEZ
+ABGINST + ? = 4 (ades) BASTAING/DINGBATS/ESBIGNAT/BASTINGS
+ABEGNST + ? = 4 (ioru) ESBIGNAT/BESOGNAT/GERBANTS/BUGNATES
+BEEGINU + ? = 4 (jrsz) BIENJUGE/BRINGUEE/BEGUINES/BEUGNIEZ
+BEGNORU + ? = 4 (dios) BURGONDE/BOUGRINE/BOURGEON/GREUBONS
+BEGIIL + ? = 4 (afnz) GALIBIE/FILIBEG/GIBELIN/BIGLIEZ
+BHOOSTU + ? = 2 (ac) BOUCHOTS/SHABOUOT
+BHIOSTU + ? = 2 (ac) HAUTBOIS/CHIBOUST
+ABHOSTU + ? = 2 (io) HAUTBOIS/SHABOUOT
+ABEHLNR + ? = 2 (ei) HALBRENE/HIBERNAL
+ABHINSS + ? = 2 (eg) SHABIENS/BASHINGS
+BENTHOS + ? = 2 (er) HEBETONS/BERTHONS
+ABEHIOT + ? = 2 (cs) COHABITE/ISOBATHE
+BEEHOS + ? = 2 (cm) OBECHES/BOHEMES
+BHIIRS + ? = 2 (at) BIHARIS/BRITISH
+ABHNSU + ? = 2 (am) HAUBANS/BUSHMAN
+BEHMSU + ? = 2 (ln) HUMBLES/BUSHMEN
+BEEHORS + ? = 3 (act) RHEOBASE/BROCHEES/THEORBES
+BHINORS + ? = 3 (ceg) CHIBRONS/HERBIONS/BIGHORNS
+ABEHILN + ? = 3 (cir) BLANCHIE/INHABILE/HIBERNAL
+AABHLN + ? = 3 (irt) HANBALI/HALBRAN/HABLANT
+ABEHRU + ? = 3 (clt) BUCHERA/HABLEUR/HAUBERT
+BHISTU + ? = 3 (amz) HABITUS/BISMUTH/BIZUTHS
+ABHINS + ? = 4 (cegi) CHABINS/SHABIEN/BASHING/INHIBAS
+AABMOSU + ? = 2 (lm) SOUMBALA/ABOMASUM
+ABEMOOR + ? = 2 (hj) REHOBOAM/JEROBOAM
+BEEELMO + ? = 2 (hl) HEBELOME/OMBELLEE
+BEILMNU + ? = 2 (ao) ALBUMINE/NOBELIUM
+ABEELMO + ? = 2 (pt) APLOMBEE/METABOLE
+BEIMNOU + ? = 2 (ls) NOBELIUM/EMBUIONS
+AABEELM + ? = 2 (cn) CAMBALEE/MALABEEN
+BEEMNST + ? = 2 (lo) SEMBLENT/EMBETONS
+AABMOS + ? = 2 (cl) MACABOS/SALAMBO
+BEMRUU + ? = 2 (ox) BOUMEUR/BRUMEUX
+BMROUU + ? = 2 (es) BOUMEUR/SURBOUM
+BLMOOO + ? = 2 (ct) COLOMBO/TOMBOLO
+BIMORSU + ? = 3 (cho) MICROBUS/BOHRIUMS/MBOUROIS
+BEIMNRU + ? = 3 (ers) EMBRUINE/REMBRUNI/BRUNIMES
+ABEELMT + ? = 3 (ost) METABOLE/BLASTEME/METTABLE
+BEMNOOS + ? = 3 (alu) MONOBASE/NELOMBOS/EMBOUONS
+AABLMSU + ? = 3 (ort) SOUMBALA/LABARUMS/BALATUMS
+BIMNOOR + ? = 3 (dns) MORIBOND/MONOBRIN/OMBRIONS
+AABELMN + ? = 3 (dei) DAMNABLE/MALABEEN/MANIABLE
+BIMOORS + ? = 3 (enu) RIBOSOME/OMBRIENS/MBOUROIS
+BRIMENT + ? = 3 (aot) BRAIMENT/TROMBINE/TIMBRENT
+AABLMOU + ? = 3 (bcs) BAMBOULA/CAMBOULA/SOUMBALA
+AABLMNU + ? = 3 (dgt) LABDANUM/GALBANUM/AMBULANT
+BEMRSUU + ? = 3 (eos) BRUMEUSE/BOUMEURS/SUBSUMER
+ABEEILM + ? = 3 (kru) BAMILEKE/REMBLAIE/AMEUBLIE
+BEEMRTU + ? = 3 (noz) EMBURENT/EMBOUTER/ZERUMBET
+BEMOOR + ? = 3 (bls) OBOMBRE/BLOOMER/BOOMERS
+ABBILO + ? + 3 (aet) BABOLIA/BABIOLE/BOBTAIL
+AAABMR + ? = 3 (bcl) BAMBARA/CARAMBA/MALABAR
+BELMOO + ? = 3 (cnr) COLOMBE/NELOMBO/BLOOMER
+BOOMERS + ? = 4 (bilr) OBOMBRES/RIBOSOME/BLOOMERS/SOMBRERO
+AABLMOS + ? = 4 (mpsu) SALAMMBO/APLOMBAS/SALAMBOS/SOUMBALA
+NIMBAIS + ? = 4 (epor) AMIBIENS/PIMBINAS/ABIMIONS/MINIBARS
+ABEEOMR + ? = 4 (gjsu) OMBRAGEE/JAMBOREE/OBERAMES/EMBUERA
+BEIMRRU + ? = 4 (anst) BRUMAIRE/REMBRUNI/BRUMISER/TIMBREUR
+AABMRSU + ? = 4 (ilst) SIMARUBA/LABARUMS/BRUMASSA/MASTURBA
+BEENIPU + ? = 2 (an) AUBEPINE/PUBIENNE
+BEEILPR + ? = 2 (ou) PERIBOLE/REPUBLIE
+AABLLPR + ? = 2 (et) PARLABLE/BALLTRAP
+ABEINP + ? = 2 (lm) PLEBAIN/PEMBINA
+BEPRTU + ? = 2 (ae) ABRUPTE/PUBERTE
+ABIPRST + ? = 3 (eiu) BAPTISER/BIPARTIS/PARTIBUS
+BEERTUV + ? = 2 (io) BUVETIER/BOUVETER
+ABEELNV + ? = 2 (di) VENDABLE/ENVIABLE
+BEEEIRV + ? = 2 (tu) BRIEVETE/BEUVERIE
+ABEORRV + ? = 2 (lu) ROBERVAL/BRAVOURE
+ABEILOV + ? = 3 (lmt) VIOLABLE/AMOVIBLE/OBLATIVE
+BENOSUV + ? = 4 (eimr) OBVENUES/BOUVINES/EMBUVONS/REBUVONS
+CCEIOOR + ? = 2 (rt) ECORCOIR/COCOTIER
+ACCELUU + ? = 2 (hm) CUCHAULE/ACCUMULE
+CCEEEIR + ? = 2 (ax) ERICACEE/EXERCICE
+CCELORT + ? = 2 (eu) COLCRETE/OCCULTER
+CCISSU + ? = 2 (en) SUCCISE/SUCCINS
+CCIINOT + ? = 3 (aeh) COINCAIT/CONICITE/CHICOTIN
+CCEILNU + ? = 3 (abo) CANICULE/CINECLUB/CUNICOLE
+AACCELL + ? = 3 (ino) CACAILLE/CANCELLA/CLOACALE
+CCEEINR + ? = 3 (ios) CIRCINEE/CICERONE/ECCRINES
+CCEISS + ? = 3 (aou) ACCISES/OCCISES/SUCCISE
+ACCELOT + ? = 4 (hlns) CATECHOL/COLLECTA/ACCOLENT/CACOLETS
+CCEELOT + ? = 4 (hlru) COCHELET/COLLECTE/COLCRETE/OCCULTEE
+CCEILOU + ? = 4 (nstz) CUNICOLE/UCCLOISE/CUTICOLE/OCCLUIEZ
+ACCEDIU + ? = 2 (st) SUCCEDAI/CADUCITE
+ACDEEOS + ? = 2 (tu) ESTOCADE/ESCOUADE
+CDILLOU + ? = 2 (at) CAUDILLO/DULCITOL
+CDIINOU + ? = 2 (am) DOUCINAI/ONCIDIUM
+CCDEEER + ? = 2 (ln) DECERCLE/CREDENCE
+AACDLOS + ? = 2 (iv) CALADOIS/CALVADOS
+ACDIIOT + ? = 2 (ef) COEDITAI/CODIFIAT
+CCDEILU + ? = 2 (iu) CULICIDE/CUCULIDE
+CDEEIIL + ? = 2 (fh) ICEFIELD/HELICIDE
+ACDLOT + ? = 2 (iy) COTIDAL/DACTYLO
+ACDLOOR + ? = 3 (ent) DECOLORA/CORDONAL/DOCTORAL
+ACCDELO + ? = 3 (ahy) ACCOLADE/CALDOCHE/CACODYLE
+ACDINNS + ? = 3 (git) DANCINGS/INDICANS/SCINDANT
+CDIRSSU + ? = 3 (aeo) CUISSARD/DURCISSE/DISCOURS
+AACDISS + ? = 3 (ehn) DECAISSA/SCHADAIS/SCANDAIS
+CDORSTU + ? = 3 (eiu) DOCTEURS/DISCOURT/TROUDUCS
+ACDNOOR + ? = 4 (clnu) CONCORDA/CORDONAL/CORDONNA/CORDOUAN
+AACDEIU + ? = 4 (hlns) ECHAUDAI/CAUDALIE/AUDIENCA/DECAUSAI
+CDEOORU + ? = 4 (lrvy) COLOURED/UROCORDE/VOCODUER/COUDOYER
+CEEFIRR + ? = 3 (deo) FREDERIC/CERIFERE/FORCERIE
+CEFILSU + ? = 2 (ax) FECULAIS/EXCLUSIF
+CEFILUU + ? = 2 (gn) LUCIFUGE/FUNICULE
+CCFILOS + ? = 2 (nu) CLINFOCS/OCCLUSIF
+AACEFLN + ? = 2 (mt) FLAMENCA/ECLAFANT
+AACEFII + ? = 2 (st) CASEIFIA/ACETIFIA
+CCEFIRU + ? = 2 (io) CRUCIFIE/COCUFIER
+CEFLORS + ? = 2 (ou) FORCLOSE/SCROFULE
+CIFLOR + ? = 2 (as) FORCAIL/FROLICS
+ACEFIRU + ? = 3 (otx) FOUACIER/FAUTRICE/RECIFAUX
+CEEFIIS + ? = 3 (adp) CASEIFIE/EDIFICES/SPECIFIE
+ACCFIST + ? = 3 (eio) FACTICES/SICCATIF/COACTIFS
+ACCEFIL + ? = 3 (dis) FLACCIDE/CALCIFIE/CALECIFS
+ACFILR + ? = 3 (deo) FLICARD/RECIFAL/FORCAIL
+ACFILOT + ? = 4 (fhls) OLFACTIF/FILOCHAT/COLLATIF/LOCATIFS
+AACFIUS + ? = 4 (ehrt) FAISCEAU/FAUCHAIS/SURFACAI/CAUSATIF
+CEEEGOT + ? = 2 (ns) CETOGENE/ECOGESTE
+CEEGLR + ? = 3 (ais) REGALEC/CLERGIE/CLERGES 
+CEEEGIR + ? = 2 (ns) CERIGENE/GRECISEE
+ACEGRTT + ? = 2 (ae) TRACTAGE/GARCETTE
+CEEGLLS + ? = 2 (ao) SCELLAGE/COLLEGES
+AACGIN + ? = 2 (eh) AGENCAI/ACHIGAN
+AACGILU + ? = 3 (eox) CALUGEAI/COAGULAI/GLACIAUX
+ACGINNS + ? = 3 (dko) DANCINGS/SNACKING/CONSIGNA
+AACEGIU + ? = 3 (lnr) CALUGEAI/ECANGUAI/CAGUERAI
+ACCGINO + ? = 3 (eht) COINCAGE/COACHING/COTIGNAC
+AACGOU + ? = 4 (ghln) COUAGGA/GOUACHA/COAGULA/GUANACO
+CEEHOON + ? = 2 (lo) HOLOCENE/OENOCHOE
+CHISSTT + ? = 2 (op) SCOTTISH/PSCHITTS
+CEHIOOR + ? = 2 (ds) CHOROIDE/ISOCHORE
+CEHIOOS + ? = 2 (nr) COHESION/ISOCHORE
+ACHILNR + ? = 2 (bu) BLANCHIR/ARCHINUL
+CEHLLOU + ? = 2 (ai) ALLOUCHE/CHOUILLE
+CEEEHLN + ? = 2 (cl) CLENCHEE/CHELLEEN
+CEHILNU + ? = 2 (gz) CHLINGUE/LUNCHIEZ
+ACHLTTU + ? = 2 (ao) CHALUTAT/TCHOULAT
+CHINOO + ? = 2 (kr) CHINOOK/CHORION
+ACHLLOU + ? = 3 (emn) ALLOUCHE/MOLLACHU/ALLUCHON
+CEHIILN + ? = 3 (fst) INFLECHI/CHILIENS/CHIENLIT
+CEHTOUU + ? = 3 (aqr) TOUCHEAU/CHOUQUET/TOUCHEUR
+CHIINOR + ? = 3 (bps) BRIOCHIN/CHIPIRON/NICHOIRS
+ACEEHOS + ? = 4 (cmpt) COACHEES/AMOCHEES/ECOPHASE/CAHOTEES
+ACHLOTT + ? = 4 (aipu) TALOCHAT/TCHITOLA/POTLATCH/TCHOULAT
+CEHOORS + ? = 4 (ilnt) ISOCHORE/CHLOROSE/SCHOONER/COHORTES
+CEELMOU + ? = 2 (ls) MOLECULE/LEUCOMES
+CEEEMNO + ? = 2 (su) SEMONCEE/ECOUMENE
+ACIMOOR + ? = 2 (nr) ACROMION/AMORCOIR
+AACLMOU + ? = 2 (bf) CAMBOULA/CAMOUFLA
+RECTUMS + ? = 2 (ko) RUMSTECK/COSTUMER
+CEEMOOT + ? = 2 (py) COMPOTEE/OOMYCETE
+ACMNOOT + ? = 2 (es) ECONOMAT/COMATONS
+CEIIMNU + ? = 2 (ps) MUNICIPE/MUSICIEN
+AACLMOR + ? = 2 (ip) ACROMIAL/PROCLAME
+ACMORTU + ? = 2 (np) TURCOMAN/COMPARUT
+CEIILMS + ? = 2 (ab) LAICISME/MISCIBLE
+CEEEILM + ? = 2 (au) MELIACEE/LEUCEMIE
+CEEEMTU + ? = 2 (hy) HUMECTEE/EUMYCETE
+CEEILMN + ? = 2 (ay) CAMELINE/MYCELIEN
+CEIILMO + ? = 2 (dl) DOMICILE/LIMICOLE
+SITCOMS + ? = 2 (ae) MASSICOT/SCOTISME
+ACCIMS + ? = 2 (em) MICACES/MICMACS
+CLMOOO + ? = 2 (bn) COMBOLO/MONOCOL
+CIIMNO + ? = 2 (at) MICONIA/MICTION
+ACIMMS + ? = 2 (ci) MICMACS/IMMISCA
+ACELMTU + ? = 3 (nos) MACULENT/COMATULE/CALULMETS
+CEELMRU + ? = 3 (hst) MERLUCHE/RECLUMES/ELECTRUM
+CIMOSTU + ? = 3 (ael) COSTUMAI/MUCOSTE/MULTISOC
+CEEMOSS + ? = 3 (knt) SMOCKEES/SEMONCES/COMTESSE
+AACEEMN + ? = 3 (hnr) AMANCHEE/MACANEEN/MENACERA
+CIMNOST + ? = 3 (ehi) COMTIENS/MCINTOSH/MICTIONS
+AAACILM + ? = 3 (bcn) CAMBALAI/ACCLAMAI/CALAMINA
+ACEIMNN + ? = 3 (lot) CLINAMEN/CAMIONNE/EMINCANT
+CEILMOR + ? = 3 (ahp) MORCELAI/MELCHIOR/COMPILER
+CEEILMO + ? = 3 (hpv) CHOLEMIE/COMPILEE/LEMOVICE
+CIMNOOR + ? = 3 (aes) ACROMION/COMORIEN/OMICRONS 
+ACMNTU + ? = 3 (ehj) ECUMANT/MUCHANT/MUNTJAC
+CELMSUU + ? = 4 (dept) DECUMULS/CUMULEES/SPECULUM/CUMULETS
+ACIMOSS + ? = 4 (npst) MOCASSIN/COMPISSA/MOISSACS/MASSICOT 
+AAACIMN + ? = 4 (bhls) AMBIANCA/AMANCHAI/CALAMINA/MACANAIS
+CIMOSS + ? = 4 (atuy) MOISSAC/SITCOMS/MUSICOS/MYCOSIS
+PROCESS + ? = 2 (io) PICOSSER/CROSSOPE
+CEEILPR + ? = 2 (as) PLACIERE/ECLIPSER
+CEEPPR + ? = 2 (tu) PRECEPT/PREPUCE
+ACCEPRT + ? = 2 (ei) ACCEPTER PRACTICE
+CEILPTU + ? = 2 (ao) CAPITULE/PICOULET
+CENOOPR + ? = 2 (in) PECORINO/PRONONCE
+CILPPSU + ? = 2 (eo) SUPPLICE/PICPOULS
+AACELOP + ? = 2 (rs) CAPORALE/ESCALOPA
+CINOPTU + ? = 2 (ah) PONCTUAI/PITCHOUN
+CEIINPU + ? = 2 (cm) PUCCINIE/MUNICIPE
+AACNPTU + ? = 2 (iq) PANICAUT/PACQUANT
+AACINPR + ? = 2 (de) PICARDAN/PACANIER
+ACCENPR + ? = 2 (ai) PANCRACE/CINEPARC
+CCEINPR + ? = 2 (ao) CINEPARC/COPRINCE
+ACIINPU + ? = 2 (cl) PUCCINIA/INCULPAI
+CIILNPS + ? = 2 (ao) CISALPIN/CIPOLINS
+CEIOPPS + ? = 2 (er) EPISCOPE PROPICES
+CEEPPR + ? = 2 (tu) PRECEPT/PREPUCE
+CEOOPU + ? = 2 (lx) COUPOLE/COEPOUX
+CNOOPR + ? = 2 (pu) POPCORN/CROUPON
+AACENOP + ? = 3 (stu) SAPONACE/CAPONATE/CAPOUANE
+ACEIILP + ? = 3 (dls) LAPICIDE/PICAILL/ECLIPSAI
+CEEINPU + ? = 3 (lrs) INCULPEE/EPINCEUR/PINCEUSE
+CILOPPS + ? = 3 (anu) CLOPPAIS/CLIPPONS/PICPOULS
+CAPELLA + ? = 3 (bpr) PLACABLE/CAPPELLA/PARCELLA
+CEEEPSS + ? = 3 (aht) ESPACEES/SPEECHES/PETESECS
+CIINPST + ? = 3 (iou) INCIPITS/PICOTINS/SUNCIPUT
+CCEOPRS + ? = 2 (aeo) ECOPARCS/PRECOCES/PROSECCO
+AACILPU + ? = 4 (hlst) PALUCHAI/PAUILLAC/CAPSULAI/CAPITULA
+CEEOPSS + ? = 4 (aitu) ECOPASSE/PICOSSEE/PECTOSES/ESCOUPES
+CEOOPSU + ? = 4 (ehlu) COEPOUSE/POCHOUSE/COUPOLES/SOUCOUPE
+CEINPRT + ? = 4 (aeos) PIERCANT/PIERCENT/PICORENT/CRISPENT
+ACILPRT + ? = 4 (eosu) TRIPLACE/TROPICAL/CLIPARTS/PICTURAL
+ACOPRUU + ? = 4 (ersx) POURCEAU/PARCOURU/SURCOUPA/CROUPAUX
+CEOOPRR + ? = 4 (delm) PROCORDE/COOPERER/CORPOREL/CORROMPE
+ACLNOTV + ? = 2 (eo) COVALENT/CONVOLAT
+CCEEIRV + ? = 2 (ot) COECRIVE/VECTRICE
+AAACSOV + ? = 2 (ns) CASANOVA/AVOCASSA
+CEIIRUV + ?? = 2 (dz) VIRUCIDE/CUIVRIEZ
+ACCEIOV + ? = 2 (lt) CAVICOLE/COACTIVE
+AACCERV + ? = 2 (hi) CRAVACHE/VACCAIRE
+ACNRUV + ? = 2 (ei) CAVURNE/INCURVA
+CEIIUV + ? = 2 (qx) CIVIQUE/VICIEUX
+CEEILTV + ? = 3 (eou) ELECTIVE/VELOCITE/CULTIVEE
+ACELNOV + ? = 3 (cst) CONCLAVE/ESCLAVON/COVALENT
+ACILOTV + ? = 3 (aem) VIOLACAT/LOCATIVE/VICOMTAL
+ACIINUV + ? = 3 (nrx) INVAINCU/INCURVAI/VICINAUX
+ACCEILV + ? = 3 (nor) CLAVECIN/CAVICOLE/CERVICAL
+AACIILV + ? = 3 (lor) VACILLAI/VIOLACAI/VICARIAL
+AACEOSV + ? = 3 (lst) SACOLEVA/AVOCASSE/AVOCATES
+ACIIRTV + ? = 4 (aeou) VICARIAT/ECRIVAIT/VICTORIA/CUIVRAIT
+ADDEILU + ? = 3 (abc) ALAUDIDE/BUDDLEIA/DECIDUAL
+DDEELMO + ? = 2 (ou) DOLOMEDE/DEMODULE
+DDENOUU + ? = 2 (mo) DUODENUM/DOUDOUNE
+ADDEELN + ? = 2 (ei) DEDALEEN/DEADLINE
+ADDIST + ? = 2 (cu) ADDICTS/ADDUITS
+DEFIINU + ? = 2 (gt) NIDIFUGE/FINITUDE
+ADEFLNS + ? = 2 (er) DESENFLA/FLANDRES
+DEEFINN + ? = 2 (eo) FIDEENNE/INFONDEE
+DEFINOU + ? = 2 (bs) BUFONIDE/DEFUSION
+ADFLORT + ? = 2 (et) DEFLORAT/FLOTTARD
+DEFIITU + ? = 2 (ln) FLUIDITE/FINITUDE
+ADEEFTU + ? = 2 (qr)	DEFEQUAT/DEFEUTRA
+ADFIRU + ? = 2 (at) FRAUDAI/DURATIF
+DEEEFU + ? = 2 (qr) DEFEQUE/FEEDEUR
+ADEFITU + ? = 3 (cnr) EDUCATIF/DEFUNTAI/DEFRUITA
+DEFIIST + ? = 4 (cegr) DEFICITS/FIDEISTE/DIGESTID/TRIFIDES
+ADEFRTU + ? = 4 (efin) DEFEUTRA/TRUFFADE/DEFRUITA/FRAUDENT
+DEEGLOO + ? = 2 (np) GONDOLEE/LOGOPEDE
+ADGLOR + ? = 2 (il) GOLIARD/RAGDOLL
+ADGILSU + ? = 2 (ae) SALIGAUD/DEGLUAIS
+AADGILR + ? = 2 (lm) GAILLARD/MADRIGAL
+DEGINUU + ? = 2 (ao) GUINDEAU/GUIDOUNE
+DEEGII + ? = 2 (rt) DIRIGEE/DIGITEE
+ADGLOR + ? = 2 (il) GOLIARD/RAGDOLL
+DGILOR + ? = 2 (ae) GOLIARD/DIERGOL
+ADEGNNO + ? = 3 (ors) OGNONADE/DRAGONNE/AGENDONS
+ADEGRUU + ? = 3 (lor) GUEULARD/ROUGEAUD/DRAGUEUR
+AADGILS + ? = 3 (inu) GALIDIAS/GLANDAIS/SALIGAUD
+DEGNNOO + ? = 3 (ars) OGNONADE/GODRONNE/NEGONDOS
+DEGRSTU + ? = 3 (eio) DEGUSTER/TURGIDES/DROGUETS
+AADGILO + ? = 3 (lnu) GODAILLA/DIAGONAL/DIALOGUA
+DGINNOR + ? = 3 (ais) RAGONDIN/GIRONDIN/GRONDINS
+ADGMNOR + ? = 3 (asu) GARAMOND/DROGAMS/GOURMAND
+ADGILO + ? = 3 (hlr) HIDALGO/GODILLA/GOLIARD
+DEGNOO + ? = 3 (bln) BODEGON/GONDOLE/NEGONDO
+ADGILN + ? = 4 (aers) GLANDAI/DELIGNA/LIGNARD/LIGANDS
+DHINOOR + ? = 2 (ls) RHODINOL/RHODIONS
+ADEHSSU + ? = 2 (or) DEHOUSSA/HUSSARDE
+AAADHNR + ? = 2 (ms) RAMADHAN/DARSHANA
+DEHION + ? = 2 (ru) RHODIE/HINDOUE
+ADDHIS + ? = 2 (jk) DJIHADS/KADDISH
+ADEEHIR + ? = 3 (nrz) ENHARDIE/DIARRHEE/ADHERIEZ
+DEHIINO + ? = 3 (mpy) HOMINIDE/OPHIDIEN/HYOIDIEN
+DEHIOS + ? = 3 (cry) DECHOIS/RHODIES/HYOIDES
+ADEHIST + ? = 4 (cemy) SCHEIDAT/DIATHESE/MAHDISTE/THYIADES
+ADHNOTU + ? = 4 (cflr) DOUCHANT/HAUTFOND/DUATHLON/HOURDANT
+DEIILMU + ? = 2 (gr) MUGILIDE/DELIRIUM
+ADIIMSU + ? = 2 (np) DIMINUAS/ASPIDIUM
+AAADEMN + ? = 2 (ip) AMANDAIE/EMPANADA
+ADDIMOS + ? = 2 (eo) DEMODAIS/DODOMAIS
+DILMOSU + ? = 2 (ai) MODULAIS/MILDIOUS
+DEIMRTU + ? = 2 (an) DEMURAIT/RUDIMENT
+DEEMNOU + ? = 2 (rs) EMONDEUR/MONDEUSE
+AADMORU + ? = 2 (et) AMADOUER/MOUTARDA
+AADMSTU + ? = 3 (eir) TAUDAMES/AUDIMATS/MUSARDAT
+ADIMOOS + ? = 3 (dns) DODOMAIS/AMODIONS/SODOMISA
+AADMNOR + ? = 3 (ceg) MORDANCA/ANADROME/GARAMOND
+DEMUNIT + ? = 3 (npr) INDUMENT/IMPUDENT/RUDIMENT
+DEIMOOR + ? = 3 (lns) LIMODORE/EMONDOIR/DROMOISE
+AADMNU + ? = 3 (bil) UMBANDA/MINAUDA/LADANUM
+AADMOR + ? = 3 (ilt) DIORAMA/MOLARDA/MATADOR
+ADDEIM + ? = 4 (eior) DIADEME/DIAMIDE/DEMODAI/DEMIARD
+ADMIMES + ? = 4 (ahou) ADAMISME/MAHDISME/EMMODAIS/MAUDIMES
+DEEIMOT + ? = 4 (ahsv) DIATOMEE/ETHMOIDE/MODESTIE/DEMOTIVE
+ADIIPSU + ? = 2 (mt) ASPIDIUM/DISPUTAI
+ADILPPU + ? = 2 (ae) APPLAUDI/DEPULPAI
+Lapidus + ? = 2 (cd) DISCULPA/PUDDLAIS
+ADILPSS + ? = 2 (ey) DEPLISSA/DISPLAYS
+DEIINOP + ? = 2 (eh) OEDIPIEN/OPHIDIEN
+DELOPST + ? = 2 (au) PLATODES/POSTLUDE
+DELOPSU + ? = 2 (ot) DUOPOLES/POSTLUDE
+AADEIPU + ? = 2 (st) DIAPAUSE/DEPIAUTA
+DELPRRU + ? = 2 (ae) PLEURARD/PRELUDER
+DEIIOPP + ? = 2 (ls) DIPLOPIE/DIEPPOIS
+AAADNPS + ? = 2 (ar) APADANAS/PASDARAN
+DILOOPR + ? = 2 (au) POLAROID/POULIDOR
+DILOPRU + ? = 2 (eo) DIPLOURE/POULIDOR
+DEIOOPS + ? = 3 (irs) OPIOIDES/PROSODIE/ISOPODES
+ADOPRRS + ? = 3 (ace) PARADORS/CORPSARD/DROPERAS
+DEIOOPR + ? = 3 (stu) PROSODIE/DEPOTOIR/POUDROIE
+DEILMRU + ? = 3 (cei) DULCIMER/LEMURIDE/DELIRIUM
+DEIILOP + ? = 3 (dps) DIPLOIDE/DIPLOPIE/LIPOIDES
+DEEINOP + ? = 3 (ipt) OEDIPIEN/PEPONIDE/DEPOINTE
+AADEPSU + ? = 3 (irt) DIAPAUSE/PERSUADA/PATAUDES
+DEEIIPS + ? = 3 (brs) BIPEDIES/PIERIDES/DISSIPEE
+DEOOPRS + ? = 4 (intu) PROSODIE/DOPERONS/TORPEDOS/UROPODES
+ADNOPRU + ? = 4 (fpst) PARFONDU/RAPPONDU/PANDOURS/POUDRANT
+AADNOPS + ? = 4 (irtu) DIAPASON/PARADONS/ADAPTONS/PADOUANS
+DEIILUV + ? = 2 (nt) DILUVIEN/DILUTIVE
+DEIIRVU + ? = 2 (cs) VIRUCIDE/DIVISEUR
+ADEINUV + ? = 2 (px) VANUPIED/VIANDEUX
+DEIORRV + ? = 2 (ce) DIVORCER/REDEVOIR
+DEEINUV + ? = 3 (inr) INDUVIEE/INVENDUE/DEVINEUR
+AADEINV + ? = 4 (cgrt) DEVANCAI/VIDANGEA/VIANDERA/ADVENAIT
+AAFFNOR + ? = 2 (nt) FANFARON/AFFRONTA
+AFFIIOR + ? = 4 (lnrt) AFFILOIR/AFFINOIR/OFFRIRAI/FORTIFIA
+EFFINSU + ? = 4 (lort) INSUFFLE/EFFUSION/SNIFFEUR/SUIFFENT
+EFGIIOR + ? = 2 (lr) GLORIFIE/FRIGORIE
+EFGNNOT + ? = 2 (al) FONTANGE/GONFLENT
+EFGILUU + ? = 2 (cl) LUCIFUGE/FULIGULE
+EFGRSTU + ? = 2 (ai) GERFAUTS/FUSTIGER
+GUELFES + ? = 2 (ao) FUSELAGE/GOLFEUSE
+AAEFGNU + ? = 2 (lr) FALUNAGE/NAUFRAGE
+AAFGOR + ? = 2 (gr) FOGGARA/FARRAGO
+EFGINOU + ? = 3 (lpq) FOLINGUE/PIGNOUFE/FONGIQUE
+FGIILNO + ? = 3 (ams) FIGNOLAI/MINIGOLF/GIFLIONS
+EEFGIIN + ? = 3 (lrz) INFLIGEE/IGNIFERE/FEIGNIEZ
+EFGILOU + ? = 4 (noqs) FOLINGUE/UFOLOGIE/GOLFIQUE/SOLIFUGE
+EEFGITU + ? = 4 (anst) FATIGUEE/TENIFUGE/FUSTIGEE/GUIFETTE
+FGINOT + ? = 4 (alor) FAGOTIN/FLINGOT/FOOTING/GRIFTON
+EFGIINU + ? = 4 (dglr) NIDIFUGE/IGNIFUGE/FIGULINE/FIGURINE
+EFHINOT + ? = 2 (ae) FOEHNAIT/THIOFENE
+EEFIMNN + ? = 2 (it) FEMININE/FINEMENT
+AAFLMNO + ? = 2 (ct) MALFACON/FANTOMAL
+FIMRSTU + ? = 2 (an) SMURFAIT/FURMINTS
+AAEFILM + ? = 2 (mr) MALEFAIM/MALFAIRE
+EEFIMRT + ? = 2 (su) FREMITES/TUMEFIER
+EFILLMT + ? = 2 (ei) TELEFILM/TEFILLIM
+AAFLMO + ? = 2 (ru) MORFALA/MAALOUF
+FILMSU + ? = 2 (eo) EMULSIF/FOLIUMS
+FIIMSS + ? = 2 (et) EMISSIF/MISFITS
+FOUIMES + ? = 3 (rst) SUIFORME/SOUFISME/FOUTIMES
+AEFIIMU + ? = 3 (gst) FUMIGEAI/MUSEIFIA/TUMEFIAI
+AFIMNSU + ? = 4 (ehlo) ENFUMAIS/HAFNIUMS/FULMINAS/FUMAISON
+AFMNORS + ? = 4 (eiot) FORAMENS/INFORMAS/FORMOSAN/FORMANTS
+EFMNOOR + ? = 4 (cdet) CONFORME/MORFONDE/NEOFORME/FROMETON
+EEFMORT + ? = 4 (anru) FORMATEE/FOMENTER/FORMERET/MOUFETER
+AFIOPRN + ? = 2 (an) PROFANAI/FRIPONNA
+EEFILPT + ? = 2 (rx) REPLETIF/EXPLETIF
+AEFLNOP + ? = 2 (nu) PLAFONNE/PANOUFLE
+EEFPRRU + ? = 2 (as) EPAUFRER/PERFUSER
+FIILNOP + ? = 2 (ir) FILIPINO/FIPRONIL
+AFILNPT + ? = 2 (ip)	PLAINTIF/FLIPPANT
+EFIORUV + ? = 2 (mo) FUMIVORE/FOURVOIE
+AEEFIVR + ? = 2 (nu) ENFIEVRA/FAUVERIE
+EGGNOOU + ? = 2 (su) GOUGEONS/GOUGOUNE
+EGGIINR + ? = 2 (uz) GUIGNIER/GRIGNIEZ
+EEGGINR + ? = 3 (aol) GAGNERIE/GEORGIEN/NEGLIGER
+AAEGGIO + ? = 3 (npt)	ANAGOGIE/APAGOGIE/AGIOTAGE
+GGENORU + ? = 3 (ars) GOURGANE/GROGNEUR/GRUGEONS
+AGGIIST + ? = 3 (beo) GIGABITS/GITEGAIS/GIGOTAIS
+GGENOOT + ? = 4 (lnru) GOOGLENT/GNOGNOTE/GOGERONT/GOGUENOT
+AEGGLNO + ? = 4 (fijs) GONFLAGE/GONALGIE/JONGLAGE/GLAGEONS
+AGHIINT + ? = 2 (cf) CHIGNAIT/TIFINAGH
+GHILNOU + ? = 2 (ae) HOULIGAN/HUGOLIEN
+AEEGHLN + ? = 2 (co) CHALENGE/HALOGENE
+GHNOTUU + ? = 2 (de) DOUGHNUT/HUGUENOT
+EGHILNU + ? = 2 (co) CHLINGUE/HUGOLIEN
+AAEEGHL + ? = 2 (dt) DEHALAGE/GALATHEE
+GHINOOS + ? = 2 (rt) HONGROIS/SHOOTING
+GEHILNR + ? = 2 (ae) NARGHILE/GHRELINE
+AEEGHON + ? = 2 (lx) HALOGENE/HEXAGONE
+EEEGHON + ? = 2 (tx) GOETHEEN/HEXOGENE
+EEGHOON + ? = 2 (mp) HOMOGENE/GEOPHONE
+GEEHILR + ? = 2 (an) HELIGARE/GHRELINE
+GEHILS + ? = 2 (dn) GHILDES/SHINGLE
+GHLOSU + ? = 2 (ai) GOULASH/SLOUGHI
+AGHILO + ? = 2 (dt) HIDALGO/GOLIATH
+AGHINO + ? = 2 (rs) HONGRAI/SONGHAI
+GHILOS + ? = 2 (bu) GLOBISH/SLOUGHI
+GHINOS + ? = 2 (an) SONGHAI/HONINGS
+EEGHIN + ? = 2 (oy) EGOHINE/HYGIENE
+EEGHNO + ? = 2 (ir) EGOHINE/HONGREE
+EEGHNR + ? = 2 (eo) HERGEEN/HONGREE
+AEGHILN + ? = 3 (cnr) ANGLICHE/LANGHIEN/NARGHILE
+AEGHILR + ? = 3 (ent) HELIGARE/NARGHILE/LITHARDE
+EEGHILN + ? = 3 (erw) HEGELIEN/GHRELINE/WHEELING
+EEGHINR + ? = 3 (cil) RECHIGNE/HEGIRIEN/GHRELINE
+EEGHNOS + ? = 3 (ipr) EGOHINES/PHOSGENE/HONGREES
+AEGHINN + ? = 3 (cdl) INCHANGE/GANDHIEN/LANGHIEN
+EGHINS + ? = 3 (clp) CHIGNES/SHINGLE/SPHINGE
+GHINORS + ? = 4 (abco) HONGRAIS/BIGHORNS/GRICHONS/HONGROIS
+AGHINS + ? = 4 (bcov) BASHING/CHIGNAS/SONGHAI/SHAVING
+EGILMOO + ? = 2 (by) BOGOMILE/MYOLOGIE
+AEGMOOS + ? = 2 (ei) AEGOSOME/OOGAMIES
+GLMNOOR + ? = 2 (ae) ROMAGNOL/MONERGOL
+EEGILMR + ? = 2 (lu) GREMILLE/LEGUMIER
+AAEGIMU + ? = 2 (rs) MAUGREAI/GAUMAISE
+GELMOSS + ? = 2 (ae) GLOSAMES/GLOSSEME
+AGIMOOS + ? = 3 (egs) OOGAMIES/MAGOGOIS/GOMASIOS
+AEGLMOT + ? = 3 (ieo) LIMOGEAT/MOLETAGE/LOGATOME
+EGIMORR + ? = 3 (ais) MARGEOIR/GRIMOIRE/GERMOIRS
+EGIMRTU + ? = 3 (ain) MURGEAIT/MITIGEUR/MUGIRENT
+AGIMOST + ? = 3 (enr) MEGOTAIS/MIGNOTAS/MARIGOTS
+EGIIMOS + ? = 3 (adn) ISOGAMIE/SIGMOIDE/OIGNIMES
+AEEGIMU + ? = 3 (jps) MEJUGEAI/EMPEGUAI/IMAGEUSE
+AGMNSRT + ? = 3 (aio) TANGRAMS/MIGRANTS/ANGSTROM
+AAEGLMU + ? = 3 (cls) MACULAGE/ALLUMAGE/GAULAMES
+EGIINMO + ? = 3 (svz) OIGNIMES/IGNIVOME/GOMINIEZ
+EEGMORT + ? = 3 (aeu) MEGOTERA/GEOMETRE/MEGOTEUR
+EGLMOOT + ? = 3 (ast) LOGATOME/GOLMOTES/GOLMOTTE
+AGMNRU + ? = 3 (eos) MANGEUR/ORGANUM/GRANUMS 
+AGMNORU + ? = 4 (dist) GOURMAND/GIRAUMON/ORGANUMS/MORGUANT
+AEEGMOR + ? = 4 (bfnt) OMBRAGEE/FROMAGEE/ARGEMONE/MEGOTERA
+EEEGMRU + ? = 4 (alnp) MAUGREEE/GRUMELEE/MERENGUE/EMPEGUER
+EEGIMSU + ? = 4 (afpr) IMAGEUSE/FUMIGEES/GUIMPEES/GUERIMES
+EGIPRSS + ? = 2 (ny) PRESSING/GYPSIERS
+AAAGNPS + ? = 2 (ei) APANAGES/PAGANISA
+EEEGOPT + ? = 2 (ar) PAGEOTEE/PROTEGEE
+AGINPST + ? = 2 (er) PIGANTES/TRIPANGS
+EEGNOOP + ? = 2 (hl) GEOPHONE/GENOPOLE
+GEINPU + ? = 2 (rt) PERUGIN/GUIPENT
+EEEGILP + ? = 3 (nos) EPINGLEE/GEOPELIE/ESPIEGLE
+EEGILOP + ? = 3 (ehu) GEOPELIE/GEOPHILE/EPILOGUE
+GINOPPS + ? = 3 (hrt) SHOPPING/GRIPPONS/TOPPINGS
+AEEGLPU + ? = 4 (acnr) ALPAGUEE/PUCELAGE/EPAGNUEL/PLEURAGE
+AGILNRV + ? = 2 (ei) GRAVELIN/VIRGINAL
+EGIOSUV + ? = 2 (cs) COUVIGES/VIGOUSSE
+
+EGOOUV + ? = 2 (lt) VOGOULE/VOUGEOT
+AGLNOV + ? = 2 (ae) GALVANO/LAVOGNE
+AGILTV + ? = 2 (io) VIGILAT/GLAVIOT
+AGINSSV + ? = 3 (ehy) VISNAGES/SHAVINGS/SAVIGNYS
+AEGRROV + ? = 3 (iou) REVIGORA/GROOVERA/OUVRAGER
+AAGINNV + ? = 3 (ist) INVAGINA/SAVAGNIN/NAVIGANT
+AAGIINV + ? = 3 (nru) INVAGINA/VINAIGRA/NAVIGUAI
+AGIILNV + ? = 3 (grt) GINGIVAL/VIRGINAL/VIGILANT
+EEEGINV + ? = 4 (anrt) EVEINAGE/INVENGEE/GENIEVRE/VIGNETEE
+EEGNORV + ? = 4 (cgnu) CONVERGE/VERGOGNE/VENGERON/GOUVERNE
+AHILMTU + ? = 2 (il) HUMILIAT/THALLIUM
+AEHMNTT + ? = 2 (ac) HETMANAT/MATCHENT
+EHIMNSS + ? = 2 (ao) SHAMISEN/OHNISMES
+AAEHMTT + ? = 2 (nr) HETMANAT/MAHRATTE
+AAHMNO + ? = 2 (ci) MACHAON/MAHONIA
+HILMTU + ? = 2 (iu) LITHIUM/THULIUM
+AEHMNR + ? = 2 (ou) MENORAH/ENRHUMA
+HMORTU + ? = 2 (ai) RHUMATO/THORIUM
+EEHMORT + ? = 3 (aem) ATHEROME/THEOREME/OHMMETRE
+EHIIMUT + ? = 3 (del) HUMIDITE/HUITIEME/HUMILITE
+AEHMNOR + ? = 3 (cis) ROMANCHE/HARMONIE/MENORAHS
+AEHLMNO + ? = 3 (cdt) CHAMELON/HOMELAND/METHANOL
+EHIIMSS + ? = 3 (ckm) CHIISMES/SIKHISME/SHIMMIES
+AAEEHMN + ? = 3 (bct) BAHAMEEN/AMANCHEE/ANATHEME
+AHMNORT + ? = 3 (aco) MARATHON/CHROMANT/HORMONAT
+ASTHMES + ? = 3 (nrt) SMASHENT/HAMSTERS/STATHMES
+AEEHLMR + ? = 3 (btu) MALHERBE/THERMALE/HUMERALE
+EHMORSU + ? = 3 (cmn) CHOMEURS/SURHOMME/HUMERONS
+HIMORU + ? = 3 (bdt) BOHRIUM/RHODIUM/THORIUM
+AMISHS + ? = 3 (aiu) SMASHAI/SASHIMI/HASSIUM
+AAEHMT + ? = 3 (irs) AMATHIE/MARATHE/HATAMES
+AAHIMNS + ? = 4 (copu) MACHINAS/MAHONIAS/PASHMINA/HUMANISA
+AAEHMNT + ? = 4 (elst) ANATHEME/METHANAL/HANTAMES/HETMANAT
+AEEHMOT + ? = 4 (mprs) HEMATOME/APOTHEME/ATHEROME/HEMATOSE
+AAHIMST + ? = 4 (cers) MATCHAIS/AMATHIES/MARATHIS/SMASHAIT
+EEHIPPT + ? = 2 (ay) EPITAPHE/EPIPHYTE
+EHINPRS + ? = 2 (ac) SERAPHIN/PINSCHER
+EEHINPR + ? = 2 (at) HEPARINE/NEPHRITE
+SPAHIS + ? = 2 (ar) PHASAIS/SAPHIRS
+AEHINPR + ? = 2 (es) HEPARINE/SERAPHIN
+EHLOOPT + ? = 2 (iy) PHOLIOTE/HOLOTYPE
+EHIPSST + ? = 3 (ior) PHTISIES/SOPHISTE/HIPSTERS
+EHINOPR + ? = 3 (clm) CHOPINER/ORPHELIN/MORPHINE
+AEHNOPR + ? = 3 (acn) ANAPHORE/CHAPERON/HARPONNE
+EEHNOPT + ? = 3 (dry) PENTHODE/TREPHONE/NEOPHYTE
+AEHIOPS + ? = 3 (nrs) APHONIES/HARPOISE/ISOPHASE
+EHOOPRS + ? = 3 (emn) OOSPHERE/MORPHOSE/ORPHEONS
+EEHLLOP + ? = 3 (ces) PELLOCHE/HELEPOLE/PHLEOLES
+EEEHIPS + ? = 3 (bcn) EPHEBIES/EPEICHES/EPHESIEN
+AEHILPR + ? = 3 (ace) RAPHIALE/ARCHIPEL/PARHELIE
+EEHLOP + ? = 3 (clm) PELOCHE/PHLEOLE/PHLOEME
+EHNOPR + ? = 3 (noy) NEPHRON/ORPHEON/HYPERON
+AAHNPR + ? = 3 (iot) PIRANHA/PHARAON/HARPANT
+EHILOPT + = 4 (cors) CHIPOTLE/PHOLIOTE/HELIOPRT/HOPLITES
+AAHNOPR + ? = 4 (egns) ANAPHORE/HARPAGON/HARPONNA/PHARAONS
+EEHIPTT + ? = 4 (acer) HEPATITE/CHIPETTE/EPITHETE/TEPHRITE
+EHIOPRT + ? = 4 (aclm) ATROPHIE/CHIPOTER/HELIPORT/TRIOMPHE
+EHOPSST + ? = 4 (airy) APHTOSES/SOPHISTE/STROPHES/TYPHOSES
+AAEHNRV + ? = 2 (ci) REVANCHA/ENVAHIRA
+AAEMMNN + ? = 2 (ei) MANAMEEN/AMMANIEN
+AIMMRSU + ? = 3 (aeu) SAMARIUM/EMMURAIS/MASURIUM
+AAEIMMT + ? = 3 (dfs) MEDIAMAT/MATEFAIM/AMATIMES
+EIMMRRT + ? = 3 (asu) MARMITER/TRIMMERS/TRIMMEUR
+EMMNOTU + ? = 3 (cmn) COMMUENT/MOMENTUM/MONUMENT
+EMMNOOR + ? = 3 (eis) MONOMERE/MONORIME/MORMONES
+MONOMES + ? = 3 (cdr) CONSOMME/EMMODONS/MORMONES
+MOUSMES + ? = 3 (ein) MOUSMEES/SOUMIMES/SUSNOMME
+NOMMAIT + ? = 3 (elr) AMMONITE/IMMOLANT/MARMITON
+EEMMOT + ? = 3 (npt) MEMENTO/POMMETE/EMMOTTE
+EELMMU + ? = 3 (agp) MAMELUE/GEMMULE/EMPLUME
+EELMMOR + ? = 4 (gipu) GROMMELE/MEMORIEL/POMMELER/REMMOULE
+EIMMRU + ? = 4 (afps) EMMURAI/FERMIUM/PREMIUM/MURIMES
+AMNOOPU + ? = 2 (el) EPOUMONA/POULAMON
+EIIMPOT + ? = 2 (gs) IMPETIGO/OPTIMISE
+LMNOOPU + ? = 2 (ai) POULAMON/POLONIUM
+AEEMOPU + ? = 2 (ly) AMPOULEE/PAUMOYEE
+EEMPOSU + ? = 2 (ip) EMPOSIEU/POMPEUSE
+ILMNOOP + ? = 2 (au) PALOMINO/POLONIUM
+IMNOPTU + ? = 2 (rs) IMPORTUN/IMPUTONS
+AEMNPRU + ? = 2 (st) SUPERMAN/EMPRUNTA
+IIIMPRT + ? = 2 (fn) PRIMITIF/MINITRIP
+ALLMPU + ? = 2 (in) PALLIUM/PULLMAN
+ALMNOOP + ? = 3 (inu) PALOMINO/MONOPLAN/POULAMON
+EILMPTU + ? = 3 (lsy) MULTIPLE/PLUMETIS/LUMITYPE
+ALMOOPT + ? = 3 (ceh) COMPLOTA/OMOPLATE/OPHTALMO
+IILMPSU + ? = 3 (afh) IMPULSAI/IMPULSIF/SILPHIUM
+EEIMNOP + ? = 3 (gpy) EMPOIGNE/POMPEIEN/EPONYMIE
+EMOPSTU + ? = 4 (chir) COMPUTES/POSTHUME/UTOPISME/PROMUTES
+AEMNOOP + ? = 4 (istu) OPIOMANE/OPSOMANE/POTOMANE/EPOUMONA
+IMOPSTU + ? = 4 (elmn) UTOPISME/PSILOTUM/OPTIMUMS/IMPUTONS
+EIIMNPU + ? = 4 (cjst) MUNICIPE/MINIJUPE/IMPUNIES/IMPUNITE
+EMMPRSU + ? = 4 (aiou) SPAMMEUR/PREMIUMS/PROMUMES/SUPREMUM
+EMOOPR + ? = 4 (glst) POGROME/POMEROL/PROSOME/PROTOME
+AAIMNUV + ? = 2 (de) VANADIUM/MANIVEAU
+AELMRUV + ? = 2 (io) VELARIUM/VERMOULA
+AEIMNRV + ? = 2 (lt) MINERVAL/VRAIMENT
+EEMORSV + ? = 2 (inu) REVOMIES/NEVROMES/MORVEUSE
+EEILMV + ? = 2 (or) VOLEMIE/VERMEIL
+EIMOORV + ? = 3 (fnu) OVIFORME/OMNIVORE/EMOUVOIR
+AEELMSV + ? = 3 (bei) EMBLAVES/ELEVAMES/ALEVISME
+AEIMSTV + ? = 3 (aer) ATAVISME/EVITAMES/VITRAMES
+EEIMNUV + ? = 3 (aex) MAUVEINE/NEUVIEME/VENIMEUX
+EEIMRTV + ? = 3 (eno) MIEVRETE/VIREMENT/REMOTIVE
+AEEMRTV + ? = 3 (brs) EMBREVAT/VARMETRE/METAVERS
+EEMORUV + ? = 4 (lpsz) VERMOULE/PROMEUVE/MORVEUSE/EMOUVREZ
+AEILMRV + ? = 4 (lnsu) VERMILLA/MINERVAL/LIVRAMES/VELARIUM
+EELOPPT + ? = 2 (is) POPLITEE/ESTOPPEL
+AEEIPPU + ? = 2 (rt) PAUPIERE/PIPEAUTE
+PEOPLES + ? = 2 (rt) PROLEPSE/ESTOPPEL
+ILLPPU + ? = 2 (eo) PUPILLE/PILPOUL
+AILOPP + ? = 2 (cs) CLOPPAI/PSILOPA
+ELOPPUU + ? = 3 (mox) POPULEUM/POUPOULE/POPULEUX
+EELNOPP + ? = 3 (eiy) PENELOPE/POPELINE/POLYPNEE
+AGINPP + ? = 3 (lrz) LAPPING/GRAPPIN/ZAPPING
+AEILNPP + ? = 4 (eors) ALEPPINE/PANOPLIE/PREALPIN/ALEPINS
+EILNOPP + ? = 4 (aeou) PANOPLIE/POPELINE/EPIPLOON/POUPELIN
+AEOOPPS + ? = 4 (crst) APOCOPES/OPPOSERA/PAPOOSES/APOPTOSE
+POPOTES + ? = 4 (ains) APOPTOSE/OPPOSITE/OPPOSENT/POSTPOSE
+EINOPP + ? = 4 (ensu) POPINEE/NIPPONE/PEPIONS/POUPINE
+ELOPRUV + ? = 2 (il) PLEUVOIR/PULLOVER
+AELOPTV + ? = 2 (ru) PREVOTAL/PLEUVOTA
+EIIOPSV + ? = 2 (nt) PIVOINES/POSITIVE
+EELPRUV + ? = 3 (abe) PREVALUE/BUPLEVRE/REPLEUVE
+AEEIPSV + ? = 4 (orst) PAVOISEE/PREAVISE/PASSIVEE/EPAVISTE
+AEINUVV + ? = 2 (al) VIVANEAU/UNIVALVE
+AEILUVV + ? = 2 (nr) UNIVALVE/VULVAIRE
+EEINRVV + ? = 2 (et) VERVEINE/REVIVENT
+EIIOTVV + ? = 3 (lmz) VOLITIVE/VOMITIVE/VIVOTIEZ
+BCDNORU + ? = 2 (ei) CUBERDON/RUBICOND
+ABCDELU + ? = 4 (aeor) CLABAUDE/EDUCABLE/DEBOUCLA/CLUBARDE
+ABCDEI + ? = 2 (ai) ABCEDAI/BIACIDE
+ABCEHNU + ? = 2 (or) EBAUCHON/BRANCHUE
+BCEHINR + ? = 3 (atu) BRANCHIE/CHIBRENT/CHERUBIN 
+BCHINOR + ? = 3 (ais) BRONCHAI/BRIOCHIN/CHIBRONS
+BCEHIOU + ? = 3 (coz) BICOUCHE/BOUCHOIE/BOUCHIEZ
+AAABCH + ? = 3 (lrt) CHABALA/RABACHA/BACHATA
+CUMBIAS + ? = 2 (mo) CAMBIUMS/CAMBOUIS
+CBIMORU + ? = 2 (is) CIBORIUM/MICROBUS
+BCEIILM + ? = 2 (es) IMBECILE/MISCIBLE
+BCLMOOO + ? = 3 (ens) COBOLOME/MONOBLOC/COLOMBOS
+BCLMNOO + ? = 3 (ios) COLOMBIN/MONOBLOC/COMBLONS
+AABCMU + ? = 3 (ems) MACABEU/MACUMBA/SAMBUCA
+ABECOPU + ? = 2 (lu) COUPABLE/BEAUCOUP
+BCPORS + ? = 2 (ei) PEBROCS/BICORPS
+ABCEEOV + ? = 2 (hl) BAVOCHEE/EVOCABLE
+ABCEILV + ? = 2 (il) VICIABLE/CLIVABLE
+AABCOV + ? = 2 (hm) BAVOCHA/COMBAVA
+BDFNORU + ? = 2 (ai) FUNBOARD/FURIBOND
+ABDGENR + ? = 2 (ai) BAGNARDE/BRIGANDE
+AABDDEG + ?  = 2 (ei) DEBADGEA/BAGDADIE
+ABDGIT + ? = 2 (an) DIBATAG/DINGBAT
+AABDGI + ? = 3 (det) BAGDADI/BADGEAI/DIBATAG
+ABDEGIT + ? = 4 (aeru) BADGEAIT/DEBITAGE/BRIDGEAT/BUDGETAI
+BDEGORU + ? = 4 (aein) BOURGADE/DEBOGUER/BORDIGUE/BURGONDE
+AABDLMN + ? = 2 (eu) DAMNABLE/LABDANUM
+AABDMSU + ? = 2 (en) DAUBAMES/UMBANDAS
+ABDLMO + ? = 2 (ir) BIMODAL/LOMBARD
+ABEFLMO + ? = 3 (iry) FLAMBOIE/FORMABLE/FLAMBOYE
+BGHINRS + ? = 2 (ou) BIGHORNS/BRUSHING
+BGIMNOS + ? = 2 (ab) GAMBISON/MOBBINGS
+BEEGMRS + ? = 4 (abiu) GERBAMES/BEMBERGS/REGIMBES/SUBMERGE
+ABEGRUV + ? = 2 (er) BREUVAGE/BURGRAVE
+BEHIMNO + ? = 2 (eo) BOHEMIEN/BONHOMIE
+BHMORSU + ? = 2 (it) BOHRIUMS/THROMBUS
+AABHLM + ? = 2 (ek) MAHALEB/MBALAKH
+BEEHIPS + ? = 2 (ae) BIPHASEE/EPHEBIES
+BEIMPRU + ? = 2 (es) IMPUBERE/SUBPRIME
+BEEMOPR + ? = 2 (ln) PROBLEME/PENOMBRE
+ACDFOR + ? = 2 (er) DEFORCA/FROCARD
+ACDFOU + ? = 2 (eh) FOUCADE/CHADOUF
+CDEEFRR + ? = 2 (io) FREDERIC/DEFORCER
+ACEDFIL + ? = 3 (cer) FLACCIDE/DEFICELA/FLICARDE
+ACDEFIR + ? = 4 (ahlo) FACADIER/DEFRICHA/FLICARDE/DEFORCAI
+CDEEGIR + ? = 2 (io) REGICIDE/COREDIGE
+CDEGIIR + ? = 2 (eo) CODIRIGE/REGICIDE
+CDEGIIO + ? = 2 (dr) DIGICODE/CODIRIGE
+ACDEHLN + ? = 2 (ae) CHALANDE/CHALDEEN
+CDEHMSU + ? = 2 (eo) DECHUMES/CHOMEDUS
+ACDEHIM + ? = 2 (ns) DIMANCHE/SCHIEDAM
+ACCDHRU + ? = 2 (ei) CRICHADE/ARCHIDUC
+ACDHIRU + ? = 2 (ce) ARCHIDUC/CHIADEUR
+CDEHNOT + ? = 2 (ou) CHETODON/DOUCHENT
+ACDHNU + ? = 2 (ei) ENCHAUD/CHAUDIN
+CDEEHIL + ? = 3 (fio) DEFLECHI/HELICIDE/CHELOIDE
+ACDHINR + ? = 3 (aep) CHAINARD/CHINDERA/PINCHARD
+ACDHOT + ? = 3 (eru) CATHODE/TCHADOR/DOUCHAT
+ACDHIST + ? = 4 (aenr) SCHADAIT/SCHEIDAT/SCHINDAT/TCHADRIS
+ACDEHRR + ? = 4 (aeio) DRACHERA/DECHERRA/RICHARDE/HARDCORE
+AACDHMR + ? = 4 (benu) CHAMBARD/DEMARCHA/MARCHAND/CHAUMARD
+CDEIMRS + ? = 2 (au) SMICARDE/DURCIMES
+CDEIMOT + ? = 2 (im) MODICITE/DECOMMIT
+AACDILM + ? = 2 (eu) DECLAMAI/CALADIUM
+CDEIMRU + ? = 2 (ls) DULCIMER/DURCIMES
+ACDIMOT + ? = 2 (nr) COMTADIN/COMITARD
+CDEMOR + ? = 2 (eu) CEDEROM/DECORUM
+CDEIIOM + ? = 3 (hlt) HOMICIDE/DOMICILE/MODICITE
+CDEENPU + ? = 2 (ar) PEUCEDAN/PRUDENCE
+CDEIILP + ? = 2 (as) LAPICIDE/DISCIPLE
+PICIDES + ? = 2 (lr) DISCIPLE/PICRIDES
+CEDIOPS + ? = 2 (ah) DIASCOPE/PHOCIDES
+AACDINP + ? = 3 (hrs)	HANDICAP/PICARDAN/CISPADAN
+ACDOPRS + ? = 4 (ehir) PROCEDAS/POCHARDS/PICADORS/CORPSARD
+CDEIITV + ? = 2 (nr) VINDICTE/DECRIVIT
+CDEITUV + ? = 2 (ao) DECUVAIT/OVIDUCTE
+FICHTRE + ? = 2 (ao) CHERIFAT/FORTICHE
+ACFIMNR + ? = 2 (ou) CONFIRMA/FRANCIUM
+ACFIRMS + ? = 2 (eo) FARCIMES/FORMICAS
+ACFLMNO + ? = 2 (ae) MALFACON/FLAMENCO
+AACFLMO + ? = 2 (nu) MALFACON/CAMOUFLA
+ACEEFLM + ? = 2 (io) MALEFICE/FECALOME
+ACEEIFM + ? = 3 (lns) MALEFICE/MEFIANCE/CAFEISME
+CEEFPRT + ? = 2 (io) RECEPTIF/PERFECTO
+ACFIPRT + ? = 2 (eo) PRECATIF/PROACTIF
+ACEGLMU + ? = 3 (aio)	MACULAGE/MUCILAGE/GLAUCOME
+CGHIOUN + ? = 2 (ae) CHOUGNAI/INGOUCHE
+CEEGHLO + ? = 2 (am) GALOCHEE/GLECHOME
+ACEGHNO + ? = 3 (cmr) CONCHAGE/MANCHEGO/CHAROGNE
+CGEHNOR + ? = 3 (asu) CHAROGNE/GROSCHEN/CHOUGNER
+ACEGHIL + ? = 3 (acn) CHIALAGE/CLICHAGE/ANGLICHE
+ACGEHLU + ? = 3 (aos) CHAULAGE/GOULACHE/SCHLAGUE
+ACGHNIO + ? = 4 (cpsu) COACHING/PIGNOCHA/GACHIONS/CHOUGNAI
+ACHLMOS + ? = 2 (ae) CHLOASMA/LOCHAMES
+CEEHLMO + ? = 2 (gi) GLECHOME/CHOLEMIE
+CHIMORU + ? = 2 (eo) CHIOURME/MOUCHOIR
+CHIMOR + ? = 2 (am) CHROMAI/MICROHM
+CHMOSTU + ? = 3 (aez) ATCHOUMS/MOUCHETS/SCHMOUTZ
+AAACHMR + ? = 3 (nrw) RAMANCHA/CHAMARRA/CHAWARMA
+Michèle + ? = 3 (aot) CHALEMIE/CHOLEMIE/MELCHITE
+ACEHILM + ? = 4 (efis) CHALEMIE/FLAMICHE/ALCHIMIE/LICHAMES
+ACEHMTT + ? = 4 (enou) MACHETTE/MATCHENT/CHAMOTTE/HUMECTAT
+ACHLOPT + ? = 2 (at) POTLATCH/TCHAPALO
+CHNOPTU + ? = 2 (ai) PACHTOUN/PITCHOUN
+ACHNOPU + ? = 2 (ct) CAPUCHON/PACHTOUN
+CHOPSS + ? = 2 (uy) SCHUPOS/PSYCHOS
+CEEEHPT + ? = 3 (iot) PETECHIE/POCHETEE/PECHETTE
+ACHEIPP + ? = 3 (aow) ECHAPPAI/ECHOPPAI/CHIPPEWA
+AACHLOP + ? = 3 (stu) LAPACHOS/TCHAPALO/CHALOUPA
+CEEHIPT + ? = 4 (eot) PETECHIE/CHIPOTEE/PITCHEES/CHIPETTE
+CHOPSU + ? = 3 (ais) COPAHUS/PICHOUS/SCHUPOS
+CEHISTV + ? = 2 	(ey) CHETIVES/VICHYSTE
+CEEHNRV + ? = 2 (ay) REVANCHE/CHEVERNY
+CCEHISV + ? = 3 (aeo) VISCACHE/CEVICHES/COCHEVIS
+ACEHORV + ? = 4 (bgtu) BAVOCHER/GAVROCHE/CHEVROTA/CHOURAVE
+CELMPSU + ? = 2 (ou) COMPULSE/SPECULUM
+CMOPRSU + ? = 2 (ah) COMPARUS/SCHPROUM
+ACIMPRT + ? = 3 (aeo) CRAMPAIT/IMPACTER/COMPATIR
+ACIMNP + ? = 3 (glu) CAMPING/CLAMPIN/PANICUM
+AACELMV + ? = 2 (es) MALVACEE/CLAVAMES
+DEFGINO + ? = 2 (or) FONGOIDE/GERONDIF
+ADFIIMT + ? = 2 (eo) FATIMIDE/MODIFIAT
+DFIIMOR + ? = 2 (et) MODIFIER/DORMITIF
+DEFNOPR + ? = 2 (ao) PARFONDE/PROFONDE
+DFPNORU + ? = 2 (ae) PARFONDU/POURFEND
+ADEGHOR + ? = 2 (iu) RHODIAGE/HOURDAGE
+ADEGLOP + ? = 2 (ae) GALOPADE/LAGOPEDE
+ADEEGOP + ? = 3 (lmt) LAGOPEDE/MEGAPODE/DEPOTAGE
+DEEGIPR + ? = 3 (epu) PEDIGREE/DEGRIPPE/DEGUERPI
+ADGINP + ? = 3 (ade) PIGNADA/PADDING/PIGNADE
+ADEHLMO + ? = 2 (an) ALMOHADE/HOMELAND
+ADHIMSS + ? = 2 (ir) HASSIDIM/MIDRASHS
+ADEHILP + ? = 2 (ao) HAPALIDE/HAPLOIDE
+DEHILOP + ? = 2 (an) HAPLOIDE/DIPHENOL
+DEHILNP + ? = 2 (eo) DELPHIEN/DIPHENOL
+AADEIMP + ? = 2 (cz) DECAMPAI/DIAZEPAM
+DEELMPS + ? = 2 (iu) DESEMPLI/DEPLUMES
+DEEIMRV + ? = 2 (cs) DECEMVIR/VERDIMES
+DEIMNTV + ? = 2 (ei) MEVENDIT/VIDIMENT
+ADEIIMV + ? = 3 (prs) IMPAVIDE/VIDIMERA/VIDAMIES
+AEFGIMN + ? = 2 (iu) MAGNIFIE/FUMAGINE
+EFIMORV + ? = 2 (ou) OVIFORME/FUMIVORE
+AGILMPS + ? = 2 (en) GLAPIMES/SAMPLING
+AGIMNPS + ? = 4 (celm) CAMPINS/PIGNAMES/SAMPLING/SPAMMING
+HIMOPSS + ? = 2 (ei) SOPHISME/PHIMOSIS
+EEHIMPT + ? = 3 (aem) EMPATHIE/EPITHEME/MEMPHITE
+HIMNOPR + ? = 3 (ego) MORPHINE/MORPHING/PHORMION
+EHIMOPR + ? = 4 (dnst) DIMORPHE/MORPHINE/ORPHISME/TRIOMPHE
+HIIMPSS + ? = 2 (do) MIDSHIPS/PHIMOSIS
+EEIMPRV + ? = 2 (su) PREVIMES/IMPREVUE
+EMOPRUV + ? = 2 (ei) PROMEUVE/IMPROUVE
+ACGHOPS + ? = 2 (ae) GASPACHOS/POCHAGES
+DEHIMOP + ? = 2 (gr) GOMPHIDE/DIMORPHE
+BCDEEHR + ? = 3 (aou) DEBACHER/DEBROCHE/DEBUCHER
+ACDEEGP + ? = 3 (aei) DECAPAGE/DEPECAGE/DEPICAGE
+CGHILNU + ? = 3 (aem) CHLINGUA/CHLINGUE/MULCHING
+ADHOPRS + ? = 3 (ceo) POCHARDS/RHAPSODE/HOSPODAR
+ACEHMP + ? = 4 (eoru) EMPECHA/EMPOCHA/CAMPHRE/MAPUCHE
+ACEGHMO + ? = 4 (nrsu) MANCHEGO/CHROMAGE/CHOMAGES/MOUCHAGE
+
+        `; 
+        /************************************************************************
+         * FIN DE LA ZONE DE SAISIE
+         ************************************************************************/
+
+        let list = listRaw.trim().split('\n').filter(line => line.trim() !== "");
+        let indices = [];
+        let id = 0;
+        let clic = 0;
+        let started = false;
+
+        const box = document.getElementById('zone-jeu');
+
+        function shuffle() {
+            indices = Array.from(list.keys());
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+            id = 0;
+        }
+
+        function jouer() {
+            if (id >= indices.length) { shuffle(); }
+
+            const realIndex = indices[id];
+            const brute = list[realIndex].trim();
+            const split = brute.split('=');
+            
+            const gauchePart = split[0].includes(']') ? split[0].split(']')[1] : split[0];
+            const tirageSeul = gauchePart.split('+')[0].trim();
+            
+            const droitePart = split[1].trim();
+            const nbSolutionsStr = droitePart.split('(')[0].trim();
+            const nbSolutions = parseInt(nbSolutionsStr);
+            
+            const matchParentheses = droitePart.match(/\((.*?)\)/);
+            const lettreAppui = matchParentheses ? matchParentheses[1] : "";
+            const solutionsRaw = droitePart.split(')')[1].trim();
+
+            box.className = (id % 2 === 0) ? 'jaune' : 'pistache';
+
+            if (clic === 0) {
+                box.style.fontSize = "4.5rem";
+                box.innerHTML = tirageSeul + " + ? = " + nbSolutionsStr;
+            } 
+            else if (clic === 1) {
+                box.innerHTML = tirageSeul + ' + <span class="rouge">(' + lettreAppui + ')</span> = ' + nbSolutionsStr;
+            } 
+            else {
+                // GESTION DES SOLUTIONS (MAX 4)
+                if (nbSolutions === 4) {
+                    box.style.fontSize = "3.2rem"; // Plus petit pour faire tenir 2 lignes
+                    // On remplace le 2ème slash par un saut de ligne pour forcer 2x2
+                    const mots = solutionsRaw.split('/');
+                    box.innerHTML = mots[0] + "/" + mots[1] + "<br>" + mots[2] + "/" + mots[3];
+                } else {
+                    box.style.fontSize = "4.2rem"; // Taille normale pour 2 ou 3 solutions
+                    box.innerHTML = solutionsRaw;
+                }
+            }
+        }
+
+        box.addEventListener('click', () => {
+            if (!started) {
+                if (list.length === 0) return;
+                shuffle();
+                started = true;
+                jouer();
+                return;
+            }
+            clic++;
+            if (clic > 2) {
+                clic = 0;
+                id++;
+                jouer();
+            } else {
+                jouer();
+            }
+        });
+    </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
